@@ -140,7 +140,6 @@ class Login extends Component {
                                     block
                                     bsSize="large"
                                     disabled={!this.validateForm()}
-                                    type="submit"
                                     onClick={this.handleSubmit}
                                 >
                                     Ingresar

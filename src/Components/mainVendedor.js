@@ -1,5 +1,6 @@
 import {Component} from "react";
 import React from "react";
+import Login from "./login";
 import {Form,
     Row,
     Col,
@@ -8,6 +9,7 @@ import {Form,
     Modal,ModalHeader,ModalBody, ModalFooter,
     Input, FormFeedback, FormGroup
 } from 'reactstrap';
+
 const customStyles = {
     content: {
         top: "50%",
@@ -27,12 +29,16 @@ class Mainvendedor extends Component {
             montoActual: "500.00",
 
             showModalPrestarOption: false,
-            showModalRecogerOption: false
+            showModalRecogerOption: false,
+
+            redirectLogin:false
         };
     }
 
     Logout = () => {
-
+        this.setState({
+            redirectLogin: true,
+        });
     };
     openModalPrestar = () => {
         this.setState({
@@ -54,12 +60,17 @@ class Mainvendedor extends Component {
     };
 
     render() {
-        const { montoActual } = this.state;
+        const { montoActual, redirectLogin } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
             marginTop: "80px"
         };
+        if (redirectLogin) {
+            return (
+                <Login  />
+            );
+        }
         return (
             <div className="container-fluid">
                 <br />
