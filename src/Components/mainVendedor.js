@@ -264,7 +264,7 @@ class Mainvendedor extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button
-                            onclick= {this.closeModal}
+                            onClick= {this.closeModal}
                             color="danger"
                         >
                             Cancelar
