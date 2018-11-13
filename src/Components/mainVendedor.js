@@ -1,13 +1,15 @@
 import {Component} from "react";
 import React from "react";
 import Login from "./login";
-import {Form,
+import Prestamo from "./Prestamo";
+import NuevoUsuario from "./NuevoUsuario";
+import {
     Row,
     Col,
     Button,
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Modal,ModalHeader,ModalBody, ModalFooter,
-    Input, FormFeedback, FormGroup
+    Input, FormFeedback
 } from 'reactstrap';
 
 const customStyles = {
@@ -26,17 +28,24 @@ class Mainvendedor extends Component {
         super(props);
 
         this.state = {
-            apellidoPaternoNuevo:"",
-            apellidoMaternoNuevo:"",
+            apellidoPaternoBuscado:"",
+            apellidoMaternoBuscado:"",
 
+            dniPasaporteBuscar: "",
             selectUsuarioPrestar:"Seleccione tipo de Usuario",
 
             montoActual: "500.00",
 
             showModalPrestarOption: false,
             showModalRecogerOption: false,
+            validate: {
+                dniPasaporteBuscar: null,
+            },
 
             redirectLogin:false,
+            redirectNuevoUsuario:false,
+            redirectPrestamo:false,
+            usuarioEncontrado:false,
 
             visibleNuevo:"hidden"
         };
@@ -52,6 +61,37 @@ class Mainvendedor extends Component {
             redirectLogin: true,
         });
     };
+
+    buscarDNIPasaporte = () => {
+        const { dniPasaporteBuscar, validate } = this.state;
+
+        if(dniPasaporteBuscar === "123"){
+            validate.dniPasaporteBuscar = "has-success";
+            this.setState({
+                usuarioEncontrado: true,
+                validate:validate
+            });
+        }else{
+            validate.dniPasaporteBuscar = "has-danger";
+            this.setState({
+                usuarioEncontrado: false,
+                validate:validate
+            });
+        }
+    };
+
+    prestamo = () => {
+        this.setState({
+            redirectPrestamo: true,
+        });
+    };
+
+    nuevoCliente = () => {
+        this.setState({
+            redirectNuevoUsuario: true,
+        });
+    };
+
     openModalPrestar = () => {
         this.setState({
             showModalPrestarOption: true,
@@ -72,7 +112,7 @@ class Mainvendedor extends Component {
     };
 
     render() {
-        const { montoActual, redirectLogin, apellidoPaternoNuevo, apellidoMaternoNuevo } = this.state;
+        const { montoActual, redirectLogin, redirectNuevoUsuario, redirectPrestamo, dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado, validate } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -81,6 +121,16 @@ class Mainvendedor extends Component {
         if (redirectLogin) {
             return (
                 <Login  />
+            );
+        }
+        if(redirectNuevoUsuario){
+            return (
+                <NuevoUsuario  />
+            );
+        }
+        if(redirectPrestamo){
+            return (
+                <Prestamo  />
             );
         }
         return (
@@ -135,34 +185,75 @@ class Mainvendedor extends Component {
                         </Row>
                     </div>
                 </div>
-                <Modal  isOpen={this.state.showModalPrestarOption} style={customStyles} centered >
+                <Modal  isOpen={this.state.showModalPrestarOption} style={customStyles} centered size = "lg" >
                     <ModalHeader toggle={this.closeModal}>
                         Cliente a prestar
                     </ModalHeader>
                     <ModalBody>
-                        <Input type="select" name="selectUsuarioPrestar" id="SelectUser" onChange={this.handleChange}>
-                            <option>Seleccione tipo de Usuario</option>
-                            <option>Usuario Existente</option>
-                            <option>Nuevo usuario</option>
-                        </Input>
-                        <br/>
-                        <div style={(this.state.selectUsuarioPrestar==="Nuevo usuario") ? null :{visibility: [this.state.visibleNuevo]}}>
-                            <span>Apellido Paterno</span>
-                            <Input
-                                name="apellidoPaternoNuevo"
-                                id="apellidoPaternoNuevoInput"
-                                placeholder="Apellido Paterno"
-                                value={apellidoPaternoNuevo}
-                                onChange={this.handleChange}
-                            />
-                            <span>Apellido Materno</span>
-                            <Input
-                                name="apellidoMaternoNuevo"
-                                id="apellidoMaternoNuevoInput"
-                                placeholder="Apellido Materno"
-                                value={apellidoMaternoNuevo}
-                                onChange={this.handleChange}
-                            />
+                        <div>
+                            <Row>
+                                <Col md={7}>
+                                    <span>Indicar DNI o Préstamo</span>
+                                    <Input
+                                        name="dniPasaporteBuscar"
+                                        id="dniPasaporteBuscarInput"
+                                        placeholder="DNI o Pasaporte"
+                                        value={dniPasaporteBuscar}
+                                        onChange={this.handleChange}
+                                        invalid={validate.dniPasaporteBuscar === "has-danger"}
+                                        valid={validate.username === "has-success"}
+                                    />
+                                    <FormFeedback invalid>Cliente no encontrado</FormFeedback>
+                                </Col>
+                                <Col md={2}>
+                                    <br />
+                                    <Button
+                                        onClick= {this.buscarDNIPasaporte}
+                                        >
+                                        Buscar
+                                    </Button>
+                                </Col>
+                                <Col md={3}>
+                                    <br />
+                                    <Button
+                                        onclick= {this.nuevoCliente}
+                                        >
+                                        Nuevo Cliente
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
+                        <div style={(this.state.usuarioEncontrado===true) ? null :{visibility: [this.state.visibleNuevo]}}>
+                            <br />
+                            <Row>
+                                <Col md={6}>
+                                    <span>Apellido Paterno</span>
+                                    <Input
+                                            name="apellidoPaternoBuscado"
+                                            id="apellidoPaternoBuscadoInput"
+                                            value={apellidoPaternoBuscado}
+                                            readOnly
+                                    />
+                                </Col>
+                                <Col md={6}>
+                                    <span>Apellido Materno</span>
+                                    <Input
+                                            name="apellidoMaternoBuscado"
+                                            id="apellidoMaternoBuscadoInput"
+                                            value={apellidoMaternoBuscado}
+                                            readOnly
+                                    />
+                                </Col>
+                            </Row>
+                            <br />
+                            <div className = "text-center">
+                                <Button
+                                    bsSize="large"
+                                    onclick= {this.prestamo}
+                                    >
+                                    Prestar
+                                </Button>
+                            </div>
                         </div>
                         <br/><br/>
                     </ModalBody>
