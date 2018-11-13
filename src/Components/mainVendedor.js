@@ -26,14 +26,26 @@ class Mainvendedor extends Component {
         super(props);
 
         this.state = {
+            apellidoPaternoNuevo:"",
+            apellidoMaternoNuevo:"",
+
+            selectUsuarioPrestar:"Seleccione tipo de Usuario",
+
             montoActual: "500.00",
 
             showModalPrestarOption: false,
             showModalRecogerOption: false,
 
-            redirectLogin:false
+            redirectLogin:false,
+
+            visibleNuevo:"hidden"
         };
     }
+    handleChange = event => {
+        let change = {};
+        change[event.target.name] = event.target.value;
+        this.setState(change)
+    };
 
     Logout = () => {
         this.setState({
@@ -60,7 +72,7 @@ class Mainvendedor extends Component {
     };
 
     render() {
-        const { montoActual, redirectLogin } = this.state;
+        const { montoActual, redirectLogin, apellidoPaternoNuevo, apellidoMaternoNuevo } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -123,12 +135,36 @@ class Mainvendedor extends Component {
                         </Row>
                     </div>
                 </div>
-                <Modal  isOpen={this.state.showModalPrestarOption} style={customStyles} centered    >
+                <Modal  isOpen={this.state.showModalPrestarOption} style={customStyles} centered >
                     <ModalHeader toggle={this.closeModal}>
                         Cliente a prestar
                     </ModalHeader>
                     <ModalBody>
-
+                        <Input type="select" name="selectUsuarioPrestar" id="SelectUser" onChange={this.handleChange}>
+                            <option>Seleccione tipo de Usuario</option>
+                            <option>Usuario Existente</option>
+                            <option>Nuevo usuario</option>
+                        </Input>
+                        <br/>
+                        <div style={(this.state.selectUsuarioPrestar==="Nuevo usuario") ? null :{visibility: [this.state.visibleNuevo]}}>
+                            <span>Apellido Paterno</span>
+                            <Input
+                                name="apellidoPaternoNuevo"
+                                id="apellidoPaternoNuevoInput"
+                                placeholder="Apellido Paterno"
+                                value={apellidoPaternoNuevo}
+                                onChange={this.handleChange}
+                            />
+                            <span>Apellido Materno</span>
+                            <Input
+                                name="apellidoMaternoNuevo"
+                                id="apellidoMaternoNuevoInput"
+                                placeholder="Apellido Materno"
+                                value={apellidoMaternoNuevo}
+                                onChange={this.handleChange}
+                            />
+                        </div>
+                        <br/><br/>
                     </ModalBody>
                     <ModalFooter>
 
