@@ -4,7 +4,7 @@ class Prestamo extends Component{
         return (
             <div>
                 
-                </div>
+            </div>
         )
     }
 }

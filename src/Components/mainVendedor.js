@@ -192,26 +192,30 @@ class Mainvendedor extends Component {
                     <ModalBody>
                         <div>
                             <Row>
-                                <Col md={7}>
-                                    <span>Indicar DNI o Préstamo</span>
-                                    <Input
-                                        name="dniPasaporteBuscar"
-                                        id="dniPasaporteBuscarInput"
-                                        placeholder="DNI o Pasaporte"
-                                        value={dniPasaporteBuscar}
-                                        onChange={this.handleChange}
-                                        invalid={validate.dniPasaporteBuscar === "has-danger"}
-                                        valid={validate.username === "has-success"}
-                                    />
-                                    <FormFeedback invalid>Cliente no encontrado</FormFeedback>
-                                </Col>
-                                <Col md={2}>
-                                    <br />
-                                    <Button
-                                        onClick= {this.buscarDNIPasaporte}
-                                        >
-                                        Buscar
-                                    </Button>
+                                <Col md={9}>
+                                    <Row>
+                                        <Col md={9}>
+                                            <span>Indicar DNI o Préstamo</span>
+                                            <Input
+                                                name="dniPasaporteBuscar"
+                                                id="dniPasaporteBuscarInput"
+                                                placeholder="DNI o Pasaporte"
+                                                value={dniPasaporteBuscar}
+                                                onChange={this.handleChange}
+                                                invalid={validate.dniPasaporteBuscar === "has-danger"}
+                                                valid={validate.username === "has-success"}
+                                            />
+                                            <FormFeedback invalid>Cliente no encontrado</FormFeedback>
+                                        </Col>
+                                        <Col md={3}>
+                                            <br />
+                                            <Button
+                                                onClick= {this.buscarDNIPasaporte}
+                                            >
+                                                Buscar
+                                            </Button>
+                                        </Col>
+                                    </Row>
                                 </Col>
                                 <Col md={3}>
                                     <br />
@@ -250,15 +254,22 @@ class Mainvendedor extends Component {
                                 <Button
                                     bsSize="large"
                                     onclick= {this.prestamo}
+                                    color="primary"
                                     >
                                     Prestar
                                 </Button>
                             </div>
                         </div>
-                        <br/><br/>
+                        <br/>
                     </ModalBody>
                     <ModalFooter>
-
+                        <Button
+                            bsSize="large"
+                            onclick= {this.closeModal}
+                            color="danger"
+                        >
+                            Cancelar
+                        </Button>
                     </ModalFooter>
                 </Modal>
 
