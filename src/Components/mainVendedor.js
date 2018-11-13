@@ -82,19 +82,19 @@ class Mainvendedor extends Component {
 
     prestamo = () => {
         this.setState({
-            redirectPrestamo: true,
+            redirectPrestamo: true
         });
     };
 
     nuevoCliente = () => {
         this.setState({
-            redirectNuevoUsuario: true,
+            redirectNuevoUsuario: true
         });
     };
 
     openModalPrestar = () => {
         this.setState({
-            showModalPrestarOption: true,
+            showModalPrestarOption: true
         });
     };
 
@@ -125,12 +125,12 @@ class Mainvendedor extends Component {
         }
         if(redirectNuevoUsuario){
             return (
-                <NuevoUsuario  />
+                <NuevoUsuario   username={this.props.username} />
             );
         }
         if(redirectPrestamo){
             return (
-                <Prestamo  />
+                <Prestamo  username={this.props.username} saldo = {this.state.montoActual}/>
             );
         }
         return (
@@ -220,7 +220,7 @@ class Mainvendedor extends Component {
                                 <Col md={3}>
                                     <br />
                                     <Button
-                                        onclick= {this.nuevoCliente}
+                                        onClick= {this.nuevoCliente}
                                         >
                                         Nuevo Cliente
                                     </Button>
@@ -252,8 +252,8 @@ class Mainvendedor extends Component {
                             <br />
                             <div className = "text-center">
                                 <Button
-                                    bsSize="large"
-                                    onclick= {this.prestamo}
+                                    size="lg"
+                                    onClick= {this.prestamo}
                                     color="primary"
                                     >
                                     Prestar
@@ -264,7 +264,6 @@ class Mainvendedor extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button
-                            bsSize="large"
                             onclick= {this.closeModal}
                             color="danger"
                         >
