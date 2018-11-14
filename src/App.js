@@ -13,7 +13,7 @@ class App extends Component {
             bottom:'0',
             left:'0',
             right:'0',
-            position: 'absolute',
+            position: '100%',
             background : 'linear-gradient(to bottom right, red, yellow)'
         };
     return (

@@ -55,43 +55,64 @@ class NuevoUsuario extends Component {
         });
     };
 
+    checkboxHandler = () => {
+
+    };
+
     registrarCliente = ()=>{
+        const contVal = this.validar();
+        if(contVal === 0){
+            alert("Nuevo cliente FAKE");
+        }
+    };
+
+    validar = () => {
         const {validate, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono, direccionDomicilio, telefonoReferencia, direccionTrabajo } = this.state;
+        let contVal = 0;
         if(apellidoPaterno==="" || apellidoPaterno === null){
             validate.apellidoPaterno = "has-danger";
+            contVal++;
         }else
             validate.apellidoPaterno = "has-success";
         if(apellidoMaterno==="" || apellidoMaterno === null){
             validate.apellidoMaterno = "has-danger";
+            contVal++;
         }else
             validate.apellidoMaterno = "has-success";
         if(nombres==="" || nombres === null){
             validate.nombres = "has-danger";
+            contVal++;
         }else
             validate.nombres = "has-success";
         if(dniPasaporte==="" || dniPasaporte === null){
             validate.dniPasaporte = "has-danger";
+            contVal++;
         }else
             validate.dniPasaporte = "has-success";
         if(telefono==="" || telefono === null){
             validate.telefono = "has-danger";
+            contVal++;
         }else
             validate.telefono = "has-success";
         if(direccionDomicilio==="" || direccionDomicilio === null){
             validate.direccionDomicilio = "has-danger";
+            contVal++;
         }else
             validate.direccionDomicilio = "has-success";
         if(telefonoReferencia==="" || telefonoReferencia === null){
             validate.telefonoReferencia = "has-danger";
+            contVal++;
         }else
             validate.telefonoReferencia = "has-success";
         if(direccionTrabajo==="" || direccionTrabajo === null){
             validate.direccionTrabajo = "has-danger";
+            contVal++;
         }else
             validate.direccionTrabajo = "has-success";
         this.setState({
             validate:validate
         });
+        return contVal++;
     };
 
     render() {
@@ -193,7 +214,13 @@ class NuevoUsuario extends Component {
                                                     <Col md={6}>
                                                         <FormGroup check>
                                                             <Label check>
-                                                                <Input type="radio" value="option1" name="checkRadio" checked={true}/>{' '}
+                                                                <Input
+                                                                    type="radio"
+                                                                    value="option1"
+                                                                    name="checkRadio"
+                                                                    checked={true}
+                                                                    onChange={ this.checkboxHandler }
+                                                                />{' '}
                                                                 DNI
                                                             </Label>
                                                         </FormGroup>
@@ -308,20 +335,23 @@ class NuevoUsuario extends Component {
                                     Registrar
                                 </Button>
                                 < br/>
+                                <Button
+                                    block
+                                    bsSize="large"
+                                    bsStyle="danger"
+                                    onClick={this.regresarMenu}
+                                >
+                                    Regresar
+                                </Button>
                             </Col>
                             <Col md={3}>
                             </Col>
                         </Row>
-                        <Button
-                            block
-                            bsSize="large"
-                            onClick={this.regresarMenu}
-                        >
-                            Regresar
-                        </Button>
+
                         < br/>
                     </div>
                 </div>
+                < br/>
             </div>
         )
     }

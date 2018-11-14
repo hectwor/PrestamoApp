@@ -7,7 +7,7 @@ import {
 import { Button } from "react-bootstrap";
 import Login from "./login";
 import MainVendedor from "./mainVendedor";
-class Prestamo extends Component{
+class Recojo extends Component{
     constructor(props) {
         super(props);
 
@@ -15,13 +15,14 @@ class Prestamo extends Component{
             redirectLogin:false,
             redirectMain:false,
 
-            montoPorPrestar: 0,
-            montoACobrar: 0,
+            montoPorRecoger: 0,
+            saldoFaltante: 0,
+            montoPrestado: 0,
 
             montoActual: [this.props.saldo],
 
             validate:{
-                montoPorPrestar:null
+                montoPorRecoger:null
             },
 
             showModalConfirmation:false
@@ -45,16 +46,16 @@ class Prestamo extends Component{
         this.setState(change)
     };
 
-    prestarDinero = () => {
-        const { montoPorPrestar, montoActual, validate } = this.state;
-        if(parseFloat(montoPorPrestar) > parseFloat(montoActual)){
-            validate.montoPorPrestar = "has-danger";
+    recogerDinero = () => {
+        const { montoPorRecoger, montoActual, validate } = this.state;
+        if(parseFloat(montoPorRecoger) > parseFloat(montoActual)){
+            validate.montoPorRecoger = "has-danger";
             this.setState({validate});
         }else{
-            if(montoPorPrestar === "" ||  parseFloat(montoPorPrestar) === 0){
+            if(montoPorRecoger === "" ||  parseFloat(montoPorRecoger) === 0){
                 alert("Indicar monto");
             }else{
-                validate.montoPorPrestar = "has-success";
+                validate.montoPorRecoger = "has-success";
                 this.setState({
                     validate:validate,
                     showModalConfirmation:true
@@ -64,7 +65,7 @@ class Prestamo extends Component{
     };
 
     render() {
-        const { redirectLogin, redirectMain, montoActual, montoPorPrestar, validate, montoACobrar } = this.state;
+        const { redirectLogin, redirectMain, montoActual, montoPorRecoger, validate, saldoFaltante, montoPrestado } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -94,7 +95,7 @@ class Prestamo extends Component{
                 <div className="container">
                     <div className="container text-center" style={panelVendedor}>
                         <h1 className="display-6">Saldo : S/ {montoActual}</h1>
-                        <h1 className="display-4">Cliente a prestar</h1>
+                        <h1 className="display-4">Cliente para recoger</h1>
                         <Row>
                             <Col md={4}>
                             </Col>
@@ -126,6 +127,30 @@ class Prestamo extends Component{
                                 <Row>
                                     <Col md={6}>
                                         <div className="text-left">
+                                            <Label>Monto Prestado</Label>
+                                            <Input
+                                                name="montoPrestado"
+                                                id="montoPrestadoInput"
+                                                value={`S/. ${montoPrestado}`}
+                                                readOnly
+                                            />
+                                        </div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="text-left">
+                                            <Label>Saldo Faltante</Label>
+                                            <Input
+                                                name="saldoFaltante"
+                                                id="saldoFaltanteInput"
+                                                value={`S/. ${saldoFaltante}`}
+                                                readOnly
+                                            />
+                                        </div>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col md={6}>
+                                        <div className="text-left">
                                             <Label>Moneda</Label>
                                             <Input
                                                 type="select"
@@ -137,15 +162,15 @@ class Prestamo extends Component{
                                     </Col>
                                     <Col md={6}>
                                         <div className="text-left">
-                                            <Label>Monto a prestar</Label>
+                                            <Label>Monto a recoger</Label>
                                             <Input
-                                                name="montoPorPrestar"
-                                                id="montoPorPrestarInput"
-                                                value={montoPorPrestar}
+                                                name="montoPorRecoger"
+                                                id="montoPorRecogerInput"
+                                                value={montoPorRecoger}
                                                 placeholder=""
                                                 type="number"
-                                                invalid={validate.montoPorPrestar === "has-danger"}
-                                                valid={validate.montoPorPrestar === "has-success"}
+                                                invalid={validate.montoPorRecoger === "has-danger"}
+                                                valid={validate.montoPorRecoger === "has-success"}
                                                 onChange={this.handleChange}
                                                 autoFocus
                                             />
@@ -153,23 +178,14 @@ class Prestamo extends Component{
                                         </div>
                                     </Col>
                                 </Row>
-                                <div className="text-left">
-                                    <Label>Monto a cobrar</Label>
-                                    <Input
-                                        name="montoACobrar"
-                                        id="montoACobrarInput"
-                                        value={montoACobrar}
-                                        readOnly
-                                    />
-                                </div>
                                 <br/>
                                 <Button
                                     block
                                     bsSize="large"
-                                    onClick={this.prestarDinero}
+                                    onClick={this.recogerDinero}
                                     bsStyle="success"
                                 >
-                                    PRESTAR
+                                    RECOGER
                                 </Button>
                                 <Button
                                     block
@@ -187,10 +203,10 @@ class Prestamo extends Component{
 
                     </div>
                 </div>
-                <br/><br/><br/>
+                <br/><br/>
             </div>
         )
     }
 }
 
-export default Prestamo;
+export default Recojo;

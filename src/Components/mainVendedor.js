@@ -2,6 +2,7 @@ import {Component} from "react";
 import React from "react";
 import Login from "./login";
 import Prestamo from "./Prestamo";
+import Recojo from "./Recojo";
 import NuevoUsuario from "./NuevoUsuario";
 import {
     Row,
@@ -28,6 +29,7 @@ class Mainvendedor extends Component {
         super(props);
 
         this.state = {
+            idClienteBuscado: "",
             apellidoPaternoBuscado:"",
             apellidoMaternoBuscado:"",
 
@@ -45,6 +47,7 @@ class Mainvendedor extends Component {
             redirectLogin:false,
             redirectNuevoUsuario:false,
             redirectPrestamo:false,
+            redirectRecojo:false,
             usuarioEncontrado:false,
 
             visibleNuevo:"hidden"
@@ -65,10 +68,17 @@ class Mainvendedor extends Component {
     buscarDNIPasaporte = () => {
         const { dniPasaporteBuscar, validate } = this.state;
 
+        const apellidoPaterno = "Ramirez";
+        const apellidoMaterno = "Constantinopla";
+        const idCliente = "ID0001";
+
         if(dniPasaporteBuscar === "123"){
             validate.dniPasaporteBuscar = "has-success";
             this.setState({
                 usuarioEncontrado: true,
+                apellidoPaternoBuscado: apellidoPaterno,
+                apellidoMaternoBuscado: apellidoMaterno,
+                idClienteBuscado: idCliente,
                 validate:validate
             });
         }else{
@@ -83,6 +93,12 @@ class Mainvendedor extends Component {
     prestamo = () => {
         this.setState({
             redirectPrestamo: true
+        });
+    };
+
+    recoger = () => {
+        this.setState({
+            redirectRecojo: true
         });
     };
 
@@ -113,7 +129,7 @@ class Mainvendedor extends Component {
     };
 
     render() {
-        const { montoActual, redirectLogin, redirectNuevoUsuario, redirectPrestamo, dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado, validate } = this.state;
+        const { montoActual, redirectLogin, redirectNuevoUsuario, redirectPrestamo,redirectRecojo, dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado, validate } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -131,7 +147,24 @@ class Mainvendedor extends Component {
         }
         if(redirectPrestamo){
             return (
-                <Prestamo  username={this.props.username} saldo = {this.state.montoActual}/>
+                <Prestamo
+                    username={this.props.username}
+                    saldo = {this.state.montoActual}
+                    idClienteBuscado = {this.state.idClienteBuscado}
+                    apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
+                    apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
+                />
+            );
+        }
+        if(redirectRecojo){
+            return (
+                <Recojo
+                    username={this.props.username}
+                    saldo = {this.state.montoActual}
+                    idClienteBuscado = {this.state.idClienteBuscado}
+                    apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
+                    apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
+                />
             );
         }
         return (
@@ -175,7 +208,7 @@ class Mainvendedor extends Component {
                                     <Button
                                         size="lg"
                                     >
-                                        VER INFORMACIÓN DEL DÍA
+                                        VER DÍA
                                     </Button>
                                     <span> </span>
                                     <br/><br/><br/>
@@ -271,17 +304,74 @@ class Mainvendedor extends Component {
                     </ModalFooter>
                 </Modal>
 
-                <Modal  isOpen={this.state.showModalRecogerOption} style={customStyles} centered    >
+                <Modal  isOpen={this.state.showModalRecogerOption} style={customStyles} centered size = "lg">
                     <ModalHeader toggle={this.closeModal}>
                         Recoger
                     </ModalHeader>
                     <ModalBody>
-
+                        <div>
+                            <Row>
+                                <Col md={9}>
+                                    <span>Indicar DNI o Préstamo</span>
+                                    <Input
+                                        name="dniPasaporteBuscar"
+                                        id="dniPasaporteBuscarInput"
+                                        placeholder="DNI o Pasaporte"
+                                        value={dniPasaporteBuscar}
+                                        onChange={this.handleChange}
+                                        invalid={validate.dniPasaporteBuscar === "has-danger"}
+                                        valid={validate.username === "has-success"}
+                                    />
+                                    <FormFeedback invalid>Cliente no encontrado</FormFeedback>
+                                </Col>
+                                <Col md={3}>
+                                    <br />
+                                    <Button
+                                        onClick= {this.buscarDNIPasaporte}
+                                    >
+                                        Buscar
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
+                        <div style={(this.state.usuarioEncontrado===true) ? null :{visibility: [this.state.visibleNuevo]}}>
+                            <Row>
+                                <Col md={6}>
+                                    <span>Apellido Paterno</span>
+                                    <Input
+                                        name="apellidoPaternoBuscado"
+                                        id="apellidoPaternoBuscadoInput"
+                                        value={apellidoPaternoBuscado}
+                                        readOnly
+                                    />
+                                </Col>
+                                <Col md={6}>
+                                    <span>Apellido Materno</span>
+                                    <Input
+                                        name="apellidoMaternoBuscado"
+                                        id="apellidoMaternoBuscadoInput"
+                                        value={apellidoMaternoBuscado}
+                                        readOnly
+                                    />
+                                </Col>
+                            </Row>
+                            <br />
+                            <div className = "text-center">
+                                <Button
+                                    size="lg"
+                                    onClick= {this.recoger}
+                                    color="primary"
+                                >
+                                    RECOGER
+                                </Button>
+                            </div>
+                        </div>
                     </ModalBody>
                     <ModalFooter>
 
                     </ModalFooter>
                 </Modal>
+                < br/>< br/>< br/>< br/>< br/>< br/>
             </div>
         )
     }

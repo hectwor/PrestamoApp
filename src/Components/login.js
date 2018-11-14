@@ -111,8 +111,8 @@ class Login extends Component {
                                             id="usuarioInput"
                                             placeholder="Nombre de Usuario"
                                             value={username}
-                                            invalid={validate.username === "has-danger"}
                                             valid={validate.username === "has-success"}
+                                            invalid={validate.username === "has-danger"}
                                             onChange={this.handleChange}
                                             autoFocus
                                             onKeyPress={this.handleKeyPress}
@@ -130,8 +130,8 @@ class Login extends Component {
                                             placeholder="***********"
                                             type="password"
                                             value={password}
-                                            invalid={validate.password === "has-danger"}
                                             valid={validate.password === "has-success"}
+                                            invalid={validate.password === "has-danger"}
                                             onChange={this.handleChange}
                                             onKeyPress={this.handleKeyPress}
                                         />
@@ -154,7 +154,9 @@ class Login extends Component {
                         </Col>
                     </Row>
                 </div>
+                < br/>< br/>< br/>< br/>
             </div>
+
         );
     }
 }
