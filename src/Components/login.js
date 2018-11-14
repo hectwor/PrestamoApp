@@ -7,8 +7,8 @@ import {Form,
 import { Button, ControlLabel, Image } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 import iconLogin from "../img/loginUser.png";
-import Mainvendedor from "./mainVendedor";
-import mainadmin from "./mainAdmin";
+import MainRecogedor from "./mainRecogedor";
+import MainAdmin from "./mainAdmin";
 
 class Login extends Component {
     constructor(props) {
@@ -39,21 +39,43 @@ class Login extends Component {
     handleSubmit = event => {
         const { username, password, validate } = this.state;
         //consultar username, password
-        //responder su nivel
-        const nivel = 2;
+        //responder usernameBoolean, passwordBoolean, rol
+        let usernameBoolean;
+        let passwordBoolean;
+        let rol;
 
-        if(nivel === 2){
-            if(username === "12"){
-                validate.username = "has-success";
-                if(password === "12"){
-                    validate.password = "has-success";
-                    this.setState({ redirectVendedor: true });
-                }else{
-                    validate.password = "has-danger";
-                }
+        //****************************************************
+        //****************************************************
+        if(username === "12" || username === "13"){
+            usernameBoolean = true;
+            if(password === "12" || password === "13") {
+                passwordBoolean = true;
+                if(username === "12"){
+                    rol = "Recogedor";
+                }else
+                    rol = "Admin";
             }else{
-                validate.username = "has-danger";
+                passwordBoolean = false;
             }
+        }else{
+            usernameBoolean = false;
+        }
+        //****************************************************
+        //****************************************************
+
+        if(usernameBoolean === true){
+            validate.username = "has-success";
+            if(passwordBoolean === true){
+                validate.password = "has-success";
+                if(rol === "Admin")
+                    this.setState({ redirectAdmin: true });
+                if(rol === "Recogedor")
+                    this.setState({ redirectVendedor: true });
+            }else{
+                validate.password = "has-danger";
+            }
+        }else{
+            validate.username = "has-danger";
         }
         this.setState({
             validate
@@ -79,12 +101,12 @@ class Login extends Component {
         };
         if (redirectVendedor) {
             return (
-                <Mainvendedor username={this.state.username} password={this.state.password} />
+                <MainRecogedor username={this.state.username} password={this.state.password} />
             );
         }
         if (redirectAdmin) {
             return (
-                <mainadmin username={this.state.username} password={this.state.password} />
+                <MainAdmin username={this.state.username} password={this.state.password} />
             );
         }
         return (

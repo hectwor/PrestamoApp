@@ -7,7 +7,7 @@ import {
 } from 'reactstrap';
 import {Button, ControlLabel} from "react-bootstrap";
 import Login from "./login";
-import MainVendedor from "./mainVendedor";
+import MainVendedor from "./mainRecogedor";
 class NuevoUsuario extends Component {
     constructor(props) {
         super(props);

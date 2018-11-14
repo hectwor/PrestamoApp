@@ -6,7 +6,7 @@ import {
 } from 'reactstrap';
 import { Button } from "react-bootstrap";
 import Login from "./login";
-import MainVendedor from "./mainVendedor";
+import MainVendedor from "./mainRecogedor";
 class Recojo extends Component{
     constructor(props) {
         super(props);
@@ -28,6 +28,15 @@ class Recojo extends Component{
             showModalConfirmation:false
         }
     }
+
+    componentWillMount (){
+        //SOLICITAR INFO
+        this.setState({
+            montoPrestado: 1000.00,
+            saldoFaltante: 500.00
+        });
+    }
+
     Logout = () => {
         this.setState({
             redirectLogin: true,
@@ -47,8 +56,8 @@ class Recojo extends Component{
     };
 
     recogerDinero = () => {
-        const { montoPorRecoger, montoActual, validate } = this.state;
-        if(parseFloat(montoPorRecoger) > parseFloat(montoActual)){
+        const { montoPorRecoger, saldoFaltante, validate } = this.state;
+        if(parseFloat(montoPorRecoger) > parseFloat(saldoFaltante)){
             validate.montoPorRecoger = "has-danger";
             this.setState({validate});
         }else{
@@ -174,7 +183,7 @@ class Recojo extends Component{
                                                 onChange={this.handleChange}
                                                 autoFocus
                                             />
-                                            <FormFeedback invalid>Supera el saldo actual</FormFeedback>
+                                            <FormFeedback invalid>Supera el saldo faltante</FormFeedback>
                                         </div>
                                     </Col>
                                 </Row>

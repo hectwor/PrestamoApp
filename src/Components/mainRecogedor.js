@@ -24,7 +24,7 @@ const customStyles = {
     }
 };
 
-class Mainvendedor extends Component {
+class MainRecogedor extends Component {
     constructor(props) {
         super(props);
 
@@ -377,4 +377,4 @@ class Mainvendedor extends Component {
     }
 }
 
-export default Mainvendedor;
+export default MainRecogedor;

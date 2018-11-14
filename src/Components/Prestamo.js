@@ -6,7 +6,7 @@ import {
 } from 'reactstrap';
 import { Button } from "react-bootstrap";
 import Login from "./login";
-import MainVendedor from "./mainVendedor";
+import MainVendedor from "./mainRecogedor";
 class Prestamo extends Component{
     constructor(props) {
         super(props);
