@@ -18,6 +18,7 @@ class NuevoUsuario extends Component {
 
             apellidoPaterno: "",
             apellidoMaterno:"",
+            nombres:"",
             dniPasaporte:"",
             telefono:"",
             telefonoReferencia:"",
@@ -26,6 +27,7 @@ class NuevoUsuario extends Component {
             validate: {
                 apellidoPaterno: null,
                 apellidoMaterno:null,
+                nombres:null,
                 dniPasaporte:null,
                 telefono:null,
                 telefonoReferencia:null,
@@ -52,8 +54,48 @@ class NuevoUsuario extends Component {
             redirectMain: true,
         });
     };
+
+    registrarCliente = ()=>{
+        const {validate, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono, direccionDomicilio, telefonoReferencia, direccionTrabajo } = this.state;
+        if(apellidoPaterno==="" || apellidoPaterno === null){
+            validate.apellidoPaterno = "has-danger";
+        }else
+            validate.apellidoPaterno = "has-success";
+        if(apellidoMaterno==="" || apellidoMaterno === null){
+            validate.apellidoMaterno = "has-danger";
+        }else
+            validate.apellidoMaterno = "has-success";
+        if(nombres==="" || nombres === null){
+            validate.nombres = "has-danger";
+        }else
+            validate.nombres = "has-success";
+        if(dniPasaporte==="" || dniPasaporte === null){
+            validate.dniPasaporte = "has-danger";
+        }else
+            validate.dniPasaporte = "has-success";
+        if(telefono==="" || telefono === null){
+            validate.telefono = "has-danger";
+        }else
+            validate.telefono = "has-success";
+        if(direccionDomicilio==="" || direccionDomicilio === null){
+            validate.direccionDomicilio = "has-danger";
+        }else
+            validate.direccionDomicilio = "has-success";
+        if(telefonoReferencia==="" || telefonoReferencia === null){
+            validate.telefonoReferencia = "has-danger";
+        }else
+            validate.telefonoReferencia = "has-success";
+        if(direccionTrabajo==="" || direccionTrabajo === null){
+            validate.direccionTrabajo = "has-danger";
+        }else
+            validate.direccionTrabajo = "has-success";
+        this.setState({
+            validate:validate
+        });
+    };
+
     render() {
-        const { redirectLogin, redirectMain, apellidoPaterno, apellidoMaterno, dniPasaporte, telefono,telefonoReferencia, direccionDomicilio, direccionTrabajo, validate } = this.state;
+        const { redirectLogin, redirectMain, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono,telefonoReferencia, direccionDomicilio, direccionTrabajo, validate } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -82,7 +124,7 @@ class NuevoUsuario extends Component {
                 </Navbar>
                 <div className="container">
                     <div className="container text-center" style={panelVendedor}>
-                        <h1 className="display-4">Nuevo Usuario</h1>
+                        <h1 className="display-4">Nuevo Cliente</h1>
                         <Row>
                             <Col md={3}>
                             </Col>
@@ -131,13 +173,13 @@ class NuevoUsuario extends Component {
                                             <div className="text-left">
                                                 <ControlLabel>Nombres</ControlLabel>
                                                 <Input
-                                                    name="apellidoPaterno"
-                                                    id="apellidoPaternoInput"
+                                                    name="nombres"
+                                                    id="nombresInput"
                                                     placeholder=""
                                                     type="text"
-                                                    value={apellidoPaterno}
-                                                    invalid={validate.apellidoPaterno === "has-danger"}
-                                                    valid={validate.apellidoPaterno === "has-success"}
+                                                    value={nombres}
+                                                    invalid={validate.nombres === "has-danger"}
+                                                    valid={validate.nombres === "has-success"}
                                                     onChange={this.handleChange}
                                                 />
                                                 <FormFeedback invalid>Campo Obligatorio</FormFeedback>
@@ -151,7 +193,7 @@ class NuevoUsuario extends Component {
                                                     <Col md={6}>
                                                         <FormGroup check>
                                                             <Label check>
-                                                                <Input type="radio" value="option1" name="checkRadio" />{' '}
+                                                                <Input type="radio" value="option1" name="checkRadio" checked={true}/>{' '}
                                                                 DNI
                                                             </Label>
                                                         </FormGroup>
@@ -257,6 +299,15 @@ class NuevoUsuario extends Component {
                                         </FormGroup>
                                     </Col>
                                 </Row>
+                                <Button
+                                    block
+                                    bsSize="large"
+                                    onClick={this.registrarCliente}
+                                    bsStyle="success"
+                                >
+                                    Registrar
+                                </Button>
+                                < br/>
                             </Col>
                             <Col md={3}>
                             </Col>

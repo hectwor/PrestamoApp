@@ -106,6 +106,7 @@ class Mainvendedor extends Component {
 
     closeModal = () => {
         this.setState({
+            usuarioEncontrado:false,
             showModalPrestarOption: false,
             showModalRecogerOption: false
         });
@@ -228,7 +229,6 @@ class Mainvendedor extends Component {
                             </Row>
                         </div>
                         <div style={(this.state.usuarioEncontrado===true) ? null :{visibility: [this.state.visibleNuevo]}}>
-                            <br />
                             <Row>
                                 <Col md={6}>
                                     <span>Apellido Paterno</span>
@@ -260,7 +260,6 @@ class Mainvendedor extends Component {
                                 </Button>
                             </div>
                         </div>
-                        <br/>
                     </ModalBody>
                     <ModalFooter>
                         <Button
