@@ -131,7 +131,7 @@ class Login extends Component {
                                             type="password"
                                             value={password}
                                             invalid={validate.password === "has-danger"}
-                                            valid={validate.username === "has-success"}
+                                            valid={validate.password === "has-success"}
                                             onChange={this.handleChange}
                                             onKeyPress={this.handleKeyPress}
                                         />

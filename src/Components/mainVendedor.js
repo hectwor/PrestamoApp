@@ -116,7 +116,7 @@ class Mainvendedor extends Component {
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
-            marginTop: "80px"
+            marginTop: "70px"
         };
         if (redirectLogin) {
             return (

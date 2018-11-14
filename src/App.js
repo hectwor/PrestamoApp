@@ -4,7 +4,7 @@ import './App.css';
 import Login from './Components/login';
 import ErrorPage from './Components/ErrorPage';
 
-import MainVendedor from './Components/mainVendedor';
+import NuevoUsuario from './Components/NuevoUsuario';
 
 class App extends Component {
     render() {
@@ -14,7 +14,7 @@ class App extends Component {
             left:'0',
             right:'0',
             position: 'absolute',
-            background : 'linear-gradient(-135deg, #c850c0, #4158d0)'
+            background : 'linear-gradient(to bottom right, red, yellow)'
         };
     return (
       <div className="App" style={fondo}>
