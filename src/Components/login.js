@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import {Form,
     Row,
     Col,
-    Input, FormFeedback, FormGroup
+    Input, FormFeedback, FormGroup,
+    Button
     } from 'reactstrap';
-import { Button, ControlLabel, Image } from "react-bootstrap";
+import { ControlLabel, Image } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 import iconLogin from "../img/loginUser.png";
 import MainRecogedor from "./mainRecogedor";
@@ -99,6 +100,10 @@ class Login extends Component {
             borderRadius: "10px",
             marginTop: "80px"
         };
+        const buttonSize = {
+            boxShadow: '0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)',
+            borderRadius: '8px'
+        };
         if (redirectVendedor) {
             return (
                 <MainRecogedor username={this.state.username} password={this.state.password} />
@@ -162,9 +167,11 @@ class Login extends Component {
                                 </FormGroup>
                                 <Button
                                     block
-                                    bsSize="large"
+                                    size="lg"
                                     disabled={!this.validateForm()}
                                     onClick={this.handleSubmit}
+                                    style={buttonSize}
+                                    color="primary"
                                 >
                                     Ingresar
                                 </Button>

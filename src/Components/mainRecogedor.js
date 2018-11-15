@@ -135,6 +135,13 @@ class MainRecogedor extends Component {
             borderRadius: "10px",
             marginTop: "70px"
         };
+        const buttonSize = {
+            height: '60px',
+            width: '230px',
+            marginBottom: '20px',
+            marginRight: '10px',
+            marginLeft: '10px'
+        };
         if (redirectLogin) {
             return (
                 <Login  />
@@ -192,6 +199,7 @@ class MainRecogedor extends Component {
                                     <Button
                                         size="lg"
                                         onClick={this.openModalPrestar}
+                                        style={buttonSize}
                                     >
                                         PRESTAR
                                     </Button>
@@ -199,14 +207,15 @@ class MainRecogedor extends Component {
                                     <Button
                                         size="lg"
                                         onClick={this.openModalCobrar}
+                                        style={buttonSize}
                                     >
                                         RECOGER
                                     </Button>
-                                    <br/><br/>
                                 </div>
                                 <div>
                                     <Button
                                         size="lg"
+                                        style={buttonSize}
                                     >
                                         VER DÍA
                                     </Button>

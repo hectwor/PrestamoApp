@@ -35,6 +35,13 @@ class MainAdmin extends Component {
             borderRadius: "10px",
             marginTop: "80px"
         };
+        const buttonSize = {
+            height: '60px',
+            width: '230px',
+            marginBottom: '20px',
+            marginRight: '10px',
+            marginLeft: '10px'
+        };
         if (redirectLogin) {
             return (
                 <Login  />
@@ -60,10 +67,10 @@ class MainAdmin extends Component {
                                 <br/>
                                 <h1 className="display-6">Menú</h1>
                                 <br/><br/>
-                                <div>
                                         <Button
                                             size="lg"
                                             onClick={this.openMovimientos}
+                                            style={buttonSize}
                                         >
                                             MOVIMIENTOS
                                         </Button>
@@ -71,15 +78,16 @@ class MainAdmin extends Component {
                                         <Button
                                             size="lg"
                                             onClick={this.openClientes}
+                                            style={buttonSize}
                                         >
                                             CLIENTES
                                         </Button>
-                                </div>
+                               
                                 <br/>
-                                <div>
                                     <Button
                                         size="lg"
                                         onClick={this.openMovimientos}
+                                        style={buttonSize}
                                     >
                                         CREAR USUARIO
                                     </Button>
@@ -87,15 +95,15 @@ class MainAdmin extends Component {
                                     <Button
                                         size="lg"
                                         onClick={this.openClientes}
+                                        style={buttonSize}
                                     >
-                                        ANULAR USUARIO
+                                        MODIFICAR USUARIO
                                     </Button>
-                                </div>
                                 <br/>
-                                <div>
                                     <Button
                                         size="lg"
                                         onClick={this.openMovimientos}
+                                        style={buttonSize}
                                     >
                                         PRESTAR
                                     </Button>
@@ -103,10 +111,10 @@ class MainAdmin extends Component {
                                     <Button
                                         size="lg"
                                         onClick={this.openClientes}
+                                        style={buttonSize}
                                     >
                                         COBRAR
                                     </Button>
-                                </div>
                             </Col>
                             <Col md={2}>
                             </Col>
