@@ -5,17 +5,22 @@ import {
     Button
 } from 'reactstrap';
 import Login from "./login";
+import MovimientosAdmin from "./MovimientosAdmin";
 
 class MainAdmin extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            redirectLogin:false
+            redirectLogin:false,
+            redirectMovimientosAdmin:false,
+            redirectOpenClientes:false
         }
     }
     openMovimientos = () =>{
-
+        this.setState({
+            redirectMovimientosAdmin: true,
+        });
     };
 
     openClientes = () => {
@@ -29,7 +34,7 @@ class MainAdmin extends Component {
     };
 
     render() {
-        const { redirectLogin} = this.state;
+        const { redirectLogin, redirectMovimientosAdmin, redirectOpenClientes } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -39,12 +44,17 @@ class MainAdmin extends Component {
             height: '60px',
             width: '230px',
             marginBottom: '20px',
-            marginRight: '10px',
-            marginLeft: '10px'
+            marginRight: '6px',
+            marginLeft: '6px'
         };
         if (redirectLogin) {
             return (
                 <Login  />
+            );
+        }
+        if (redirectMovimientosAdmin) {
+            return (
+                <MovimientosAdmin  />
             );
         }
         return(
@@ -65,8 +75,8 @@ class MainAdmin extends Component {
                             </Col>
                             <Col md={8}>
                                 <br/>
-                                <h1 className="display-6">Menú</h1>
-                                <br/><br/>
+                                <h1 className="display-6">Menú Administrador</h1>
+                                    <br/><br/>
                                         <Button
                                             size="lg"
                                             onClick={this.openMovimientos}
@@ -82,8 +92,6 @@ class MainAdmin extends Component {
                                         >
                                             CLIENTES
                                         </Button>
-                               
-                                <br/>
                                     <Button
                                         size="lg"
                                         onClick={this.openMovimientos}
@@ -99,7 +107,6 @@ class MainAdmin extends Component {
                                     >
                                         MODIFICAR USUARIO
                                     </Button>
-                                <br/>
                                     <Button
                                         size="lg"
                                         onClick={this.openMovimientos}

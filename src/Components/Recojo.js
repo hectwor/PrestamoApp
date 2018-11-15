@@ -106,9 +106,9 @@ class Recojo extends Component{
                         <h1 className="display-6">Saldo : S/ {montoActual}</h1>
                         <h1 className="display-4">Cliente para recoger</h1>
                         <Row>
-                            <Col md={4}>
+                            <Col md={3}>
                             </Col>
-                            <Col md={4}>
+                            <Col md={6}>
                                 <Row>
                                     <Col md={6}>
                                         <div className="text-left">
@@ -206,7 +206,7 @@ class Recojo extends Component{
                                 </Button>
                                 <br/>
                             </Col>
-                            <Col md={4}>
+                            <Col md={3}>
                             </Col>
                         </Row>
 
