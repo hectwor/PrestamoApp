@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Route,Switch } from 'react-router-dom';
 import './App.css';
-import Login from './Components/login';
+import Login from './Components/Login';
 import ErrorPage from './Components/ErrorPage';
 
-//import NuevoUsuario from './Components/NuevoUsuario';
+import MainAdmin from './Components/MainAdmin';
 
 class App extends Component {
     render() {

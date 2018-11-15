@@ -6,8 +6,8 @@ import {
     Row, Col
 } from 'reactstrap';
 import {Button, ControlLabel} from "react-bootstrap";
-import Login from "./login";
-import MainVendedor from "./mainRecogedor";
+import Login from "./Login";
+import MainVendedor from "./MainRecogedor";
 class NuevoUsuario extends Component {
     constructor(props) {
         super(props);

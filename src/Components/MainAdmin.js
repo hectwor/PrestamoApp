@@ -4,8 +4,9 @@ import {
     Row, Col,
     Button
 } from 'reactstrap';
-import Login from "./login";
+import Login from "./Login";
 import MovimientosAdmin from "./MovimientosAdmin";
+import ListarClientes from "./ListarClientes";
 
 class MainAdmin extends Component {
     constructor(props) {
@@ -24,7 +25,9 @@ class MainAdmin extends Component {
     };
 
     openClientes = () => {
-
+        this.setState({
+            redirectOpenClientes: true,
+        });
     };
 
     Logout = () => {
@@ -50,6 +53,11 @@ class MainAdmin extends Component {
         if (redirectLogin) {
             return (
                 <Login  />
+            );
+        }
+        if (redirectOpenClientes) {
+            return (
+                <ListarClientes  />
             );
         }
         if (redirectMovimientosAdmin) {

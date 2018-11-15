@@ -5,8 +5,8 @@ import {
     Button, Input, Label,
     Table
 } from 'reactstrap';
-import Login from "./login";
-import MainAdmin from "./mainAdmin";
+import Login from "./Login";
+import MainAdmin from "./MainAdmin";
 import moment from "moment";
 
 class MovimientosAdmin extends Component {
@@ -32,7 +32,6 @@ class MovimientosAdmin extends Component {
     };
 
     handleChange = event => {
-        console.log(this.state.fechaFinBusqueda)
         let change = {};
         change[event.target.name] = event.target.value;
         this.setState(change)
@@ -150,7 +149,7 @@ class MovimientosAdmin extends Component {
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <th scope="row">{fechaInicioBusqueda}</th>
+                                            <th scope="row">10-10-2018</th>
                                             <td>Mark</td>
                                             <td>Préstamo</td>
                                             <td>S/. 100.00</td>
@@ -158,7 +157,7 @@ class MovimientosAdmin extends Component {
                                             <td>S/. 200.00</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">{fechaInicioBusqueda}</th>
+                                            <th scope="row">10-10-2018</th>
                                             <td>Jacob</td>
                                             <td>Préstamo</td>
                                             <td>S/. 100.00</td>
@@ -166,7 +165,7 @@ class MovimientosAdmin extends Component {
                                             <td>S/. 300.00</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">{fechaInicioBusqueda}</th>
+                                            <th scope="row">10-10-2018</th>
                                             <td>Larry</td>
                                             <td>Recojo</td>
                                             <td>S/. 100.00</td>
@@ -177,7 +176,6 @@ class MovimientosAdmin extends Component {
                                 </Table>
                                 <Button
                                     block
-                                    bsSize="large"
                                     onClick={this.regresarMenu}
                                     color="danger"
                                 >

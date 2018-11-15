@@ -8,8 +8,8 @@ import {Form,
 import { ControlLabel, Image } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 import iconLogin from "../img/logo.png";
-import MainRecogedor from "./mainRecogedor";
-import MainAdmin from "./mainAdmin";
+import MainRecogedor from "./MainRecogedor";
+import MainAdmin from "./MainAdmin";
 
 class Login extends Component {
     constructor(props) {

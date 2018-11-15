@@ -5,8 +5,8 @@ import {
     Row, Col
 } from 'reactstrap';
 import { Button } from "react-bootstrap";
-import Login from "./login";
-import MainVendedor from "./mainRecogedor";
+import Login from "./Login";
+import MainVendedor from "./MainRecogedor";
 class Recojo extends Component{
     constructor(props) {
         super(props);

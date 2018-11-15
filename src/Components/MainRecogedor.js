@@ -1,6 +1,6 @@
 import {Component} from "react";
 import React from "react";
-import Login from "./login";
+import Login from "./Login";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoUsuario from "./NuevoUsuario";
