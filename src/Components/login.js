@@ -7,7 +7,7 @@ import {Form,
     } from 'reactstrap';
 import { ControlLabel, Image } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
-import iconLogin from "../img/loginUser.png";
+import iconLogin from "../img/logo.png";
 import MainRecogedor from "./mainRecogedor";
 import MainAdmin from "./mainAdmin";
 
@@ -97,7 +97,7 @@ class Login extends Component {
         const { username, password, redirectVendedor, redirectAdmin, validate } = this.state;
         const login = {
             backgroundColor: "#f1f1f1",
-            borderRadius: "10px",
+            borderRadius: "30px",
             marginTop: "80px"
         };
         const buttonSize = {
@@ -128,7 +128,6 @@ class Login extends Component {
                             <div className="container">
                                 <Image src={iconLogin} />
                             </div>
-                            <br/>
                             <Form>
                                 <FormGroup>
                                     <div className="text-left">
