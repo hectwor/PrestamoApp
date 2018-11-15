@@ -209,10 +209,8 @@ class Recojo extends Component{
                             <Col md={3}>
                             </Col>
                         </Row>
-
                     </div>
                 </div>
-                <br/><br/>
             </div>
         )
     }

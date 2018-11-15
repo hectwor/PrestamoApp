@@ -129,7 +129,6 @@ class MainAdmin extends Component {
                         <br/> <br/>
                     </div>
                 </div>
-                <br/><br/><br/> <br/> <br/> <br/>
             </div>
         )
     }

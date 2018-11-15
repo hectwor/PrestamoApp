@@ -2,9 +2,12 @@ import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Row, Col,
-    Button, Input, Label
+    Button, Input, Label,
+    Table
 } from 'reactstrap';
 import Login from "./login";
+import MainAdmin from "./mainAdmin";
+import moment from "moment";
 
 class MovimientosAdmin extends Component {
     constructor(props) {
@@ -13,8 +16,11 @@ class MovimientosAdmin extends Component {
         this.state = {
 
             montoActualDiaTotal: 0,
+            fechaInicioBusqueda:  moment().format('YYYY-MM-DD'),
+            fechaFinBusqueda:  moment().format('YYYY-MM-DD'),
 
-            redirectLogin:false
+            redirectLogin:false,
+            redirectMainAdmin:false
         }
     }
 
@@ -23,7 +29,24 @@ class MovimientosAdmin extends Component {
         this.setState({
             montoActualDiaTotal: "10000.00"
         });
-    }
+    };
+
+    handleChange = event => {
+        console.log(this.state.fechaFinBusqueda)
+        let change = {};
+        change[event.target.name] = event.target.value;
+        this.setState(change)
+    };
+
+    regresarMenu = ()=>{
+        this.setState({
+            redirectMainAdmin: true,
+        });
+    };
+
+    buscarMovimientos =() =>{
+
+    };
 
     Logout = () => {
         this.setState({
@@ -32,7 +55,7 @@ class MovimientosAdmin extends Component {
     };
 
     render() {
-        const { redirectLogin, montoActualDiaTotal } = this.state;
+        const { redirectLogin, redirectMainAdmin, montoActualDiaTotal, fechaInicioBusqueda, fechaFinBusqueda } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -41,6 +64,11 @@ class MovimientosAdmin extends Component {
         if (redirectLogin) {
             return (
                 <Login  />
+            );
+        }
+        if (redirectMainAdmin) {
+            return (
+                <MainAdmin  />
             );
         }
         return(
@@ -64,26 +92,39 @@ class MovimientosAdmin extends Component {
                             </Col>
                             <Col md={6}>
                                 <Row>
-                                    <Col md={6}>
+                                    <Col md={5}>
                                         <div className="text-left">
-                                            <Label>Apellido Paterno</Label>
+                                            <Label>Fecha Inicio de Búsqueda</Label>
                                             <Input
-                                                name="apellidoPaternoBuscado"
-                                                id="apellidoPaternoBuscadoInput"
-                                                value={this.props.apellidoPaternoBuscado}
-                                                readOnly
+                                                type="date"
+                                                name="fechaInicioBusqueda"
+                                                id="fechaInicioBusquedaInput"
+                                                value={fechaInicioBusqueda}
+                                                onChange={this.handleChange}
                                             />
                                         </div>
                                     </Col>
-                                    <Col md={6}>
+                                    <Col md={5}>
                                         <div className="text-left">
-                                            <Label>Apellido Materno</Label>
+                                            <Label>Fecha Fin de Búsqueda</Label>
                                             <Input
-                                                name="apellidoMaternoBuscado"
-                                                id="apellidoMaternoBuscado"
-                                                value={this.props.apellidoMaternoBuscado}
-                                                readOnly
+                                                type="date"
+                                                name="fechaFinBusqueda"
+                                                id="fechaFinBusqueda"
+                                                value={fechaFinBusqueda}
+                                                onChange={this.handleChange}
                                             />
+                                        </div>
+                                    </Col>
+                                    <Col md={2}>
+                                        <div className="text-left">
+                                            <br/>
+                                            <Button
+                                            onClick={this.buscarMovimientos}
+                                            color="info"
+                                            >
+                                            Buscar
+                                            </Button>
                                         </div>
                                     </Col>
                                 </Row>
@@ -91,6 +132,62 @@ class MovimientosAdmin extends Component {
                             <Col md={3}>
                             </Col>
                         </Row>
+                        <br/>
+                        <Row>
+                            <Col md={1}>
+                            </Col>
+                            <Col md={10}>
+                                <Table responsive>
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Prestamista</th>
+                                            <th>Movimiento</th>
+                                            <th>Monto</th>
+                                            <th>Cliente</th>
+                                            <th>Monto Actual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">{fechaInicioBusqueda}</th>
+                                            <td>Mark</td>
+                                            <td>Préstamo</td>
+                                            <td>S/. 100.00</td>
+                                            <td>Juan</td>
+                                            <td>S/. 200.00</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">{fechaInicioBusqueda}</th>
+                                            <td>Jacob</td>
+                                            <td>Préstamo</td>
+                                            <td>S/. 100.00</td>
+                                            <td>Tolomeo</td>
+                                            <td>S/. 300.00</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">{fechaInicioBusqueda}</th>
+                                            <td>Larry</td>
+                                            <td>Recojo</td>
+                                            <td>S/. 100.00</td>
+                                            <td>Timoteo</td>
+                                            <td>S/. 200.00</td>
+                                        </tr>
+                                    </tbody>
+                                </Table>
+                                <Button
+                                    block
+                                    bsSize="large"
+                                    onClick={this.regresarMenu}
+                                    color="danger"
+                                >
+                                    Regresar
+                                </Button>
+                            </Col>
+                            <Col md={1}>
+                            </Col>
+                        </Row>
+                        <br/><br/>
                     </div>
                 </div>
             </div>

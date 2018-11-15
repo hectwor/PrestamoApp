@@ -380,7 +380,6 @@ class MainRecogedor extends Component {
 
                     </ModalFooter>
                 </Modal>
-                < br/>< br/>< br/>< br/>< br/>< br/>
             </div>
         )
     }

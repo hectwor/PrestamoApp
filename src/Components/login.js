@@ -182,7 +182,6 @@ class Login extends Component {
                         </Col>
                     </Row>
                 </div>
-                < br/>< br/>< br/>< br/>
             </div>
 
         );
