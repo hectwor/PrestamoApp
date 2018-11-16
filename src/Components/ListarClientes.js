@@ -6,6 +6,7 @@ import {
     Table
 } from 'reactstrap';
 import Login from "./Login";
+import MainAdmin from "./MainAdmin";
 class ListarClientes extends Component {
     constructor(props) {
         super(props);
@@ -29,8 +30,14 @@ class ListarClientes extends Component {
         this.setState(change)
     };
 
+    regresarMenu = ()=>{
+        this.setState({
+            redirectMainAdmin: true,
+        });
+    };
+
     render() {
-        const { redirectLogin, listaDeDnis, dniPasaporteApellidoBuscado } = this.state;
+        const { redirectLogin, redirectMainAdmin, dniPasaporteApellidoBuscado } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -39,6 +46,11 @@ class ListarClientes extends Component {
         if (redirectLogin) {
             return (
                 <Login  />
+            );
+        }
+        if (redirectMainAdmin) {
+            return (
+                <MainAdmin  />
             );
         }
         return (
