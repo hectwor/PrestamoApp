@@ -8,13 +8,15 @@ import {
 import {Button, ControlLabel} from "react-bootstrap";
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
-class NuevoUsuario extends Component {
+import MainAdmin from "./MainAdmin";
+class NuevoCliente extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             redirectLogin: false,
-            redirectMain: false,
+            redirectMainPrestamista: false,
+            redirectMainAdmin: false,
 
             apellidoPaterno: "",
             apellidoMaterno:"",
@@ -50,9 +52,16 @@ class NuevoUsuario extends Component {
     };
 
     regresarMenu = ()=>{
-        this.setState({
-            redirectMain: true,
-        });
+        if(this.props.rol === "admin"){
+            this.setState({
+                redirectMainAdmin: true,
+            });
+        }
+        if(this.props.rol === "prestamista"){
+            this.setState({
+                redirectMainPrestamista: true,
+            });
+        }
     };
 
     checkboxHandler = () => {
@@ -112,11 +121,11 @@ class NuevoUsuario extends Component {
         this.setState({
             validate:validate
         });
-        return contVal++;
+        return contVal;
     };
 
     render() {
-        const { redirectLogin, redirectMain, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono,telefonoReferencia, direccionDomicilio, direccionTrabajo, validate } = this.state;
+        const { redirectLogin, redirectMainPrestamista, redirectMainAdmin, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono,telefonoReferencia, direccionDomicilio, direccionTrabajo, validate } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -127,9 +136,14 @@ class NuevoUsuario extends Component {
                 <Login  />
             );
         }
-        if (redirectMain) {
+        if (redirectMainPrestamista) {
             return (
                 <MainVendedor  username={this.props.username} />
+            );
+        }
+        if (redirectMainAdmin) {
+            return (
+                <MainAdmin  username={this.props.username} />
             );
         }
         return (
@@ -332,7 +346,7 @@ class NuevoUsuario extends Component {
                                     onClick={this.registrarCliente}
                                     bsStyle="success"
                                 >
-                                    Registrar
+                                    REGISTRAR
                                 </Button>
                                 < br/>
                                 <Button
@@ -357,4 +371,4 @@ class NuevoUsuario extends Component {
     }
 }
 
-export default NuevoUsuario;
+export default NuevoCliente;

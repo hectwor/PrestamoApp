@@ -7,13 +7,15 @@ import {
 import { Button } from "react-bootstrap";
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
+import MainAdmin from "./MainAdmin";
 class Prestamo extends Component{
     constructor(props) {
         super(props);
 
         this.state = {
             redirectLogin:false,
-            redirectMain:false,
+            redirectMainPrestamista:false,
+            redirectMainAdmin:false,
 
             montoPorPrestar: 0,
             montoACobrar: 0,
@@ -34,9 +36,16 @@ class Prestamo extends Component{
     };
 
     regresarMenu = ()=>{
-        this.setState({
-            redirectMain: true,
-        });
+        if(this.props.rol === "admin"){
+            this.setState({
+                redirectMainAdmin: true,
+            });
+        }
+        if(this.props.rol === "prestamista"){
+            this.setState({
+                redirectMainPrestamista: true,
+            });
+        }
     };
 
     handleChange = event => {
@@ -64,7 +73,7 @@ class Prestamo extends Component{
     };
 
     render() {
-        const { redirectLogin, redirectMain, montoActual, montoPorPrestar, validate, montoACobrar } = this.state;
+        const { redirectLogin, redirectMainPrestamista, redirectMainAdmin, montoActual, montoPorPrestar, validate, montoACobrar } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -75,9 +84,14 @@ class Prestamo extends Component{
                 <Login  />
             );
         }
-        if (redirectMain) {
+        if (redirectMainPrestamista) {
             return (
-                <MainVendedor  username={this.props.username} />
+                <MainVendedor username={this.props.username} password={this.props.password}  />
+            );
+        }
+        if (redirectMainAdmin) {
+            return (
+                <MainAdmin username={this.props.username} password={this.props.password}  />
             );
         }
         return (

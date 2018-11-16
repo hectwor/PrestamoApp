@@ -3,7 +3,7 @@ import React from "react";
 import Login from "./Login";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
-import NuevoUsuario from "./NuevoUsuario";
+import NuevoCliente from "./NuevoCliente";
 import {
     Row,
     Col,
@@ -149,7 +149,7 @@ class MainRecogedor extends Component {
         }
         if(redirectNuevoUsuario){
             return (
-                <NuevoUsuario   username={this.props.username} />
+                <NuevoCliente username={this.props.username}  rol = {"prestamista"}/>
             );
         }
         if(redirectPrestamo){
@@ -160,6 +160,7 @@ class MainRecogedor extends Component {
                     idClienteBuscado = {this.state.idClienteBuscado}
                     apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
                     apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
+                    rol = {"prestamista"}
                 />
             );
         }
@@ -171,6 +172,7 @@ class MainRecogedor extends Component {
                     idClienteBuscado = {this.state.idClienteBuscado}
                     apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
                     apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
+                    rol = {"prestamista"}
                 />
             );
         }
@@ -377,7 +379,12 @@ class MainRecogedor extends Component {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-
+                        <Button
+                            onClick= {this.closeModal}
+                            color="danger"
+                        >
+                            Cancelar
+                        </Button>
                     </ModalFooter>
                 </Modal>
             </div>

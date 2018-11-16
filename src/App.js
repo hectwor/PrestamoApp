@@ -4,7 +4,7 @@ import './App.css';
 import Login from './Components/Login';
 import ErrorPage from './Components/ErrorPage';
 
-import MainAdmin from './Components/MainAdmin';
+import CrearUsuario from './Components/CrearUsuario';
 
 class App extends Component {
     render() {

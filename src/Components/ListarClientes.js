@@ -7,6 +7,7 @@ import {
 } from 'reactstrap';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
+
 class ListarClientes extends Component {
     constructor(props) {
         super(props);
@@ -50,7 +51,7 @@ class ListarClientes extends Component {
         }
         if (redirectMainAdmin) {
             return (
-                <MainAdmin  />
+                <MainAdmin  username={this.props.username} password={this.props.password} />
             );
         }
         return (

@@ -67,7 +67,7 @@ class MovimientosAdmin extends Component {
         }
         if (redirectMainAdmin) {
             return (
-                <MainAdmin  />
+                <MainAdmin    username={this.props.username} password={this.props.password}  />
             );
         }
         return(
