@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
-    Input,FormFeedback, Label,
-    Row, Col
+    Input,FormFeedback, Label,Button,
+    Row, Col,
+    ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
-import { Button } from "react-bootstrap";
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
 import MainAdmin from "./MainAdmin";
+import moment from "moment";
 
 class Recojo extends Component{
     constructor(props) {
@@ -21,6 +22,7 @@ class Recojo extends Component{
             montoPorRecoger: 0,
             saldoFaltante: 0,
             montoPrestado: 0,
+            fechaRecojo:   moment().format('DD-MM-YYYY'),
 
             montoActual: [this.props.saldo],
 
@@ -62,10 +64,13 @@ class Recojo extends Component{
     handleChange = event => {
         let change = {};
         change[event.target.name] = event.target.value;
+        if(event.target.name === "montoPorRecoger"){
+            change[event.target.name] = parseFloat(event.target.value);
+        }
         this.setState(change)
     };
 
-    recogerDinero = () => {
+    confirmarRecogerDinero = () => {
         const { montoPorRecoger, saldoFaltante, validate } = this.state;
         if(parseFloat(montoPorRecoger) > parseFloat(saldoFaltante)){
             validate.montoPorRecoger = "has-danger";
@@ -83,12 +88,41 @@ class Recojo extends Component{
         }
     };
 
+    enviarDatosRecojo = () => {
+
+    };
+
+    closeModal = () => {
+        this.setState({
+            showModalConfirmation: false
+        });
+    };
+
     render() {
-        const { redirectLogin, redirectMainPrestamista, redirectMainAdmin,  montoActual, montoPorRecoger, validate, saldoFaltante, montoPrestado } = this.state;
+        const { redirectLogin,
+            redirectMainPrestamista,
+            redirectMainAdmin,
+            montoActual,
+            montoPorRecoger,
+            validate,
+            saldoFaltante,
+            montoPrestado,
+            fechaRecojo
+        } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
             marginTop: "80px"
+        };
+        const customStyles = {
+            content: {
+                top: "50%",
+                left: "50%",
+                right: "auto",
+                bottom: "auto",
+                marginRight: "-50%",
+                transform: "translate(-50%, -50%)"
+            }
         };
         if (redirectLogin) {
             return (
@@ -206,17 +240,15 @@ class Recojo extends Component{
                                 <br/>
                                 <Button
                                     block
-                                    bsSize="large"
-                                    onClick={this.recogerDinero}
-                                    bsStyle="success"
+                                    onClick={this.confirmarRecogerDinero}
+                                    color="info"
                                 >
                                     RECOGER
                                 </Button>
                                 <Button
                                     block
-                                    bsSize="large"
                                     onClick={this.regresarMenu}
-                                    bsStyle="danger"
+                                    color="danger"
                                 >
                                     Regresar
                                 </Button>
@@ -227,6 +259,99 @@ class Recojo extends Component{
                         </Row>
                     </div>
                 </div>
+                <Modal isOpen={this.state.showModalConfirmation} style={customStyles} centered size = "mg">
+                    <ModalHeader  toggle={this.closeModal}>
+                        Confirmación de Datos
+                    </ModalHeader>
+                    <ModalBody>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Nombre de Prestamista :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{this.props.username}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Fecha :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{fechaRecojo}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Nombre de Cliente :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{this.props.apellidoPaternoBuscado} {this.props.apellidoMaternoBuscado}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto a recoger :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{montoPorRecoger}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto total prestado :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{montoPrestado}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto faltante :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{saldoFaltante}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick= {this.enviarDatosRecojo}
+                            color="info"
+                        >
+                            Aceptar
+                        </Button>
+                        <Button
+                            onClick= {this.closeModal}
+                            color="danger"
+                        >
+                            Cancelar
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }

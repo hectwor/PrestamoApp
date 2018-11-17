@@ -3,7 +3,8 @@ import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Row, Col,
     Button,
-    FormFeedback,ModalFooter, Input, ModalBody, ModalHeader, Modal
+    FormFeedback,
+    ModalFooter, Input, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
 import Login from "./Login";
 import MovimientosAdmin from "./MovimientosAdmin";
@@ -12,6 +13,7 @@ import CrearUsuario from "./CrearUsuario";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
+import moment from "moment";
 const customStyles = {
     content: {
         top: "50%",
@@ -147,6 +149,7 @@ class MainAdmin extends Component {
             redirectRecojo: true
         });
     };
+
     closeModal = () => {
         this.setState({
             usuarioEncontrado:false,
@@ -213,7 +216,13 @@ class MainAdmin extends Component {
         }
         if (redirectRecojo) {
             return (
-                <Recojo   username={this.props.username} password={this.props.password} rol = {"admin"} />
+                <Recojo
+                    username={this.props.username}
+                    password={this.props.password}
+                    idClienteBuscado = {this.state.idClienteBuscado}
+                    apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
+                    apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
+                    rol = {"admin"} />
             );
         }
         return(
@@ -298,11 +307,11 @@ class MainAdmin extends Component {
                                 <Col md={9}>
                                     <Row>
                                         <Col md={9}>
-                                            <span>Indicar DNI o Préstamo</span>
+                                            <span>Indicar DNI / Apellidos / Pasaporte</span>
                                             <Input
                                                 name="dniPasaporteBuscar"
                                                 id="dniPasaporteBuscarInput"
-                                                placeholder="DNI o Pasaporte"
+                                                placeholder=""
                                                 value={dniPasaporteBuscar}
                                                 onChange={this.handleChange}
                                                 invalid={validate.dniPasaporteBuscar === "has-danger"}
@@ -381,11 +390,11 @@ class MainAdmin extends Component {
                         <div>
                             <Row>
                                 <Col md={9}>
-                                    <span>Indicar DNI o Préstamo</span>
+                                    <span>Indicar DNI / Apellidos / Pasaporte</span>
                                     <Input
                                         name="dniPasaporteBuscar"
                                         id="dniPasaporteBuscarInput"
-                                        placeholder="DNI o Pasaporte"
+                                        placeholder=""
                                         value={dniPasaporteBuscar}
                                         onChange={this.handleChange}
                                         invalid={validate.dniPasaporteBuscar === "has-danger"}

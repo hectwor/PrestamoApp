@@ -240,11 +240,11 @@ class MainRecogedor extends Component {
                                 <Col md={9}>
                                     <Row>
                                         <Col md={9}>
-                                            <span>Indicar DNI o Préstamo</span>
+                                            <span>Indicar DNI / Apellidos / Pasaporte</span>
                                             <Input
                                                 name="dniPasaporteBuscar"
                                                 id="dniPasaporteBuscarInput"
-                                                placeholder="DNI o Pasaporte"
+                                                placeholder=""
                                                 value={dniPasaporteBuscar}
                                                 onChange={this.handleChange}
                                                 invalid={validate.dniPasaporteBuscar === "has-danger"}
@@ -323,11 +323,11 @@ class MainRecogedor extends Component {
                         <div>
                             <Row>
                                 <Col md={9}>
-                                    <span>Indicar DNI o Préstamo</span>
+                                    <span>Indicar DNI / Apellidos / Pasaporte</span>
                                     <Input
                                         name="dniPasaporteBuscar"
                                         id="dniPasaporteBuscarInput"
-                                        placeholder="DNI o Pasaporte"
+                                        placeholder=""
                                         value={dniPasaporteBuscar}
                                         onChange={this.handleChange}
                                         invalid={validate.dniPasaporteBuscar === "has-danger"}

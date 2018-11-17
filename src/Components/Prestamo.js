@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
-    Input,FormFeedback, Label,
-    Row, Col
+    Input,FormFeedback, Label,Button,
+    Row, Col,
+    ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
-import { Button } from "react-bootstrap";
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
 import MainAdmin from "./MainAdmin";
+import moment from "moment";
 class Prestamo extends Component{
     constructor(props) {
         super(props);
@@ -19,8 +20,10 @@ class Prestamo extends Component{
 
             montoPorPrestar: 0,
             montoACobrar: 0,
+            montoTotalPrestado: 0,
 
             montoActual: [this.props.saldo],
+            fechaPrestamo : moment().format('DD-MM-YYYY'),
 
             validate:{
                 montoPorPrestar:null
@@ -54,7 +57,7 @@ class Prestamo extends Component{
         this.setState(change)
     };
 
-    prestarDinero = () => {
+    confirmarPrestarDinero = () => {
         const { montoPorPrestar, montoActual, validate } = this.state;
         if(parseFloat(montoPorPrestar) > parseFloat(montoActual)){
             validate.montoPorPrestar = "has-danger";
@@ -72,12 +75,42 @@ class Prestamo extends Component{
         }
     };
 
+    enviarDatosPrestamo = () => {
+
+    };
+
+    closeModal = () => {
+        this.setState({
+            showModalConfirmation: false
+        });
+    };
+
     render() {
-        const { redirectLogin, redirectMainPrestamista, redirectMainAdmin, montoActual, montoPorPrestar, validate, montoACobrar } = this.state;
+        const {
+            redirectLogin,
+            redirectMainPrestamista,
+            redirectMainAdmin,
+            montoActual,
+            montoPorPrestar,
+            validate,
+            montoACobrar,
+            fechaPrestamo,
+            montoTotalPrestado
+        } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
             marginTop: "80px"
+        };
+        const customStyles = {
+            content: {
+                top: "50%",
+                left: "50%",
+                right: "auto",
+                bottom: "auto",
+                marginRight: "-50%",
+                transform: "translate(-50%, -50%)"
+            }
         };
         if (redirectLogin) {
             return (
@@ -179,17 +212,15 @@ class Prestamo extends Component{
                                 <br/>
                                 <Button
                                     block
-                                    bsSize="large"
-                                    onClick={this.prestarDinero}
-                                    bsStyle="success"
+                                    onClick={this.confirmarPrestarDinero}
+                                    color="info"
                                 >
                                     PRESTAR
                                 </Button>
                                 <Button
                                     block
-                                    bsSize="large"
                                     onClick={this.regresarMenu}
-                                    bsStyle="danger"
+                                    color="danger"
                                 >
                                     Regresar
                                 </Button>
@@ -198,9 +229,89 @@ class Prestamo extends Component{
                             <Col md={3}>
                             </Col>
                         </Row>
-
                     </div>
                 </div>
+                <Modal isOpen={this.state.showModalConfirmation} style={customStyles} centered size = "mg">
+                    <ModalHeader  toggle={this.closeModal}>
+                        Confirmación de Datos
+                    </ModalHeader>
+                    <ModalBody>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Nombre de Prestamista :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{this.props.username}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Fecha :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{fechaPrestamo}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Nombre de Cliente :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{this.props.apellidoPaternoBuscado} {this.props.apellidoMaternoBuscado}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto a prestar :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{montoPorPrestar}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto total prestado :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                                <div className="text-left">
+                                    <Label>{montoTotalPrestado}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick= {this.enviarDatosPrestamo}
+                            color="info"
+                        >
+                            Aceptar
+                        </Button>
+                        <Button
+                            onClick= {this.closeModal}
+                            color="danger"
+                        >
+                            Cancelar
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }
