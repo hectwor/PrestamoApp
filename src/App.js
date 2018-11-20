@@ -14,7 +14,7 @@ class App extends Component {
             left:'0',
             right:'0',
             position: 'absolute',
-            background : 'linear-gradient(to bottom right, red, yellow)'
+            background : 'linear-gradient(-135deg, #c850c0, #4158d0)'
         };
     return (
       <div className="App" style={fondo}>

@@ -117,7 +117,6 @@ class Login extends Component {
         return (
             <div className="container">
                 <header className="Logo text-left">
-                    <br />
                 </header>
                 <div className="container" style={login}>
                     <Row form>
