@@ -4,6 +4,7 @@ import Login from "./Login";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
+const axios = require('axios');
 import {
     Row,
     Col,
@@ -67,27 +68,41 @@ class MainRecogedor extends Component {
 
     buscarDNIPasaporte = () => {
         const { dniPasaporteBuscar, validate } = this.state;
+        
+        var self = this;
 
-        const apellidoPaterno = "Ramirez";
-        const apellidoMaterno = "Constantinopla";
-        const idCliente = "ID0001";
+        axios.get('https://edutafur.com/sgp/public/clientes/buscar', {
+            params: {
+                dniPasaporteApellidoBuscado: dniPasaporteBuscar
+            }
+          })
+          .then(function (response) {
+            if(!response.data[0]){
+                validate.dniPasaporteBuscar = "has-success";
+                self.setState({
+                    usuarioEncontrado: true,
+                    apellidoPaternoBuscado: response.data[0].ape_pat,
+                    apellidoMaternoBuscado: response.data[0].ape_mat,
+                    idClienteBuscado: response.data[0].id,
+                    validate:validate
+                });
+            }else{
+                validate.dniPasaporteBuscar = "has-danger";
+                self.setState({
+                    usuarioEncontrado: false,
+                    validate:validate
+                });
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+            self.setState({
+                usuarioEncontrado: false
+            });
+          })
+          .then(function () {
 
-        if(dniPasaporteBuscar === "123"){
-            validate.dniPasaporteBuscar = "has-success";
-            this.setState({
-                usuarioEncontrado: true,
-                apellidoPaternoBuscado: apellidoPaterno,
-                apellidoMaternoBuscado: apellidoMaterno,
-                idClienteBuscado: idCliente,
-                validate:validate
-            });
-        }else{
-            validate.dniPasaporteBuscar = "has-danger";
-            this.setState({
-                usuarioEncontrado: false,
-                validate:validate
-            });
-        }
+          });
     };
 
     prestamo = () => {
