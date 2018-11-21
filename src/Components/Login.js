@@ -10,6 +10,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import iconLogin from "../img/logo.png";
 import MainRecogedor from "./MainRecogedor";
 import MainAdmin from "./MainAdmin";
+const axios = require('axios');
 
 class Login extends Component {
     constructor(props) {
@@ -44,6 +45,22 @@ class Login extends Component {
         let usernameBoolean;
         let passwordBoolean;
         let rol;
+        axios.get('http://edutafur.com/sgp/public/login', {
+            params: {
+                username: username,
+                password: password
+            }
+          })
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          })
+          .then(function () {
+            // always executed
+          });  
+
 
         //****************************************************
         //****************************************************
