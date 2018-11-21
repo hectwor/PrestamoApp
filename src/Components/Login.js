@@ -45,7 +45,7 @@ class Login extends Component {
         let usernameBoolean;
         let passwordBoolean;
         let rol;
-        axios.get('http://edutafur.com/sgp/public/login', {
+        axios.get('https://edutafur.com/sgp/public/login', {
             params: {
                 username: username,
                 password: password
@@ -59,8 +59,7 @@ class Login extends Component {
           })
           .then(function () {
             // always executed
-          });  
-
+          });
 
         //****************************************************
         //****************************************************
