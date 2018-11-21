@@ -45,6 +45,7 @@ class Login extends Component {
         let usernameBoolean;
         let passwordBoolean;
         let id_rol;
+        var self = this;
         axios.get('https://edutafur.com/sgp/public/login', {
             params: {
                 username: username,
@@ -52,7 +53,6 @@ class Login extends Component {
             }
           })
           .then(function (response) {
-            console.log(response);
             usernameBoolean = response.data[0].usuario;
             passwordBoolean = response.data[0].clave;
             id_rol = response.data[0].id_rol;
@@ -67,44 +67,24 @@ class Login extends Component {
             console.log(usernameBoolean);
             console.log(passwordBoolean);
             console.log(id_rol);
+            if(usernameBoolean === true){
+                validate.username = "has-success";
+                if(passwordBoolean === true){
+                    validate.password = "has-success";
+                    if(id_rol === "1" || id_rol === 1)
+                        self.setState({ redirectAdmin: true });
+                    if(id_rol === "2" || id_rol === 2)
+                        self.setState({ redirectVendedor: true });
+                }else{
+                    validate.password = "has-danger";
+                }
+            }else{
+                validate.username = "has-danger";
+            }
+            self.setState({
+                validate
+            });
           });
-
-        //****************************************************
-        //****************************************************
-        /*if(username === "12" || username === "13"){
-            usernameBoolean = true;
-            if(password === "12" || password === "13") {
-                passwordBoolean = true;
-                if(username === "12"){
-                    id_rol = "2";
-                }else
-                    id_rol = "1";
-            }else{
-                passwordBoolean = false;
-            }
-        }else{
-            usernameBoolean = false;
-        }*/
-        //****************************************************
-        //****************************************************
-
-        if(usernameBoolean === true){
-            validate.username = "has-success";
-            if(passwordBoolean === true){
-                validate.password = "has-success";
-                if(id_rol === "1")
-                    this.setState({ redirectAdmin: true });
-                if(id_rol === "2")
-                    this.setState({ redirectVendedor: true });
-            }else{
-                validate.password = "has-danger";
-            }
-        }else{
-            validate.username = "has-danger";
-        }
-        this.setState({
-            validate
-        });
     };
 
     validateForm = () => {
