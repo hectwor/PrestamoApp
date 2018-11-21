@@ -4,7 +4,6 @@ import Login from "./Login";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
-const axios = require('axios');
 import {
     Row,
     Col,
@@ -13,6 +12,7 @@ import {
     Modal,ModalHeader,ModalBody, ModalFooter,
     Input, FormFeedback
 } from 'reactstrap';
+const axios = require('axios');
 
 const customStyles = {
     content: {
