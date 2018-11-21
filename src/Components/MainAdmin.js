@@ -14,6 +14,7 @@ import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
 import moment from "moment";
+const axios = require('axios');
 const customStyles = {
     content: {
         top: "50%",
