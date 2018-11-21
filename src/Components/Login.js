@@ -44,7 +44,7 @@ class Login extends Component {
         //responder usernameBoolean, passwordBoolean, rol
         let usernameBoolean;
         let passwordBoolean;
-        let rol;
+        let id_rol;
         axios.get('https://edutafur.com/sgp/public/login', {
             params: {
                 username: username,
@@ -53,9 +53,15 @@ class Login extends Component {
           })
           .then(function (response) {
             console.log(response);
+            usernameBoolean = response.usuario;
+            passwordBoolean = response.clave;
+            id_rol = response.id_rol;
           })
           .catch(function (error) {
             console.log(error);
+            usernameBoolean = "Error";
+            passwordBoolean = "Error";
+            id_rol = "0";
           })
           .then(function () {
             // always executed
@@ -63,20 +69,20 @@ class Login extends Component {
 
         //****************************************************
         //****************************************************
-        if(username === "12" || username === "13"){
+        /*if(username === "12" || username === "13"){
             usernameBoolean = true;
             if(password === "12" || password === "13") {
                 passwordBoolean = true;
                 if(username === "12"){
-                    rol = "Recogedor";
+                    id_rol = "2";
                 }else
-                    rol = "Admin";
+                    id_rol = "1";
             }else{
                 passwordBoolean = false;
             }
         }else{
             usernameBoolean = false;
-        }
+        }*/
         //****************************************************
         //****************************************************
 
@@ -84,9 +90,9 @@ class Login extends Component {
             validate.username = "has-success";
             if(passwordBoolean === true){
                 validate.password = "has-success";
-                if(rol === "Admin")
+                if(id_rol === "1")
                     this.setState({ redirectAdmin: true });
-                if(rol === "Recogedor")
+                if(id_rol === "2")
                     this.setState({ redirectVendedor: true });
             }else{
                 validate.password = "has-danger";
