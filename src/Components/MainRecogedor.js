@@ -77,7 +77,8 @@ class MainRecogedor extends Component {
             }
           })
           .then(function (response) {
-            if(!response.data[0]){
+              console.log(response);
+            if((response.data).lenght !== 0){
                 validate.dniPasaporteBuscar = "has-success";
                 self.setState({
                     usuarioEncontrado: true,
