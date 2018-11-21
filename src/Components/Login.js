@@ -53,9 +53,9 @@ class Login extends Component {
           })
           .then(function (response) {
             console.log(response);
-            usernameBoolean = response.usuario;
-            passwordBoolean = response.clave;
-            id_rol = response.id_rol;
+            usernameBoolean = response.data[0].usuario;
+            passwordBoolean = response.data[0].clave;
+            id_rol = response.data[0].id_rol;
           })
           .catch(function (error) {
             console.log(error);
@@ -64,7 +64,9 @@ class Login extends Component {
             id_rol = "0";
           })
           .then(function () {
-            // always executed
+            console.log(usernameBoolean);
+            console.log(passwordBoolean);
+            console.log(id_rol);
           });
 
         //****************************************************
