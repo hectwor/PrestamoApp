@@ -9,6 +9,7 @@ import {Button, ControlLabel} from "react-bootstrap";
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
 import MainAdmin from "./MainAdmin";
+const axios = require('axios');
 class NuevoCliente extends Component {
     constructor(props) {
         super(props);
@@ -70,8 +71,38 @@ class NuevoCliente extends Component {
 
     registrarCliente = ()=>{
         const contVal = this.validar();
+        const { apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono, direccionDomicilio, telefonoReferencia, direccionTrabajo } = this.state;
+        const { rol } = this.props;
+        var self = this;
         if(contVal === 0){
-            alert("Nuevo cliente FAKE");
+            axios.post('https://edutafur.com/sgp/public/clientes/agregar', {
+                nombre: nombres,
+                apePat: apellidoPaterno,
+                apeMat: apellidoMaterno,
+                telefonoPersonal: telefono,
+                telefonoReferencia:telefonoReferencia,
+                direccion:direccionDomicilio,
+                direccionTrabajo:direccionTrabajo,
+                nroDoc:dniPasaporte
+              })
+              .then(function (response) {
+                  if(response.status === 200){
+                    alert("Nuevo cliente Registrado");
+                    if(rol === "admin"){
+                        self.setState({
+                            redirectMainAdmin: true,
+                        });
+                    }
+                    if(rol === "prestamista"){
+                        self.setState({
+                            redirectMainPrestamista: true,
+                        });
+                    }
+                  }
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
         }
     };
 

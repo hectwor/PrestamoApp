@@ -13,7 +13,6 @@ import CrearUsuario from "./CrearUsuario";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
-import moment from "moment";
 const axios = require('axios');
 const customStyles = {
     content: {
@@ -126,7 +125,8 @@ class MainAdmin extends Component {
           })
           .then(function (response) {
               console.log(response);
-            if((response.data).lenght !== 0){
+              console.log(response.data[0]);
+            if(response.data[0] !== undefined){
                 validate.dniPasaporteBuscar = "has-success";
                 self.setState({
                     usuarioEncontrado: true,
