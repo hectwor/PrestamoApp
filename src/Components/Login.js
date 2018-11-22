@@ -64,9 +64,6 @@ class Login extends Component {
             id_rol = "0";
           })
           .then(function () {
-            console.log(usernameBoolean);
-            console.log(passwordBoolean);
-            console.log(id_rol);
             if(usernameBoolean === true){
                 validate.username = "has-success";
                 if(passwordBoolean === true){
