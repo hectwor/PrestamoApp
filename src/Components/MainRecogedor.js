@@ -12,6 +12,7 @@ import {
     Modal,ModalHeader,ModalBody, ModalFooter,
     Input, FormFeedback
 } from 'reactstrap';
+import Select from 'react-select';
 const axios = require('axios');
 
 const customStyles = {
@@ -33,8 +34,11 @@ class MainRecogedor extends Component {
             idClienteBuscado: "",
             apellidoPaternoBuscado:"",
             apellidoMaternoBuscado:"",
+            idClienteSeleccionado: "",
+            apellidoPaternoSeleccionado:"",
+            apellidoMaternoSeleccionado:"",
 
-            dniPasaporteBuscar: "",
+            dniPasaporteBuscar: null,
             selectUsuarioPrestar:"Seleccione tipo de Usuario",
 
             montoActual: "500.00",
@@ -51,7 +55,9 @@ class MainRecogedor extends Component {
             redirectRecojo:false,
             usuarioEncontrado:false,
 
-            visibleNuevo:"hidden"
+            visibleNuevo:"hidden",
+
+            options:[]
         };
     }
     handleChange = event => {
@@ -60,40 +66,22 @@ class MainRecogedor extends Component {
         this.setState(change)
     };
 
-    Logout = () => {
-        this.setState({
-            redirectLogin: true,
+    handleChangeSelect = (dniPasaporteBuscar) => {
+        this.setState({ 
+            dniPasaporteBuscar :  dniPasaporteBuscar
         });
-    };
-
-    buscarDNIPasaporte = () => {
-        const { dniPasaporteBuscar, validate } = this.state;
-        
         var self = this;
-
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar', {
+        axios.get('https://edutafur.com/sgp/public/clientes/buscar',{
             params: {
-                dniPasaporteApellidoBuscado: dniPasaporteBuscar
+                dniPasaporteApellidoBuscado : dniPasaporteBuscar.value
             }
-          })
+        })
           .then(function (response) {
-              console.log(response);
-            if((response.data).lenght !== 0){
-                validate.dniPasaporteBuscar = "has-success";
                 self.setState({
-                    usuarioEncontrado: true,
-                    apellidoPaternoBuscado: response.data[0].ape_pat,
-                    apellidoMaternoBuscado: response.data[0].ape_mat,
-                    idClienteBuscado: response.data[0].id,
-                    validate:validate
+                    apellidoPaternoSeleccionado : response.data[0].ape_pat,
+                    apellidoMaternoSeleccionado : response.data[0].ape_mat,
+                    idClienteSeleccionado : response.data[0].id
                 });
-            }else{
-                validate.dniPasaporteBuscar = "has-danger";
-                self.setState({
-                    usuarioEncontrado: false,
-                    validate:validate
-                });
-            }
           })
           .catch(function (error) {
             console.log(error);
@@ -102,8 +90,33 @@ class MainRecogedor extends Component {
             });
           })
           .then(function () {
-
           });
+      }
+
+    Logout = () => {
+        this.setState({
+            redirectLogin: true,
+        });
+    };
+
+    seleccionarDNIPasaporte = () => {
+        const { dniPasaporteBuscar, validate, apellidoPaternoSeleccionado, apellidoMaternoSeleccionado, idClienteSeleccionado } = this.state;
+        if(dniPasaporteBuscar !== null || idClienteSeleccionado !== ""){
+            validate.dniPasaporteBuscar = "has-success";
+            this.setState({
+                usuarioEncontrado: true,
+                apellidoPaternoBuscado: apellidoPaternoSeleccionado,
+                apellidoMaternoBuscado: apellidoMaternoSeleccionado,
+                idClienteBuscado: idClienteSeleccionado,
+                validate:validate
+            });
+        }else{
+            validate.dniPasaporteBuscar = "has-danger";
+            this.setState({
+                usuarioEncontrado: false,
+                validate:validate
+            });
+        }
     };
 
     prestamo = () => {
@@ -125,19 +138,69 @@ class MainRecogedor extends Component {
     };
 
     openModalPrestar = () => {
-        this.setState({
-            showModalPrestarOption: true
-        });
+        var self = this;
+        axios.get('https://edutafur.com/sgp/public/clientes/buscar')
+          .then(function (response) {
+                const clients = response.data;
+                let optionsClients = [
+                ];
+                optionsClients = clients.map((n) => {
+                    let client = {};
+                    client['value']= n.nro_doc;
+                    client['label']= n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
+                    return client;
+                })
+                self.setState({
+                    options: optionsClients
+                });
+          })
+          .catch(function (error) {
+            console.log(error);
+            self.setState({
+                usuarioEncontrado: false
+            });
+          })
+          .then(function () {
+            self.setState({
+                showModalPrestarOption: true
+            });
+          });
     };
 
     openModalCobrar = () => {
-        this.setState({
-            showModalRecogerOption: true,
-        });
+        var self = this;
+        axios.get('https://edutafur.com/sgp/public/clientes/buscar')
+          .then(function (response) {
+                const clients = response.data;
+                let optionsClients = [
+                ];
+                optionsClients = clients.map((n) => {
+                    let client = {};
+                    client['value']= n.nro_doc;
+                    client['label']= n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
+                    return client;
+                })
+                self.setState({
+                    options: optionsClients
+                });
+          })
+          .catch(function (error) {
+            console.log(error);
+            self.setState({
+                usuarioEncontrado: false
+            });
+          })
+          .then(function () {
+            self.setState({
+                showModalRecogerOption: true,
+            });
+          });
     };
 
     closeModal = () => {
         this.setState({
+            dniPasaporteBuscar:null,
+            idClienteSeleccionado:"",
             usuarioEncontrado:false,
             showModalPrestarOption: false,
             showModalRecogerOption: false
@@ -145,7 +208,14 @@ class MainRecogedor extends Component {
     };
 
     render() {
-        const { montoActual, redirectLogin, redirectNuevoUsuario, redirectPrestamo,redirectRecojo, dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado, validate } = this.state;
+        const { 
+            montoActual, 
+            redirectLogin, 
+            redirectNuevoUsuario, redirectPrestamo, redirectRecojo, 
+            dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado, 
+            validate,
+            options
+         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -256,24 +326,25 @@ class MainRecogedor extends Component {
                                 <Col md={9}>
                                     <Row>
                                         <Col md={9}>
-                                            <span>Indicar DNI / Apellidos / Pasaporte</span>
-                                            <Input
+                                            <span>Indicar Apellidos o Nombres</span>
+                                            <Select
                                                 name="dniPasaporteBuscar"
                                                 id="dniPasaporteBuscarInput"
                                                 placeholder=""
                                                 value={dniPasaporteBuscar}
-                                                onChange={this.handleChange}
+                                                onChange={this.handleChangeSelect}
                                                 invalid={validate.dniPasaporteBuscar === "has-danger"}
                                                 valid={validate.username === "has-success"}
+                                                options={options}
                                             />
                                             <FormFeedback invalid>Cliente no encontrado</FormFeedback>
                                         </Col>
                                         <Col md={3}>
                                             <br />
                                             <Button
-                                                onClick= {this.buscarDNIPasaporte}
+                                                onClick= {this.seleccionarDNIPasaporte}
                                             >
-                                                Buscar
+                                                Seleccionar
                                             </Button>
                                         </Col>
                                     </Row>
@@ -339,24 +410,25 @@ class MainRecogedor extends Component {
                         <div>
                             <Row>
                                 <Col md={9}>
-                                    <span>Indicar DNI / Apellidos / Pasaporte</span>
-                                    <Input
+                                    <span>Indicar Apellidos o Nombres</span>
+                                    <Select
                                         name="dniPasaporteBuscar"
                                         id="dniPasaporteBuscarInput"
                                         placeholder=""
                                         value={dniPasaporteBuscar}
-                                        onChange={this.handleChange}
+                                        onChange={this.handleChangeSelect}
                                         invalid={validate.dniPasaporteBuscar === "has-danger"}
                                         valid={validate.username === "has-success"}
+                                        options={options}
                                     />
                                     <FormFeedback invalid>Cliente no encontrado</FormFeedback>
                                 </Col>
                                 <Col md={3}>
                                     <br />
                                     <Button
-                                        onClick= {this.buscarDNIPasaporte}
+                                        onClick= {this.seleccionarDNIPasaporte}
                                     >
-                                        Buscar
+                                        Seleccionar
                                     </Button>
                                 </Col>
                             </Row>

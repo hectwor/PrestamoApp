@@ -15,6 +15,7 @@ import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
 const axios = require('axios');
+
 const customStyles = {
     content: {
         top: "50%",
@@ -200,7 +201,7 @@ class MainAdmin extends Component {
 
     seleccionarDNIPasaporte = () => {
         const { dniPasaporteBuscar, validate, apellidoPaternoSeleccionado, apellidoMaternoSeleccionado, idClienteSeleccionado } = this.state;
-        if(dniPasaporteBuscar !== null){
+        if(dniPasaporteBuscar !== null || idClienteSeleccionado !== ""){
             validate.dniPasaporteBuscar = "has-success";
             this.setState({
                 usuarioEncontrado: true,
@@ -232,6 +233,8 @@ class MainAdmin extends Component {
 
     closeModal = () => {
         this.setState({
+            dniPasaporteBuscar:null,
+            idClienteSeleccionado:"",
             usuarioEncontrado:false,
             showModalPrestarOption: false,
             showModalRecogerOption: false
@@ -286,6 +289,7 @@ class MainAdmin extends Component {
         if (redirectPrestamo) {
             return (
                 <Prestamo
+                    id_trabajador = {this.props.id_trabajador} 
                     username={this.props.username}
                     saldo = {this.state.montoActual}
                     idClienteBuscado = {this.state.idClienteBuscado}
@@ -298,6 +302,7 @@ class MainAdmin extends Component {
         if (redirectRecojo) {
             return (
                 <Recojo
+                    id_trabajador = {this.props.id_trabajador} 
                     username={this.props.username}
                     password={this.props.password}
                     idClienteBuscado = {this.state.idClienteBuscado}
@@ -388,7 +393,7 @@ class MainAdmin extends Component {
                                 <Col md={9}>
                                     <Row>
                                         <Col md={9}>
-                                            <span>Indicar DNI / Apellidos / Pasaporte</span>
+                                            <span>Indicar Apellidos o Nombres</span>
                                             <Select
                                                 name="dniPasaporteBuscar"
                                                 id="dniPasaporteBuscarInput"
@@ -472,7 +477,7 @@ class MainAdmin extends Component {
                         <div>
                             <Row>
                                 <Col md={9}>
-                                    <span>Indicar DNI / Apellidos / Pasaporte</span>
+                                    <span>Indicar Apellidos o Nombres</span>
                                     <Select
                                         name="dniPasaporteBuscar"
                                         id="dniPasaporteBuscarInput"

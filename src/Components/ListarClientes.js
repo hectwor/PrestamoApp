@@ -7,7 +7,8 @@ import {
 } from 'reactstrap';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
-
+import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+const axios = require('axios');
 class ListarClientes extends Component {
     constructor(props) {
         super(props);
@@ -16,9 +17,38 @@ class ListarClientes extends Component {
             dniPasaporteApellidoBuscado : "",
             listaDeDnis : null,
             redirectLogin:false,
-            redirectMainAdmin:false
+            redirectMainAdmin:false,
+
+            clients:[]
         }
     }
+
+    componentWillMount () {
+        let self = this;
+
+        axios.get('https://edutafur.com/sgp/public/clientes/buscar')
+        .then(function (response) {
+              const clients = response.data;
+              let optionsClients = [
+              ];
+              optionsClients = clients.map((n) => {
+                  let client = {};
+                  client['dni']= n.nro_doc;
+                  client['apellidos']= n.ape_pat + ' ' + n.ape_mat;
+                  client['nombres']= n.nombre;
+                  return client;
+              })
+              self.setState({
+                  clients: optionsClients
+              });
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+        .then(function () {
+        });
+    }
+
     Logout = () => {
         this.setState({
             redirectLogin: true,
@@ -38,7 +68,7 @@ class ListarClientes extends Component {
     };
 
     render() {
-        const { redirectLogin, redirectMainAdmin, dniPasaporteApellidoBuscado } = this.state;
+        const { redirectLogin, redirectMainAdmin, dniPasaporteApellidoBuscado, clients } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -71,67 +101,19 @@ class ListarClientes extends Component {
                         <h1 className="display-6">Lista de Clientes</h1>
                         <br/>
                         <Row>
-                            <Col md={3}>
-                            </Col>
-                            <Col md={6}>
-                                <div className="text-left">
-                                    <Label>DNI / Pasaporte / Apellidos</Label>
-                                    <Input
-                                        type="text"
-                                        name="dniPasaporteApellidoBuscado"
-                                        id="dniPasaporteApellidoBuscadoInput"
-                                        value={dniPasaporteApellidoBuscado}
-                                        onChange={this.handleChange}
-                                    />
-                                </div>
-                            </Col>
-                            <Col md={3}>
-                            </Col>
-                        </Row>
-                        <Row>
                             <Col md={1}>
                             </Col>
                             <Col md={10}>
-                                <Table responsive>
-                                    <thead>
-                                    <tr>
-                                        <th>DNI/Pasaporte</th>
-                                        <th>Apellidos</th>
-                                        <th>Nombres</th>
-                                        <th>Fecha de Préstamo</th>
-                                        <th>Fecha de Último Pago</th>
-                                        <th>Monto Prestado</th>
-                                        <th>Monto Abonado</th>
-                                        <th>Monto Faltante</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <th scope="row">77777777</th>
-                                        <td>Mark</td>
-                                        <td>Préstamo</td>
-                                        <td>S/. 100.00</td>
-                                        <td>Juan</td>
-                                        <td>S/. 200.00</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">77777777</th>
-                                        <td>Jacob</td>
-                                        <td>Préstamo</td>
-                                        <td>S/. 100.00</td>
-                                        <td>Tolomeo</td>
-                                        <td>S/. 300.00</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">77777777</th>
-                                        <td>Larry</td>
-                                        <td>Recojo</td>
-                                        <td>S/. 100.00</td>
-                                        <td>Timoteo</td>
-                                        <td>S/. 200.00</td>
-                                    </tr>
-                                    </tbody>
-                                </Table>
+                            <BootstrapTable 
+                                data={clients} 
+                                version='4'
+                                search
+                                pagination
+                            >
+                                <TableHeaderColumn isKey dataField='dni'>DNI/Pasaporte</TableHeaderColumn>
+                                <TableHeaderColumn dataField='apellidos'>Apellidos</TableHeaderColumn>
+                                <TableHeaderColumn dataField='nombres'>Nombres</TableHeaderColumn>
+                            </BootstrapTable>
                                 <Button
                                     block
                                     onClick={this.regresarMenu}

@@ -20,6 +20,7 @@ class Login extends Component {
             showModalLogin: false,
             loading: false,
             error: null,
+            id_usuario:"",
             username: "",
             password: "",
             validate: {
@@ -39,12 +40,13 @@ class Login extends Component {
     };
 
     handleSubmit = event => {
-        const { username, password, validate } = this.state;
+        const { id_usuario, username, password, validate } = this.state;
         //consultar username, password
         //responder usernameBoolean, passwordBoolean, rol
         let usernameBoolean;
         let passwordBoolean;
         let id_rol;
+        let id_trabajador;
         var self = this;
         axios.get('https://edutafur.com/sgp/public/login', {
             params: {
@@ -56,6 +58,7 @@ class Login extends Component {
             usernameBoolean = response.data[0].usuario;
             passwordBoolean = response.data[0].clave;
             id_rol = response.data[0].id_rol;
+            id_trabajador = response.data[0].id_trabajador;
           })
           .catch(function (error) {
             console.log(error);
@@ -69,9 +72,15 @@ class Login extends Component {
                 if(passwordBoolean === true){
                     validate.password = "has-success";
                     if(id_rol === "1" || id_rol === 1)
-                        self.setState({ redirectAdmin: true });
+                        self.setState({ 
+                            id_usuario: id_usuario,
+                            redirectAdmin: true
+                        });
                     if(id_rol === "2" || id_rol === 2)
-                        self.setState({ redirectVendedor: true });
+                        self.setState({ 
+                            id_usuario: id_usuario,
+                            redirectVendedor: true 
+                        });
                 }else{
                     validate.password = "has-danger";
                 }
@@ -107,12 +116,12 @@ class Login extends Component {
         };
         if (redirectVendedor) {
             return (
-                <MainRecogedor username={this.state.username} password={this.state.password} />
+                <MainRecogedor id_trabajador = {this.state.id_usuario} username={this.state.username} password={this.state.password} />
             );
         }
         if (redirectAdmin) {
             return (
-                <MainAdmin username={this.state.username} password={this.state.password} />
+                <MainAdmin id_trabajador = {this.state.id_usuario} username={this.state.username} password={this.state.password} />
             );
         }
         return (

@@ -19,6 +19,8 @@ class Recojo extends Component{
             redirectMainPrestamista:false,
             redirectMainAdmin:false,
 
+            idCliente:this.props.idClienteBuscado,
+            idTrabajador:this.props.id_trabajador,
             montoPorRecoger: 0,
             saldoFaltante: 0,
             montoPrestado: 0,
