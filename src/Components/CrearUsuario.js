@@ -7,6 +7,7 @@ import {
 } from 'reactstrap';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
+const axios = require('axios');
 
 class CrearUsuario extends Component {
     constructor(props) {
@@ -16,9 +17,12 @@ class CrearUsuario extends Component {
             redirectLogin:false,
             redirectMainAdmin:false,
 
-            selectRol:null,
+            selectRol:2,
+            check:true,
             apellidosCompletos:"",
             nombreCompletos:"",
+            telefono:"",
+            nroDoc:"",
             nuevoNombreUsuario:"",
             nuevaContrasena:"",
 
@@ -26,7 +30,9 @@ class CrearUsuario extends Component {
                 nombreCompletos:null,
                 apellidosCompletos:null,
                 nuevoNombreUsuario:null,
-                nuevaContrasena:null
+                nuevaContrasena:null,
+                nroDoc:null,
+                telefono:null
             }
         }
     }
@@ -41,6 +47,11 @@ class CrearUsuario extends Component {
         change[event.target.name] = event.target.value;
         this.setState(change)
     };
+    handleCheck = event => {
+        let change = {};
+        change[event.target.name] = event.target.checked;
+        this.setState(change)
+    };
 
     regresarMenu = ()=>{
         this.setState({
@@ -49,13 +60,39 @@ class CrearUsuario extends Component {
     };
     registrarUsuario = () => {
         const contVal = this.validar();
+        let self = this;
+        const { apellidosCompletos, nombreCompletos, nuevoNombreUsuario, nuevaContrasena, selectRol, check, telefono, nroDoc } = this.state;
         if(contVal === 0){
-            alert("Nuevo Usuario FAKE");
+            let checkI;
+            if(check === true)
+                checkI = 1;
+            else
+                checkI = 0;
+            axios.post('https://edutafur.com/sgp/public/usuario/agregar', {
+                nombre: nombreCompletos,
+                apePat: apellidosCompletos,
+                usuario:nuevoNombreUsuario,
+                telefono:telefono,
+                nroDoc:nroDoc,
+                clave:nuevaContrasena,
+                estado:checkI,
+                idRol: selectRol
+            }).then(function (response) {
+                if(response.status === 200){
+                    alert("Nuevo Usuario Registrado");
+                    self.setState({
+                        redirectMainAdmin: true,
+                    });
+                }
+            })
+                .catch(function (error) {
+                    console.log(error);
+                });
         }
     };
 
     validar = () => {
-        const {validate, apellidosCompletos, nombreCompletos, nuevoNombreUsuario, nuevaContrasena } = this.state;
+        const {validate, apellidosCompletos, nombreCompletos, nuevoNombreUsuario, nuevaContrasena, telefono, nroDoc } = this.state;
         let contVal = 0;
         if(apellidosCompletos==="" || apellidosCompletos === null){
             validate.apellidosCompletos = "has-danger";
@@ -67,6 +104,16 @@ class CrearUsuario extends Component {
             contVal++;
         }else
             validate.nombreCompletos = "has-success";
+        if(telefono==="" || telefono === null){
+            validate.telefono = "has-danger";
+            contVal++;
+        }else
+            validate.telefono = "has-success";
+        if(nroDoc==="" || nroDoc === null){
+            validate.nroDoc = "has-danger";
+            contVal++;
+        }else
+            validate.nroDoc = "has-success";
         if(nuevoNombreUsuario==="" || nuevoNombreUsuario === null){
             validate.nuevoNombreUsuario = "has-danger";
             contVal++;
@@ -84,7 +131,8 @@ class CrearUsuario extends Component {
     };
 
     render(){
-        const { redirectLogin, redirectMainAdmin, validate, apellidosCompletos, nombreCompletos, nuevoNombreUsuario, nuevaContrasena } = this.state;
+        const { redirectLogin, redirectMainAdmin, validate, apellidosCompletos, nombreCompletos, telefono, nroDoc,
+            nuevoNombreUsuario, nuevaContrasena, selectRol, check } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -162,6 +210,45 @@ class CrearUsuario extends Component {
                                     <Col md={6}>
                                         <FormGroup>
                                             <div className="text-left">
+                                                <Label>Número Documento DNI/Pasaporte</Label>
+                                                <Input
+                                                    name="nroDoc"
+                                                    id="nroDocInput"
+                                                    placeholder=""
+                                                    type="text"
+                                                    value={nroDoc}
+                                                    invalid={validate.nroDoc === "has-danger"}
+                                                    valid={validate.nroDoc === "has-success"}
+                                                    onChange={this.handleChange}
+                                                />
+                                                <FormFeedback invalid>Campo Obligatorio</FormFeedback>
+                                            </div>
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={6}>
+                                        <FormGroup>
+                                            <div className="text-left">
+                                                <br/>
+                                                <Label>Teléfono</Label>
+                                                <Input
+                                                    name="telefono"
+                                                    id="telefonoInput"
+                                                    placeholder=""
+                                                    type="text"
+                                                    value={telefono}
+                                                    invalid={validate.telefono === "has-danger"}
+                                                    valid={validate.telefono === "has-success"}
+                                                    onChange={this.handleChange}
+                                                />
+                                                <FormFeedback invalid>Campo Obligatorio</FormFeedback>
+                                            </div>
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col md={6}>
+                                        <FormGroup>
+                                            <div className="text-left">
                                                 <Label><b>Nombre de Usuario</b></Label>
                                                 <Input
                                                     name="nuevoNombreUsuario"
@@ -204,9 +291,12 @@ class CrearUsuario extends Component {
                                                 <Input
                                                     type="select"
                                                     name="selectRol"
-                                                    id="selectRolInput">
-                                                    <option>COBRADOR/PRESTADOR</option>
-                                                    <option>ADMIN</option>
+                                                    value = {selectRol}
+                                                    id="selectRolInput"
+                                                    onChange={this.handleChange}
+                                                >
+                                                    <option value="2">COBRADOR/PRESTADOR</option>
+                                                    <option value="1">ADMIN</option>
                                                 </Input>
                                             </div>
                                         </FormGroup>
@@ -218,7 +308,9 @@ class CrearUsuario extends Component {
                                                 <Input
                                                     type="checkbox"
                                                     name="check"
+                                                    checked={check}
                                                     id="exampleCheck"
+                                                    onChange={this.handleCheck}
                                                 >
                                                 </Input>
                                                 <Label>Activo</Label>
