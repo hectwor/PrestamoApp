@@ -2,12 +2,13 @@ import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Row, Col,
-    Button, Input, Label,
-    Table
+    Button
 } from 'reactstrap';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
+import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
 const axios = require('axios');
 class ListarClientes extends Component {
     constructor(props) {
@@ -19,25 +20,41 @@ class ListarClientes extends Component {
             redirectLogin:false,
             redirectMainAdmin:false,
 
-            clients:[]
+            clients:[],
+            columnsTable :
+                {
+                    "dni": "DNI",
+                    "cliente": 'Cliente',
+                    "prestamista": "Prestamista",
+                    "montoP": "Monto Prestado",
+                    "montoD": "Mondo Deuda",
+                    "fechaP": "Fecha Préstamo"
+                }
         }
     }
 
     componentWillMount () {
         let self = this;
 
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar')
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar')
         .then(function (response) {
               const clients = response.data;
-              let optionsClients = [
-              ];
-              optionsClients = clients.map((n) => {
+
+              let optionsClients = clients.map((n) => {
                   let client = {};
                   client['dni']= n.nro_doc;
-                  client['apellidos']= n.ape_pat + ' ' + n.ape_mat;
-                  client['nombres']= n.nombre;
+                  client['cliente']= n.cliente + ' ' + n.ape_mat;
+                  client['prestamista']= n.prestamista;
+                  client['montoP']= n.monto_prestamo;
+                  client['montoD']= n.monto_deuda;
+                  client['fechaP']= n.fecha_prestamo;
+                  client['fechaV']= n.fecha_vencimiento;
+                  client['fechaUP']= n.fecha_ultimo_pago;
+                  client['montoTRecaudado']= n.monto_total_recaudado;
+                  client['montoDR']= n.monto_deuda_restante;
+                  client['cancelado']= n.cancelado;
                   return client;
-              })
+              });
               self.setState({
                   clients: optionsClients
               });
@@ -67,8 +84,13 @@ class ListarClientes extends Component {
         });
     };
 
+    handleClickTr = (dni) => {
+      console.log(dni)
+    };
+
     render() {
-        const { redirectLogin, redirectMainAdmin, dniPasaporteApellidoBuscado, clients } = this.state;
+        const { redirectLogin, redirectMainAdmin, clients, columnsTable } = this.state;
+        let self = this;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -104,16 +126,33 @@ class ListarClientes extends Component {
                             <Col md={1}>
                             </Col>
                             <Col md={10}>
-                            <BootstrapTable 
-                                data={clients} 
-                                version='4'
-                                search
-                                pagination
-                            >
-                                <TableHeaderColumn isKey dataField='dni'>DNI/Pasaporte</TableHeaderColumn>
-                                <TableHeaderColumn dataField='apellidos'>Apellidos</TableHeaderColumn>
-                                <TableHeaderColumn dataField='nombres'>Nombres</TableHeaderColumn>
-                            </BootstrapTable>
+                                <Table>
+                                    <Thead>
+                                        <Tr>
+                                            <Th>{columnsTable.dni}</Th>
+                                            <Th>{columnsTable.cliente}</Th>
+                                            <Th>{columnsTable.prestamista}</Th>
+                                            <Th>{columnsTable.montoP}</Th>
+                                            <Th>{columnsTable.montoD}</Th>
+                                            <Th>{columnsTable.fechaP}</Th>
+                                        </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                    {clients.map(function(item, key) {
+                                        return (
+                                            <Tr key = {key}>
+                                                <Td  onClick={self.handleClickTr(item.dni)} >{item.dni}</Td>
+                                                <Td >{item.cliente}</Td>
+                                                <Td>{item.prestamista}</Td>
+                                                <Td>{item.montoP}</Td>
+                                                <Td>{item.montoD}</Td>
+                                                <Td>{item.fechaP}</Td>
+                                            </Tr>
+                                        )
+
+                                    })}
+                                    </Tbody>
+                                </Table>
                                 <Button
                                     block
                                     onClick={this.regresarMenu}
