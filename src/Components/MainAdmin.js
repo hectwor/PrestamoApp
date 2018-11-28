@@ -268,22 +268,22 @@ class MainAdmin extends Component {
         }
         if (redirectOpenClientes) {
             return (
-                <ListarClientes   username={this.props.username} password={this.props.password} />
+                <ListarClientes id_trabajador={this.props.id_trabajador}  username={this.props.username} password={this.props.password} />
             );
         }
         if (redirectCrearUsuario) {
             return (
-                <CrearUsuario   username={this.props.username} password={this.props.password} />
+                <CrearUsuario  id_trabajador = {this.props.id_trabajador}  username={this.props.username} password={this.props.password} />
             );
         }
         if (redirectMovimientosAdmin) {
             return (
-                <MovimientosAdmin   username={this.props.username} password={this.props.password} />
+                <MovimientosAdmin id_trabajador={this.props.id_trabajador}   username={this.props.username} password={this.props.password} />
             );
         }
         if (redirectNuevoCliente) {
             return (
-                <NuevoCliente   username={this.props.username} password={this.props.password} rol = {"admin"}/>
+                <NuevoCliente id_trabajador={this.props.id_trabajador}   username={this.props.username} password={this.props.password} rol = {"admin"}/>
             );
         }
         if (redirectPrestamo) {

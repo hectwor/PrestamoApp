@@ -3,12 +3,14 @@ import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Row, Col,
     Button, Input, Label,
-    Table
 } from 'reactstrap';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
 import moment from "moment";
-
+import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
+import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
+const axios = require('axios');
 class MovimientosAdmin extends Component {
     constructor(props) {
         super(props);
@@ -20,15 +22,61 @@ class MovimientosAdmin extends Component {
             fechaFinBusqueda:  moment().format('YYYY-MM-DD'),
 
             redirectLogin:false,
-            redirectMainAdmin:false
+            redirectMainAdmin:false,
+
+            movimientos: [],
+            columnsTable:
+            {
+                "Tipo_Movimiento": "Tipo",
+                "prestamista": 'Prestamista',
+                "cliente": "Cliente",
+                "monto_deuda": "Deuda",
+                "monto_total_recaudado": "TotalRecaudado",
+                "fecha_movimiento": "Fecha Movimiento",
+                "movimiento": "Detalles"
+            }
         }
     }
 
     componentWillMount (){
-        //SOLICITAR INFO
-        this.setState({
-            montoActualDiaTotal: "10000.00"
-        });
+        let self = this;
+        const { fechaInicioBusqueda, fechaFinBusqueda } = this.state;
+        let sumaMontoDia= 0;
+        axios.get('https://edutafur.com/sgp/public/prestamos/movimientos/buscar', {
+            params: {
+                fechaInicioBusqueda: fechaInicioBusqueda,
+                fechaFinBusqueda: fechaFinBusqueda
+            }
+        })
+            .then(function (response) {
+                const mov = response.data;
+                let optionsMov = mov.map((n) => {
+                    let movs = {};
+                    movs['Tipo_Movimiento'] = n.Tipo_Movimiento;
+                    movs['prestamista'] = n.prestamista;
+                    movs['cliente'] = n.cliente;
+                    movs['monto_deuda'] = n.monto_deuda;
+                    movs['monto_total_recaudado'] = n.monto_total_recaudado;
+                    movs['fecha_movimiento'] = n.fecha_movimiento;
+                    movs['movimiento'] = n.movimiento;
+                    if (n.Tipo_Movimiento === "Recojo") {
+                        sumaMontoDia = sumaMontoDia + parseFloat(n.monto_total_recaudado);
+                    }
+                    if (n.Tipo_Movimiento === "Prestamo"){
+                        sumaMontoDia = sumaMontoDia - parseFloat(n.monto_total_recaudado);
+                    }
+                    return movs;
+                });
+                self.setState({
+                    movimientos: optionsMov,
+                    montoActualDiaTotal: sumaMontoDia
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+            .then(function () {
+            });
     };
 
     handleChange = event => {
@@ -44,7 +92,36 @@ class MovimientosAdmin extends Component {
     };
 
     buscarMovimientos =() =>{
-
+        const { fechaInicioBusqueda, fechaFinBusqueda } = this.state;
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/prestamos/movimientos/buscar', {
+            params: {
+                fechaInicioBusqueda: fechaInicioBusqueda,
+                fechaFinBusqueda: fechaFinBusqueda
+            }
+        })
+            .then(function (response) {
+                const clients = response.data;
+                let optionsClients = clients.map((n) => {
+                    let client = {};
+                    client['Tipo_Movimiento'] = n.Tipo_Movimiento;
+                    client['prestamista'] = n.prestamista;
+                    client['cliente'] = n.cliente;
+                    client['monto_prestamo'] = n.monto_prestamo;
+                    client['monto_deuda'] = n.monto_deuda;
+                    client['monto_total_recaudado'] = n.monto_total_recaudado;
+                    client['fecha_movimiento'] = n.fecha_movimiento;
+                    return client;
+                });
+                self.setState({
+                    movimientos: optionsClients
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+            .then(function () {
+            });
     };
 
     Logout = () => {
@@ -54,11 +131,18 @@ class MovimientosAdmin extends Component {
     };
 
     render() {
-        const { redirectLogin, redirectMainAdmin, montoActualDiaTotal, fechaInicioBusqueda, fechaFinBusqueda } = this.state;
+        const { redirectLogin, redirectMainAdmin, 
+            montoActualDiaTotal, 
+            fechaInicioBusqueda, fechaFinBusqueda,
+            columnsTable, movimientos
+         } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
             marginTop: "80px"
+        };
+        const fontSize = {
+            fontSize: 14
         };
         if (redirectLogin) {
             return (
@@ -67,7 +151,7 @@ class MovimientosAdmin extends Component {
         }
         if (redirectMainAdmin) {
             return (
-                <MainAdmin    username={this.props.username} password={this.props.password}  />
+                <MainAdmin id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password}  />
             );
         }
         return(
@@ -136,43 +220,34 @@ class MovimientosAdmin extends Component {
                             <Col md={1}>
                             </Col>
                             <Col md={10}>
-                                <Table responsive>
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Prestamista</th>
-                                            <th>Movimiento</th>
-                                            <th>Monto</th>
-                                            <th>Cliente</th>
-                                            <th>Monto Actual</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">10-10-2018</th>
-                                            <td>Mark</td>
-                                            <td>Préstamo</td>
-                                            <td>S/. 100.00</td>
-                                            <td>Juan</td>
-                                            <td>S/. 200.00</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">10-10-2018</th>
-                                            <td>Jacob</td>
-                                            <td>Préstamo</td>
-                                            <td>S/. 100.00</td>
-                                            <td>Tolomeo</td>
-                                            <td>S/. 300.00</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">10-10-2018</th>
-                                            <td>Larry</td>
-                                            <td>Recojo</td>
-                                            <td>S/. 100.00</td>
-                                            <td>Timoteo</td>
-                                            <td>S/. 200.00</td>
-                                        </tr>
-                                    </tbody>
+                                <Table style={fontSize}>
+                                    <Thead>
+                                        <Tr>
+                                            <Th>{columnsTable.Tipo_Movimiento}</Th>
+                                            <Th>{columnsTable.prestamista}</Th>
+                                            <Th>{columnsTable.cliente}</Th>
+                                            <Th>{columnsTable.monto_deuda}</Th>
+                                            <Th>{columnsTable.monto_total_recaudado}</Th>
+                                            <Th>{columnsTable.fecha_movimiento}</Th>
+                                            <Th>{columnsTable.movimiento}</Th>
+                                        </Tr>
+                                    </Thead>
+                                    <Tbody>
+                                        {movimientos.map(function (item, key) {
+                                            return (
+                                                <Tr key={key}>
+                                                    <Td >{item.Tipo_Movimiento}</Td>
+                                                    <Td>{item.prestamista}</Td>
+                                                    <Td>{item.cliente}</Td>
+                                                    <Td>s/. {item.monto_deuda}</Td>
+                                                    <Td>s/. {item.monto_total_recaudado}</Td>
+                                                    <Td>{item.fecha_movimiento}</Td>
+                                                    <Td>{item.movimiento}</Td>
+                                                </Tr>
+                                            )
+
+                                        })}
+                                    </Tbody>
                                 </Table>
                                 <Button
                                     block

@@ -96,6 +96,9 @@ class ListarClientes extends Component {
             borderRadius: "10px",
             marginTop: "80px"
         };
+        const fontSize = {
+            fontSize: 14
+        };
         if (redirectLogin) {
             return (
                 <Login  />
@@ -103,7 +106,7 @@ class ListarClientes extends Component {
         }
         if (redirectMainAdmin) {
             return (
-                <MainAdmin  username={this.props.username} password={this.props.password} />
+                <MainAdmin id_trabajador={this.props.id_trabajador}  username={this.props.username} password={this.props.password} />
             );
         }
         return (
@@ -126,7 +129,7 @@ class ListarClientes extends Component {
                             <Col md={1}>
                             </Col>
                             <Col md={10}>
-                                <Table>
+                                <Table style={fontSize}>
                                     <Thead>
                                         <Tr>
                                             <Th>{columnsTable.dni}</Th>

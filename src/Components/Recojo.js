@@ -9,6 +9,7 @@ import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
 import MainAdmin from "./MainAdmin";
 import moment from "moment";
+const axios = require('axios');
 
 class Recojo extends Component{
     constructor(props) {
@@ -37,7 +38,7 @@ class Recojo extends Component{
     }
 
     componentWillMount (){
-        //SOLICITAR INFO
+        
         this.setState({
             montoPrestado: 1000.00,
             saldoFaltante: 500.00
@@ -133,13 +134,13 @@ class Recojo extends Component{
         }
         if (redirectMainPrestamista) {
             return (
-                <MainVendedor    username={this.props.username} password={this.props.password} />
+                <MainVendedor id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password} />
             );
         }
 
         if (redirectMainAdmin) {
             return (
-                <MainAdmin    username={this.props.username} password={this.props.password} />
+                <MainAdmin id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password} />
             );
         }
         return (

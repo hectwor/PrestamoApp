@@ -169,12 +169,12 @@ class NuevoCliente extends Component {
         }
         if (redirectMainPrestamista) {
             return (
-                <MainVendedor  username={this.props.username} />
+                <MainVendedor id_trabajador={this.props.id_trabajador}  username={this.props.username} />
             );
         }
         if (redirectMainAdmin) {
             return (
-                <MainAdmin  username={this.props.username} />
+                <MainAdmin id_trabajador={this.props.id_trabajador}  username={this.props.username} />
             );
         }
         return (

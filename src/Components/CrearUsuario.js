@@ -145,7 +145,7 @@ class CrearUsuario extends Component {
         }
         if (redirectMainAdmin) {
             return (
-                <MainAdmin  username={this.props.username} password={this.props.password} />
+                <MainAdmin id_trabajador={this.props.id_trabajador}   username={this.props.username} password={this.props.password} />
             );
         }
         return(

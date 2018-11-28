@@ -41,7 +41,7 @@ class MainRecogedor extends Component {
             dniPasaporteBuscar: null,
             selectUsuarioPrestar:"Seleccione tipo de Usuario",
 
-            montoActual: "500.00",
+            montoActual: 0,
 
             showModalPrestarOption: false,
             showModalRecogerOption: false,
@@ -60,6 +60,26 @@ class MainRecogedor extends Component {
             options:[]
         };
     }
+
+    componentWillMount() {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/trabajador/recaudado-mano', {
+            params: {
+                idTrabajador: this.props.id_trabajador
+            }
+          })
+            .then(function (response) {
+                self.setState({
+                    montoActual: response.data[0].total_recaudado_mano
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+            .then(function () {
+            });
+    };
+
     handleChange = event => {
         let change = {};
         change[event.target.name] = event.target.value;
@@ -235,12 +255,13 @@ class MainRecogedor extends Component {
         }
         if(redirectNuevoUsuario){
             return (
-                <NuevoCliente username={this.props.username}  rol = {"prestamista"}/>
+                <NuevoCliente id_trabajador={this.props.id_trabajador}  username={this.props.username}  rol = {"prestamista"}/>
             );
         }
         if(redirectPrestamo){
             return (
                 <Prestamo
+                    id_trabajador={this.props.id_trabajador}
                     username={this.props.username}
                     saldo = {this.state.montoActual}
                     idClienteBuscado = {this.state.idClienteBuscado}
@@ -253,6 +274,7 @@ class MainRecogedor extends Component {
         if(redirectRecojo){
             return (
                 <Recojo
+                    id_trabajador={this.props.id_trabajador}
                     username={this.props.username}
                     saldo = {this.state.montoActual}
                     idClienteBuscado = {this.state.idClienteBuscado}
