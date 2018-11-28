@@ -16,7 +16,7 @@ class Prestamo extends Component{
 
         this.state = {
             idCliente:this.props.idClienteBuscado,
-            idTrabajador:this.props.id_trabajador,
+            idTrabajador: this.props.id_trabajador,
 
             redirectLogin:false,
             redirectMainPrestamista:false,
@@ -58,7 +58,6 @@ class Prestamo extends Component{
     handleChange = event => {
         let change = {};
         change[event.target.name] = event.target.value;
-        console.log(event.target.value);
         const montoACobrar = Math.round((parseFloat(event.target.value)*1.2) * 100) / 100;
         this.setState(
             change
@@ -88,23 +87,24 @@ class Prestamo extends Component{
     };
 
     enviarDatosPrestamo = () => {
-        const { idCliente, idTrabajador, montoACobrar } = this.state;
+        const { idCliente, idTrabajador, montoPorPrestar } = this.state;
+        let self = this;
         axios.post('https://edutafur.com/sgp/public/prestamos/agregar', {
             idTrabajador: idTrabajador,
             idCliente: idCliente,
-            montoPrestamo: montoACobrar
+            montoPrestamo: montoPorPrestar
           })
           .then(function (response) {
               if(response.status === 200){
-                alert(JSON.parse((response.data).slice(19)).mensaje);
-                    if(JSON.parse((response.data).slice(19)).mensaje !== "No se puede registrar el prestamo porque actualmente cuenta con una deuda actual"){
-                        if(this.props.rol === "admin"){
-                            this.setState({
+                  alert(response.data.mensaje);
+                  if (response.data.mensaje !== "No se puede registrar el prestamo porque actualmente cuenta con una deuda actual"){
+                      if (self.props.rol === "admin"){
+                          self.setState({
                                 redirectMainAdmin: true,
                             });
                         }
-                        if(this.props.rol === "prestamista"){
-                            this.setState({
+                        if(self.props.rol === "prestamista"){
+                            self.setState({
                                 redirectMainPrestamista: true,
                             });
                         }
@@ -156,12 +156,12 @@ class Prestamo extends Component{
         }
         if (redirectMainPrestamista) {
             return (
-                <MainVendedor username={this.props.username} password={this.props.password}  />
+                <MainVendedor id_trabajador={this.props.id_trabajador}  username={this.props.username} password={this.props.password}  />
             );
         }
         if (redirectMainAdmin) {
             return (
-                <MainAdmin username={this.props.username} password={this.props.password}  />
+                <MainAdmin id_trabajador = {this.props.id_trabajador}  username={this.props.username} password={this.props.password}  />
             );
         }
         return (

@@ -40,7 +40,7 @@ class Login extends Component {
     };
 
     handleSubmit = event => {
-        const { id_usuario, username, password, validate } = this.state;
+        const { username, password, validate } = this.state;
         //consultar username, password
         //responder usernameBoolean, passwordBoolean, rol
         let usernameBoolean;
@@ -73,12 +73,12 @@ class Login extends Component {
                     validate.password = "has-success";
                     if(id_rol === "1" || id_rol === 1)
                         self.setState({ 
-                            id_usuario: id_usuario,
+                            id_usuario: id_trabajador,
                             redirectAdmin: true
                         });
                     if(id_rol === "2" || id_rol === 2)
                         self.setState({ 
-                            id_usuario: id_usuario,
+                            id_usuario: id_trabajador,
                             redirectVendedor: true 
                         });
                 }else{
