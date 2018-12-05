@@ -39,14 +39,21 @@ class MainRecogedor extends Component {
             apellidoMaternoSeleccionado:"",
 
             dniPasaporteBuscar: null,
+            dniPasaporteBuscado: null,
             selectUsuarioPrestar:"Seleccione tipo de Usuario",
+
+            descripcionGasto:"",
+            montoGasto:0,
 
             montoActual: 0,
 
             showModalPrestarOption: false,
             showModalRecogerOption: false,
+            showModalAgregarGastos: false,
             validate: {
                 dniPasaporteBuscar: null,
+                descripcionGasto: null,
+                montoGasto: null
             },
 
             redirectLogin:false,
@@ -100,7 +107,8 @@ class MainRecogedor extends Component {
                 self.setState({
                     apellidoPaternoSeleccionado : response.data[0].ape_pat,
                     apellidoMaternoSeleccionado : response.data[0].ape_mat,
-                    idClienteSeleccionado : response.data[0].id
+                    idClienteSeleccionado : response.data[0].id,
+                    dniPasaporteBuscado: response.data[0].nro_doc
                 });
           })
           .catch(function (error) {
@@ -217,13 +225,57 @@ class MainRecogedor extends Component {
           });
     };
 
+    openModalAgregarGastos = () => {
+        this.setState({
+            showModalAgregarGastos: true,
+        });
+    };
+
+    enviarGasto = () => {
+        const { id_trabajador, descripcionGasto, montoGasto, validate } = this.state;
+        let contVal = 0;
+        let self = this;
+        if(descripcionGasto==="" || descripcionGasto === null){
+            validate.descripcionGasto = "has-danger";
+            contVal++;
+        }else
+            validate.descripcionGasto = "has-success";
+        if(montoGasto==="" || montoGasto === null || montoGasto === 0){
+            validate.montoGasto = "has-danger";
+            contVal++;
+        }else
+            validate.montoGasto = "has-success";
+        this.setState({
+            validate:validate
+        });
+        if(contVal === 0){
+            axios.post('https://edutafur.com/sgp/public/gastos/agregar', {
+                idTrabajador: id_trabajador,
+                conceptoGasto: descripcionGasto,
+                montoGasto: montoGasto
+              })
+              .then(function (response) {
+                  if(response.status === 200){
+                      alert(`Gasto de ${descripcionGasto} guardado con monto de S/. ${montoGasto}`);
+                      self.closeModal();
+                  }
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+        }
+    };
+
     closeModal = () => {
         this.setState({
             dniPasaporteBuscar:null,
             idClienteSeleccionado:"",
+            montoGasto:0,
+            descripcionGasto:"",
             usuarioEncontrado:false,
             showModalPrestarOption: false,
-            showModalRecogerOption: false
+            showModalRecogerOption: false,
+            showModalAgregarGastos: false
         });
     };
 
@@ -232,7 +284,8 @@ class MainRecogedor extends Component {
             montoActual, 
             redirectLogin, 
             redirectNuevoUsuario, redirectPrestamo, redirectRecojo, 
-            dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado, 
+            dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado,
+            descripcionGasto, montoGasto,
             validate,
             options
          } = this.state;
@@ -278,6 +331,7 @@ class MainRecogedor extends Component {
                     username={this.props.username}
                     saldo = {this.state.montoActual}
                     idClienteBuscado = {this.state.idClienteBuscado}
+                    dniPasaporteBuscado = {this.state.dniPasaporteBuscado}
                     apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
                     apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
                     rol = {"prestamista"}
@@ -325,9 +379,10 @@ class MainRecogedor extends Component {
                                 <div>
                                     <Button
                                         size="lg"
+                                        onClick={this.openModalAgregarGastos}
                                         style={buttonSize}
                                     >
-                                        VER DÍA
+                                        AGREGAR GASTOS
                                     </Button>
                                     <span> </span>
                                     <br/><br/><br/>
@@ -440,7 +495,7 @@ class MainRecogedor extends Component {
                                         value={dniPasaporteBuscar}
                                         onChange={this.handleChangeSelect}
                                         invalid={validate.dniPasaporteBuscar === "has-danger"}
-                                        valid={validate.username === "has-success"}
+                                        valid={validate.dniPasaporteBuscar === "has-success"}
                                         options={options}
                                     />
                                     <FormFeedback invalid>Cliente no encontrado</FormFeedback>
@@ -486,6 +541,64 @@ class MainRecogedor extends Component {
                                     RECOGER
                                 </Button>
                             </div>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick= {this.closeModal}
+                            color="danger"
+                        >
+                            Cancelar
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.showModalAgregarGastos} style={customStyles} centered size = "lg">
+                    <ModalHeader toggle={this.closeModal}>
+                        REPORTAR GASTOS
+                    </ModalHeader>
+                    <ModalBody>
+                        <div>
+                            <Row>
+                                <Col md={12}>
+                                    <Row>
+                                        <Col md={6}>
+                                            <span>Indicar Gasto</span>
+                                            <Input
+                                                name="descripcionGasto"
+                                                id="descripcionGastoInput"
+                                                placeholder=""
+                                                value={descripcionGasto}
+                                                onChange={this.handleChange}
+                                                invalid={validate.descripcionGasto === "has-danger"}
+                                                valid={validate.descripcionGasto === "has-success"}
+                                            />
+                                            <FormFeedback invalid>Indicar descripción de gasto</FormFeedback>
+                                        </Col>
+                                        <Col md={3}>
+                                            <span>Monto de Gasto (S/.)</span>
+                                            <Input
+                                                name="montoGasto"
+                                                id="montoGastoInput"
+                                                placeholder=""
+                                                type="number"
+                                                value={montoGasto}
+                                                onChange={this.handleChange}
+                                                invalid={validate.montoGasto === "has-danger"}
+                                                valid={validate.montoGasto === "has-success"}
+                                            />
+                                            <FormFeedback invalid>Indicar el monto del gasto</FormFeedback>
+                                        </Col>
+                                        <Col md={3}>
+                                            <br />
+                                            <Button
+                                                onClick= {this.enviarGasto}
+                                            >
+                                                Guardar
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            </Row>
                         </div>
                     </ModalBody>
                     <ModalFooter>

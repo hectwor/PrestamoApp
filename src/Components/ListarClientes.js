@@ -43,7 +43,7 @@ class ListarClientes extends Component {
               let optionsClients = clients.map((n) => {
                   let client = {};
                   client['dni']= n.nro_doc;
-                  client['cliente']= n.cliente + ' ' + n.ape_mat;
+                  client['cliente']= n.cliente;
                   client['prestamista']= n.prestamista;
                   client['montoP']= n.monto_prestamo;
                   client['montoD']= n.monto_deuda;

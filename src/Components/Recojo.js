@@ -20,8 +20,8 @@ class Recojo extends Component{
             redirectMainPrestamista:false,
             redirectMainAdmin:false,
 
-            idCliente:this.props.idClienteBuscado,
-            idTrabajador:this.props.id_trabajador,
+            id_prestamo: null,
+            dniPasaporteBuscado : this.props.dniPasaporteBuscado,
             montoPorRecoger: 0,
             saldoFaltante: 0,
             montoPrestado: 0,
@@ -38,11 +38,22 @@ class Recojo extends Component{
     }
 
     componentWillMount (){
-        
-        this.setState({
-            montoPrestado: 1000.00,
-            saldoFaltante: 500.00
-        });
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar', {
+            params: {
+                dniPasaporteApellidoBuscado: this.state.dniPasaporteBuscado
+            }
+          })
+          .then(function (response) {
+            self.setState({
+                id_prestamo : response.data[0].id_prestamo,
+                montoPrestado: response.data[0].monto_deuda,
+                saldoFaltante: response.data[0].monto_deuda_restante
+            });
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
     }
 
     Logout = () => {
@@ -92,7 +103,21 @@ class Recojo extends Component{
     };
 
     enviarDatosRecojo = () => {
-
+        const { id_trabajador, montoPorRecoger, id_prestamo, validate } = this.state;
+        let self = this;
+        axios.post('https://edutafur.com/sgp/public/pagos/agregar', {
+            idPrestamo: id_prestamo,
+            montoRecaudado: montoPorRecoger
+          })
+          .then(function (response) {
+              if(response.status === 200){
+                  alert(`Recojo de valor S/. ${montoPorRecoger} guardado`);
+                  self.regresarMenu();
+              }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
     };
 
     closeModal = () => {
@@ -134,13 +159,13 @@ class Recojo extends Component{
         }
         if (redirectMainPrestamista) {
             return (
-                <MainVendedor id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password} />
+                <MainVendedor    username={this.props.username} password={this.props.password} />
             );
         }
 
         if (redirectMainAdmin) {
             return (
-                <MainAdmin id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password} />
+                <MainAdmin    username={this.props.username} password={this.props.password} />
             );
         }
         return (

@@ -27,6 +27,7 @@ class NuevoCliente extends Component {
             telefonoReferencia:"",
             direccionDomicilio:"",
             direccionTrabajo:"",
+            apodo:"",
             validate: {
                 apellidoPaterno: null,
                 apellidoMaterno:null,
@@ -35,7 +36,8 @@ class NuevoCliente extends Component {
                 telefono:null,
                 telefonoReferencia:null,
                 direccionDomicilio:null,
-                direccionTrabajo:null
+                direccionTrabajo:null,
+                apodo:null
             },
         }
     }
@@ -71,7 +73,7 @@ class NuevoCliente extends Component {
 
     registrarCliente = ()=>{
         const contVal = this.validar();
-        const { apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono, direccionDomicilio, telefonoReferencia, direccionTrabajo } = this.state;
+        const { apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono, direccionDomicilio, telefonoReferencia, direccionTrabajo, apodo } = this.state;
         const { rol } = this.props;
         var self = this;
         if(contVal === 0){
@@ -83,7 +85,8 @@ class NuevoCliente extends Component {
                 telefonoReferencia:telefonoReferencia,
                 direccion:direccionDomicilio,
                 direccionTrabajo:direccionTrabajo,
-                nroDoc:dniPasaporte
+                nroDoc:dniPasaporte,
+                apodo: apodo
               })
               .then(function (response) {
                   if(response.status === 200){
@@ -107,7 +110,7 @@ class NuevoCliente extends Component {
     };
 
     validar = () => {
-        const {validate, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono, direccionDomicilio, telefonoReferencia, direccionTrabajo } = this.state;
+        const {validate, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono, direccionDomicilio, telefonoReferencia, direccionTrabajo, apodo } = this.state;
         let contVal = 0;
         if(apellidoPaterno==="" || apellidoPaterno === null){
             validate.apellidoPaterno = "has-danger";
@@ -149,6 +152,11 @@ class NuevoCliente extends Component {
             contVal++;
         }else
             validate.direccionTrabajo = "has-success";
+        if(apodo==="" || apodo === null){
+            validate.apodo = "has-danger";
+            contVal++;
+        }else
+            validate.apodo = "has-success";
         this.setState({
             validate:validate
         });
@@ -156,7 +164,10 @@ class NuevoCliente extends Component {
     };
 
     render() {
-        const { redirectLogin, redirectMainPrestamista, redirectMainAdmin, apellidoPaterno, apellidoMaterno, nombres, dniPasaporte, telefono,telefonoReferencia, direccionDomicilio, direccionTrabajo, validate } = this.state;
+        const { redirectLogin, redirectMainPrestamista, redirectMainAdmin, apellidoPaterno, apellidoMaterno, 
+            nombres, dniPasaporte, telefono,telefonoReferencia, direccionDomicilio, direccionTrabajo, apodo,
+            validate 
+        } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -288,6 +299,26 @@ class NuevoCliente extends Component {
                                                     value={dniPasaporte}
                                                     invalid={validate.dniPasaporte === "has-danger"}
                                                     valid={validate.dniPasaporte === "has-success"}
+                                                    onChange={this.handleChange}
+                                                />
+                                                <FormFeedback invalid>Campo Obligatorio</FormFeedback>
+                                            </div>
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col md={12}>
+                                        <FormGroup>
+                                            <div className="text-left">
+                                                <ControlLabel>Apodo</ControlLabel>
+                                                <Input
+                                                    name="apodo"
+                                                    id="apodoInput"
+                                                    placeholder=""
+                                                    type="text"
+                                                    value={apodo}
+                                                    invalid={validate.apodo === "has-danger"}
+                                                    valid={validate.apodo === "has-success"}
                                                     onChange={this.handleChange}
                                                 />
                                                 <FormFeedback invalid>Campo Obligatorio</FormFeedback>

@@ -43,6 +43,7 @@ class MainAdmin extends Component {
             usuarioEncontrado:false,
 
             dniPasaporteBuscar:null,
+            dniPasaporteBuscado:null,
             idClienteSeleccionado: "",
             apellidoPaternoSeleccionado:"",
             apellidoMaternoSeleccionado:"",
@@ -186,7 +187,8 @@ class MainAdmin extends Component {
                 self.setState({
                     apellidoPaternoSeleccionado : response.data[0].ape_pat,
                     apellidoMaternoSeleccionado : response.data[0].ape_mat,
-                    idClienteSeleccionado : response.data[0].id
+                    idClienteSeleccionado : response.data[0].id,
+                    dniPasaporteBuscado : response.data[0].nro_doc
                 });
           })
           .catch(function (error) {
@@ -306,6 +308,7 @@ class MainAdmin extends Component {
                     username={this.props.username}
                     password={this.props.password}
                     idClienteBuscado = {this.state.idClienteBuscado}
+                    dniPasaporteBuscado = {this.state.dniPasaporteBuscado}
                     apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
                     apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
                     rol = {"admin"} />
@@ -360,6 +363,21 @@ class MainAdmin extends Component {
                                         style={buttonSize}
                                     >
                                         MODIFICAR USUARIO
+                                    </Button>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.crearUsuario}
+                                        style={buttonSize}
+                                    >
+                                        TRABAJADORES
+                                    </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.modificarUsuario}
+                                        style={buttonSize}
+                                    >
+                                        LIQUIDAR
                                     </Button>
                                     <Button
                                         size="lg"
