@@ -152,7 +152,6 @@ class ListarClientes extends Component {
                                                 <Td>{item.fechaP}</Td>
                                             </Tr>
                                         )
-
                                     })}
                                     </Tbody>
                                 </Table>

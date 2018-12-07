@@ -14,6 +14,7 @@ import CrearUsuario from "./CrearUsuario";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
+import ListarTrabajadores from "./ListarTrabajadores";
 const axios = require('axios');
 
 const customStyles = {
@@ -39,6 +40,7 @@ class MainAdmin extends Component {
             redirectPrestamo:false,
             redirectRecojo:false,
             redirectNuevoCliente:false,
+            redirectOpenTrabajadores:false,
 
             usuarioEncontrado:false,
 
@@ -74,6 +76,12 @@ class MainAdmin extends Component {
             redirectOpenClientes: true,
         });
     };
+
+    openTrabajadores = () =>{
+        this.setState({
+            redirectOpenTrabajadores: true,
+        });
+    }
     crearUsuario = () => {
         this.setState({
             redirectCrearUsuario: true,
@@ -244,7 +252,7 @@ class MainAdmin extends Component {
     };
 
     render() {
-        const { redirectLogin, redirectMovimientosAdmin,
+        const { redirectLogin, redirectMovimientosAdmin, redirectOpenTrabajadores,
             redirectNuevoCliente,
             redirectOpenClientes, redirectCrearUsuario,
             redirectPrestamo, redirectRecojo, dniPasaporteBuscar,
@@ -270,7 +278,20 @@ class MainAdmin extends Component {
         }
         if (redirectOpenClientes) {
             return (
-                <ListarClientes id_trabajador={this.props.id_trabajador}  username={this.props.username} password={this.props.password} />
+                <ListarClientes 
+                id_trabajador={this.props.id_trabajador}  
+                username={this.props.username} 
+                password={this.props.password} 
+                />
+            );
+        }
+        if (redirectOpenTrabajadores) {
+            return (
+                <ListarTrabajadores
+                    id_trabajador={this.props.id_trabajador}
+                    username={this.props.username}
+                    password={this.props.password}
+                />
             );
         }
         if (redirectCrearUsuario) {
@@ -366,7 +387,7 @@ class MainAdmin extends Component {
                                     </Button>
                                     <Button
                                         size="lg"
-                                        onClick={this.crearUsuario}
+                                        onClick={this.openTrabajadores}
                                         style={buttonSize}
                                     >
                                         TRABAJADORES

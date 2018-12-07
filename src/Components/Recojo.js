@@ -103,7 +103,7 @@ class Recojo extends Component{
     };
 
     enviarDatosRecojo = () => {
-        const { id_trabajador, montoPorRecoger, id_prestamo, validate } = this.state;
+        const { montoPorRecoger, id_prestamo } = this.state;
         let self = this;
         axios.post('https://edutafur.com/sgp/public/pagos/agregar', {
             idPrestamo: id_prestamo,
