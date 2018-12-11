@@ -2,13 +2,14 @@ import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Row, Col,
-    Button
+    Button, Label
 } from 'reactstrap';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
+import moment from "moment";
 const axios = require('axios');
 class ListarClientes extends Component {
     constructor(props) {
@@ -28,7 +29,8 @@ class ListarClientes extends Component {
                     "prestamista": "Prestamista",
                     "montoP": "Monto Prestado",
                     "montoD": "Mondo Deuda",
-                    "fechaP": "Fecha Préstamo"
+                    "fechaP": "Fecha Préstamo",
+                    "fechaUP":"Fecha de último pago"
                 }
         }
     }
@@ -134,24 +136,37 @@ class ListarClientes extends Component {
                                         <Tr>
                                             <Th>{columnsTable.dni}</Th>
                                             <Th>{columnsTable.cliente}</Th>
-                                            <Th>{columnsTable.prestamista}</Th>
                                             <Th>{columnsTable.montoP}</Th>
                                             <Th>{columnsTable.montoD}</Th>
+                                            <Th>{columnsTable.fechaP}</Th>
                                             <Th>{columnsTable.fechaP}</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
                                     {clients.map(function(item, key) {
-                                        return (
-                                            <Tr key = {key}>
-                                                <Td  onClick={self.handleClickTr(item.dni)} >{item.dni}</Td>
-                                                <Td >{item.cliente}</Td>
-                                                <Td>{item.prestamista}</Td>
-                                                <Td>{item.montoP}</Td>
-                                                <Td>{item.montoD}</Td>
-                                                <Td>{item.fechaP}</Td>
-                                            </Tr>
-                                        )
+                                        if( moment(item.fechaUP).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')){
+                                            return (
+                                                <Tr key = {key} style = {{cursor: 'pointer'}} onClick={() => {self.handleClickTr(item.dni)}} >
+                                                    <Td >{item.dni}</Td>
+                                                    <Td >{item.cliente}</Td>
+                                                    <Td>{item.montoP}</Td>
+                                                    <Td>{item.montoD}</Td>
+                                                    <Td>{item.fechaP}</Td>
+                                                    <Td><Label style = {{color: '#0040FF'}}>Pagó hoy</Label></Td>
+                                                </Tr>
+                                            )
+                                        }else{
+                                            return (
+                                                <Tr key = {key} style = {{cursor: 'pointer'}} onClick={() => {self.handleClickTr(item.dni)}} >
+                                                    <Td >{item.dni}</Td>
+                                                    <Td >{item.cliente}</Td>
+                                                    <Td>{item.montoP}</Td>
+                                                    <Td>{item.montoD}</Td>
+                                                    <Td>{item.fechaP}</Td>
+                                                    <Td><Label style = {{color: '#B40404'}}>No pagó hoy</Label></Td>
+                                                </Tr>
+                                            )
+                                        }
                                     })}
                                     </Tbody>
                                 </Table>

@@ -363,28 +363,6 @@ class MainAdmin extends Component {
                                             MOVIMIENTOS
                                         </Button>
                                     <span> </span>
-                                        <Button
-                                            size="lg"
-                                            onClick={this.openClientes}
-                                            style={buttonSize}
-                                        >
-                                            CLIENTES
-                                        </Button>
-                                    <Button
-                                        size="lg"
-                                        onClick={this.crearUsuario}
-                                        style={buttonSize}
-                                    >
-                                        CREAR USUARIO
-                                    </Button>
-                                    <span> </span>
-                                    <Button
-                                        size="lg"
-                                        onClick={this.modificarUsuario}
-                                        style={buttonSize}
-                                    >
-                                        MODIFICAR USUARIO
-                                    </Button>
                                     <Button
                                         size="lg"
                                         onClick={this.openTrabajadores}
@@ -392,14 +370,14 @@ class MainAdmin extends Component {
                                     >
                                         TRABAJADORES
                                     </Button>
-                                    <span> </span>
                                     <Button
-                                        size="lg"
-                                        onClick={this.modificarUsuario}
-                                        style={buttonSize}
-                                    >
-                                        LIQUIDAR
-                                    </Button>
+                                            size="lg"
+                                            onClick={this.openClientes}
+                                            style={buttonSize}
+                                        >
+                                            CLIENTES
+                                        </Button>
+                                    <span> </span>
                                     <Button
                                         size="lg"
                                         onClick={this.openModalPrestar}
@@ -414,6 +392,21 @@ class MainAdmin extends Component {
                                         style={buttonSize}
                                     >
                                         COBRAR
+                                    </Button>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.crearUsuario}
+                                        style={buttonSize}
+                                    >
+                                        CREAR USUARIO
+                                    </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.modificarUsuario}
+                                        style={buttonSize}
+                                    >
+                                        MODIFICAR USUARIO
                                     </Button>
                             </Col>
                             <Col md={2}>
