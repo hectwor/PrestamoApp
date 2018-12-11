@@ -85,10 +85,11 @@ class ListarTrabajadores extends Component {
                     });
                 }
                 if(moment(n.fecha_movimiento).format('YYYY-MM-DD') === moment(self.state.fechaBusqueda).format('YYYY-MM-DD')){
-                    mov['id_pago']= n.id_movimiento;
-                    mov['tipo_movimiento']= n.tipo_movimiento;
-                    mov['cliente']= n.cliente_descripcion_gasto;
-                    mov['pago']= n.monto;
+                    mov['id_pago'] = n.id_movimiento;
+                    mov['tipo_movimiento'] = n.tipo_movimiento;
+                    mov['cliente'] = n.cliente_descripcion_gasto;
+                    mov['pago'] = n.monto;
+                    mov['flag_liquidado'] = n.flag_liquidado;
                     pagoDia = parseFloat(pagoDia) + parseFloat(n.monto);
                 }else{
                     movAnte = movAnte + ", "+moment(n.fecha_movimiento).format('YYYY-MM-DD');
@@ -119,7 +120,7 @@ class ListarTrabajadores extends Component {
     };
 
     liquidarPago = (id_pago, tipo_movimiento) => {
-        //let self = this;
+        let self = this;
         let linkPost = "";
         if(tipo_movimiento === 'Pagos') linkPost = 'https://edutafur.com/sgp/public/pagos/liquidar';
         if(tipo_movimiento === 'Gastos') linkPost = 'https://edutafur.com/sgp/public/gastos/liquidar';
@@ -129,12 +130,14 @@ class ListarTrabajadores extends Component {
             id: id_pago
           })
           .then(function (response) {
-              alert(response.data.mensaje);
+            let change = {};
+            change[`ButtonLiquidar${tipo_movimiento}${id_pago}`] = "color: danger";
+            self.setState(change)
+            alert(response.data.mensaje);
           })
           .catch(function (error) {
             console.log(error);
           });
-        
     }
 
     Logout = () => {
@@ -309,6 +312,9 @@ class ListarTrabajadores extends Component {
                         </Row>
                         {movimientos.map(function(item, key) {
                             if(item.cliente !== undefined){
+                                let styleButton = "";
+                                if(item.flag_liquidado === 'S') styleButton = 'success';
+                                if(item.flag_liquidado === 'N') styleButton = 'danger';
                                 return (
                                     <Row key={key}>
                                     <Col  md={4}>
@@ -328,7 +334,9 @@ class ListarTrabajadores extends Component {
                                     </Col>
                                     <Col  md={3}>
                                         <Button
+                                        name={`ButtonLiquidar${item.tipo_movimiento}${item.id_pago}`}
                                         block
+                                        color = {styleButton}
                                         onClick= {() => { self.liquidarPago(item.id_pago, item.tipo_movimiento)}}
                                         >
                                         LIQUIDAR
