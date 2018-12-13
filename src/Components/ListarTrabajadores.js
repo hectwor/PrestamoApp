@@ -289,7 +289,7 @@ class ListarTrabajadores extends Component {
                 </div>
                 <Modal isOpen={this.state.showModalInformation} style={customStyles} centered size = "lg">
                     <ModalHeader  toggle={this.closeModal}>
-                        Confirmación de Datos
+                        Liquidar Movimientos
                     </ModalHeader>
                     <ModalBody>
                         <Row>
@@ -390,7 +390,7 @@ class ListarTrabajadores extends Component {
                             onClick= {this.closeModal}
                             color="danger"
                         >
-                            Cancelar
+                            Salir
                         </Button>
                     </ModalFooter>
                 </Modal>

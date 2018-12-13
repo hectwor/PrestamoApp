@@ -2,7 +2,8 @@ import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Row, Col,
-    Button, Label
+    Button, Label,
+    ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
@@ -20,6 +21,22 @@ class ListarClientes extends Component {
             listaDeDnis : null,
             redirectLogin:false,
             redirectMainAdmin:false,
+            infoPagoUltimo: "",
+
+            showModalInformation:false,
+
+            clienteSeleccionado:{
+                dni: "",
+                nombre: "",
+                prestamista: "",
+                montoDeuda: "",
+                fechaPrestamo: "",
+                fechaVencimiento: "",
+                fechaUltimoPago: "",
+                montoTotalRecaudado: "",
+                montoDeudaRestante: "",
+                cancelado: ""
+            },
 
             clients:[],
             columnsTable :
@@ -87,11 +104,57 @@ class ListarClientes extends Component {
     };
 
     handleClickTr = (dni) => {
-      console.log(dni)
+      const {clienteSeleccionado} = this.state;
+      let self = this;
+      axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar', {
+        params: {
+            dniPasaporteApellidoBuscado: dni
+        }
+        })
+        .then(function (response) {
+            clienteSeleccionado.dni =  response.data[0].nro_doc;
+            clienteSeleccionado.nombre = response.data[0].cliente;
+            clienteSeleccionado.prestamista = response.data[0].prestamista;
+            clienteSeleccionado.montoDeuda = response.data[0].monto_deuda;
+            clienteSeleccionado.fechaPrestamo = response.data[0].fecha_prestamo;
+            clienteSeleccionado.fechaVencimiento = response.data[0].fecha_vencimiento;
+            clienteSeleccionado.fechaUltimoPago = response.data[0].fecha_ultimo_pago;
+            clienteSeleccionado.montoTotalRecaudado = response.data[0].monto_total_recaudado;
+            clienteSeleccionado.montoDeudaRestante = response.data[0].monto_deuda_restante;
+            clienteSeleccionado.cancelado = response.data[0].cancelado;
+            if(moment(response.data[0].fecha_ultimo_pago).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')){
+                self.setState({ 
+                    clienteSeleccionado:clienteSeleccionado,
+                    infoPagoUltimo: "Sí pagó hoy"
+                });
+            }else{
+                self.setState({ 
+                    clienteSeleccionado:clienteSeleccionado,
+                    infoPagoUltimo: "No pagó hoy"
+                });
+            }
+            
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+        .then(function () {
+            self.setState({
+                showModalInformation: true
+            });
+        });
+    };
+
+    closeModal = () => {
+        this.setState({
+            showModalInformation: false
+        });
     };
 
     render() {
-        const { redirectLogin, redirectMainAdmin, clients, columnsTable } = this.state;
+        const { redirectLogin, redirectMainAdmin, clients, 
+            columnsTable, clienteSeleccionado, infoPagoUltimo
+         } = this.state;
         let self = this;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
@@ -100,6 +163,16 @@ class ListarClientes extends Component {
         };
         const fontSize = {
             fontSize: 14
+        };
+        const customStyles = {
+            content: {
+                top: "50%",
+                left: "50%",
+                right: "auto",
+                bottom: "auto",
+                marginRight: "-50%",
+                transform: "translate(-50%, -50%)"
+            }
         };
         if (redirectLogin) {
             return (
@@ -184,6 +257,96 @@ class ListarClientes extends Component {
                         <br/><br/>
                     </div>
                 </div>
+                <Modal isOpen={this.state.showModalInformation} style={customStyles} centered size = "mg">
+                    <ModalHeader  toggle={this.closeModal}>
+                        Información de Cliente
+                    </ModalHeader>
+                    <ModalBody>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Nombre de Cliente :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                             <div className="text-left">
+                                    <Label>{clienteSeleccionado.nombre}</Label>
+                                </div>  
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Fecha de Préstamo :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                             <div className="text-left">
+                                    <Label>{clienteSeleccionado.fechaPrestamo}</Label>
+                                </div>  
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto de Deuda :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                             <div className="text-left">
+                                    <Label>S/. {clienteSeleccionado.montoDeuda}</Label>
+                                </div>  
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto Total Recaudado :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                             <div className="text-left">
+                                    <Label>S/. {clienteSeleccionado.montoTotalRecaudado}</Label>
+                                </div>  
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label>Monto Deuda Restante :</Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                             <div className="text-left">
+                                    <Label>S/. {clienteSeleccionado.montoDeudaRestante}</Label>
+                                </div>  
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col  md={6}>
+                                <div className="text-right">
+                                    <Label><b>Fecha de Último Pago :</b></Label>
+                                </div>
+                            </Col>
+                            <Col  md={6}>
+                             <div className="text-left">
+                                    <Label><b>{clienteSeleccionado.fechaUltimoPago}</b></Label>
+                                </div>  
+                            </Col>
+                        </Row>
+                        <div  className="text-center">
+                            <Label><b>{infoPagoUltimo}</b></Label>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick= {this.closeModal}
+                            color="danger"
+                        >
+                            Salir
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }
