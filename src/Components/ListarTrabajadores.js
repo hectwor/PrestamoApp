@@ -311,68 +311,58 @@ class ListarTrabajadores extends Component {
                             </Col>
                         </Row>
                         <br/>
-                        <Row>
-                            <Col  md={4}>
-                                <div className="text-center">
-                                    <Label><b>Nombre de Cliente</b></Label>
-                                </div>
-                            </Col>
-                            <Col  md={2}>
-                                <div className="text-center">
-                                    <Label><b>Movimiento</b></Label>
-                                </div>
-                            </Col>
-                            <Col  md={3}>
-                                <div className="text-center">
-                                    <Label><b>Monto de Cobro</b></Label>
-                                </div>
-                            </Col>
-                            <Col  md={3}>
-                                <div className="text-center">
-                                    <Label><b>Liquidar</b></Label> 
-                                </div>
-                            </Col>
-                        </Row>
-                        {movimientos.map(function(item, key) {
-                            if(item.cliente !== undefined){
-                                let styleButton = "";
-                                if(item.flag_liquidado === 'S') styleButton = 'success';
-                                if(item.flag_liquidado === 'N') styleButton = 'danger';
-                                return (
-                                    <Row key={key}>
-                                    <Col  md={4}>
-                                        <div className="text-center">
-                                            <Label>{item.cliente}</Label>
-                                        </div>
-                                    </Col>
-                                    <Col  md={2}>
-                                        <div className="text-center">
-                                            <Label>{item.tipo_movimiento}</Label>
-                                        </div>
-                                    </Col>
-                                    <Col  md={3}>
-                                        <div className="text-center">
-                                            <Label>S/. {item.pago}</Label>
-                                        </div>
-                                    </Col>
-                                    <Col  md={3}>
-                                        <Button
-                                        name={`ButtonLiquidar${item.tipo_movimiento}${item.id_pago}`}
-                                        block
-                                        color = {styleButton}
-                                        onClick= {() => { self.liquidarPago(item.id_pago, item.tipo_movimiento)}}
-                                        >
-                                        LIQUIDAR
-                                        </Button>
-                                    </Col>
-                                    </Row>
-                                )
-                            }else{
-                                return (
-                                    <div></div>
-                                )
-                            }
-                        })}
+                        <Table>
+                            <Thead>
+                                <Tr>
+                                    <Th><b>Nombre de Cliente</b></Th>
+                                    <Th><b>Movimiento</b></Th>
+                                    <Th><b>Monto de Cobro</b></Th>
+                                    <Th><b>Liquidar</b></Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {movimientos.map(function (item, key) {
+                                    if (item.cliente !== undefined) {
+                                        let styleButton = "";
+                                        if (item.flag_liquidado === 'S') styleButton = 'success';
+                                        if (item.flag_liquidado === 'N') styleButton = 'danger';
+                                        return (
+                                            <Tr key={key}>
+                                                <Td>
+                                                    <div className="text-center">
+                                                        <Label>{item.cliente}</Label>
+                                                    </div>
+                                                </Td>
+                                                <Td>
+                                                    <div className="text-center">
+                                                        <Label>{item.tipo_movimiento}</Label>
+                                                    </div>
+                                                </Td>
+                                                <Td>
+                                                    <div className="text-center">
+                                                        <Label>S/. {item.pago}</Label>
+                                                    </div>
+                                                </Td>
+                                                <Td>
+                                                    <Button
+                                                        name={`ButtonLiquidar${item.tipo_movimiento}${item.id_pago}`}
+                                                        block
+                                                        color={styleButton}
+                                                        onClick={() => { self.liquidarPago(item.id_pago, item.tipo_movimiento) }}
+                                                    >
+                                                        LIQUIDAR
+                                                    </Button>
+                                                </Td>
+                                            </Tr>
+                                        )
+                                    } else {
+                                        return (
+                                            <div></div>
+                                        )
+                                    }
+                                })}
+                            </Tbody>
+                        </Table>
                         <Row>
                             <Col  md={6}>
                                 <div className="text-right">
