@@ -197,7 +197,11 @@ class MainRecogedor extends Component {
 
     openModalCobrar = () => {
         var self = this;
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar')
+        axios.get('https://edutafur.com/sgp/public/clientes/buscar',{
+            params: {
+                idTrabajador: this.props.id_trabajador
+            }
+        })
           .then(function (response) {
                 const clients = response.data;
                 let optionsClients = [

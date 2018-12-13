@@ -14,6 +14,7 @@ import CrearUsuario from "./CrearUsuario";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
+import ModificarTrabajador from "./ModificarTrabajador";
 import ListarTrabajadores from "./ListarTrabajadores";
 const axios = require('axios');
 
@@ -40,11 +41,16 @@ class MainAdmin extends Component {
             redirectPrestamo:false,
             redirectRecojo:false,
             redirectNuevoCliente:false,
+            redirectModificarTrabajador:false,
             redirectOpenTrabajadores:false,
 
             usuarioEncontrado:false,
+            userEncontrado:false,
+            trabajadorEncontrado:false,
 
             dniPasaporteBuscar:null,
+            usernameBuscar: null,
+            trabajadorBuscar: null,
             dniPasaporteBuscado:null,
             idClienteSeleccionado: "",
             apellidoPaternoSeleccionado:"",
@@ -53,16 +59,26 @@ class MainAdmin extends Component {
             apellidoPaternoBuscado:"",
             apellidoMaternoBuscado:"",
 
+            usuarioSeleccionado:"",
+            usuarioNewSeleccionado:"",
+            claveSeleccionado:"",
+            estadoUsuarioSeleccionado:"",
+            rolUsuarioSeleccionado:"",
+
             validate: {
                 dniPasaporteBuscar:null,
             },
 
             showModalRecogerOption:false,
             showModalPrestarOption:false,
+            showModalMdfUsuario: false,
+            showModalMdfTrabajador : false,
 
             visibleNuevo:"hidden",
 
-            options:[]
+            options:[],
+            optionsUsers: [],
+            optionsTrabajador: []
         }
     }
     openMovimientos = () =>{
@@ -110,6 +126,42 @@ class MainAdmin extends Component {
             redirectNuevoCliente: true
         });
     };
+
+    modificarTrabajador = () => {
+        this.setState({
+            redirectModificarTrabajador: true
+        });
+    }
+
+    modificarUsuario = () => {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/usuarios')
+        .then(function (response) {
+              const usuarios = response.data;
+              let optionsUsuarios = [
+              ];
+              optionsUsuarios = usuarios.map((n) => {
+                  let client = {};
+                  client['value']= n.id_trabajador;
+                  client['label']= n.usuario;
+                  return client;
+              })
+              self.setState({
+                  optionsUsers: optionsUsuarios
+              });
+        })
+        .catch(function (error) {
+          console.log(error);
+          self.setState({
+              usuarioEncontrado: false
+          });
+        })
+        .then(function () {
+          self.setState({
+            showModalMdfUsuario: true
+          });
+        });
+    }
 
     openModalPrestar = () => {
         var self = this;
@@ -209,6 +261,35 @@ class MainAdmin extends Component {
           });
       }
 
+    handleChangeSelectUser = (usernameBuscar) => {
+        this.setState({ 
+            usernameBuscar :  usernameBuscar
+        });
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/usuarios/buscar',{
+            params: {
+                usuario : usernameBuscar.label
+            }
+        })
+          .then(function (response) {
+                console.log(response)
+                self.setState({
+                usuarioSeleccionado : response.data[0].usuario,
+                usuarioNewSeleccionado: response.data[0].usuario,
+                estadoUsuarioSeleccionado : response.data[0].estado,
+                rolUsuarioSeleccionado:  response.data[0].id_rol
+                });
+          })
+          .catch(function (error) {
+            console.log(error);
+            self.setState({
+                userEncontrado: false
+            });
+          })
+          .then(function () {
+          });
+    }
+
     seleccionarDNIPasaporte = () => {
         const { dniPasaporteBuscar, validate, apellidoPaternoSeleccionado, apellidoMaternoSeleccionado, idClienteSeleccionado } = this.state;
         if(dniPasaporteBuscar !== null || idClienteSeleccionado !== ""){
@@ -229,6 +310,12 @@ class MainAdmin extends Component {
         }
     };
 
+    seleccionarUser = () => {
+            this.setState({
+                userEncontrado: true,
+            });
+    };
+
     prestamo = () => {
         this.setState({
             redirectPrestamo: true
@@ -244,20 +331,26 @@ class MainAdmin extends Component {
     closeModal = () => {
         this.setState({
             dniPasaporteBuscar:null,
+            usernameBuscar:null,
+            trabajadorBuscar:null,
             idClienteSeleccionado:"",
             usuarioEncontrado:false,
+            userEncontrado:false,
             showModalPrestarOption: false,
-            showModalRecogerOption: false
+            showModalRecogerOption: false,
+            showModalMdfUsuario: false,
+            showModalMdfTrabajador: false
         });
     };
 
     render() {
         const { redirectLogin, redirectMovimientosAdmin, redirectOpenTrabajadores,
             redirectNuevoCliente,
-            redirectOpenClientes, redirectCrearUsuario,
+            redirectOpenClientes, redirectCrearUsuario, redirectModificarTrabajador,
             redirectPrestamo, redirectRecojo, dniPasaporteBuscar,
             validate,apellidoPaternoBuscado, apellidoMaternoBuscado,
-            options
+            options,optionsUsers, optionTrabajador, usuarioSeleccionado, usuarioNewSeleccionado,
+            usernameBuscar, claveSeleccionado
         } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
@@ -307,6 +400,11 @@ class MainAdmin extends Component {
         if (redirectNuevoCliente) {
             return (
                 <NuevoCliente id_trabajador={this.props.id_trabajador}   username={this.props.username} password={this.props.password} rol = {"admin"}/>
+            );
+        }
+        if (redirectModificarTrabajador) {
+            return (
+                <ModificarTrabajador id_trabajador={this.props.id_trabajador}   username={this.props.username} password={this.props.password} rol = {"admin"}/>
             );
         }
         if (redirectPrestamo) {
@@ -403,10 +501,18 @@ class MainAdmin extends Component {
                                     <span> </span>
                                     <Button
                                         size="lg"
+                                        onClick={this.modificarTrabajador}
+                                        style={buttonSize}
+                                    >
+                                        MDF TRABAJADOR
+                                    </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
                                         onClick={this.modificarUsuario}
                                         style={buttonSize}
                                     >
-                                        MODIFICAR USUARIO
+                                        MDF USUARIO
                                     </Button>
                             </Col>
                             <Col md={2}>
@@ -573,6 +679,113 @@ class MainAdmin extends Component {
                             Cancelar
                         </Button>
                     </ModalFooter>
+                </Modal>
+                <Modal  isOpen={this.state.showModalMdfUsuario} style={customStyles} centered size = "mg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Modificar Usuario
+                    </ModalHeader>
+                    <ModalBody>
+                        <div>
+                            <Row>
+                                <Col md={9}>
+                                    <span>Indicar username</span>
+                                    <Select
+                                        name="usernameBuscar"
+                                        id="usernameInput"
+                                        placeholder=""
+                                        value={usernameBuscar}
+                                        onChange={this.handleChangeSelectUser}
+                                        options={optionsUsers}
+                                    />
+                                </Col>
+                                <Col md={3}>
+                                    <br />
+                                    <Button
+                                        onClick= {this.seleccionarUser}
+                                    >
+                                        Seleccionar
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
+                        <div style={(this.state.userEncontrado===true) ? null :{visibility: [this.state.visibleNuevo]}}>
+                            <Row>
+                                <Col md={6}>
+                                    <span>Usuario</span>
+                                    <Input
+                                        name="usuarioSeleccionado"
+                                        id="usuarioSeleccionadoInput"
+                                        value={usuarioSeleccionado}
+                                        readOnly
+                                    />
+                                </Col>
+                                <Col md={6}>
+                                    <span>Nuevo nombre usuario</span>
+                                    <Input
+                                        name="usuarioNewSeleccionado"
+                                        id="usuarioNewSeleccionadoInput"
+                                        value={usuarioNewSeleccionado}
+                                        readOnly
+                                    />
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={6}>
+                                    <span>Digitar Nuevo Usuario</span>
+                                    <Input
+                                        name="usuarioNewSeleccionado"
+                                        id="usuarioNewSeleccionadoInput"
+                                        value={usuarioNewSeleccionado}
+                                        onChange={this.handleChange}
+                                    />
+                                </Col>
+                                <Col md={6}>
+                                    <span>Clave</span>
+                                    <Input
+                                        name="claveSeleccionado"
+                                        id="claveSeleccionadoInput"
+                                        value={claveSeleccionado}
+                                        onChange={this.handleChange}
+                                    />
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col md={6}>
+                                    <span>Rol</span>
+                                    <Input
+                                        name="usuarioNewSeleccionado"
+                                        id="usuarioNewSeleccionadoInput"
+                                        value={usuarioNewSeleccionado}
+                                        onChange={this.handleChange}
+                                    />
+                                </Col>
+                                <Col md={6}>
+                                    <span>Estado</span>
+                                    <Input
+                                        name="claveSeleccionado"
+                                        id="claveSeleccionadoInput"
+                                        value={claveSeleccionado}
+                                        onChange={this.handleChange}
+                                    />
+                                </Col>
+                            </Row>
+                            <br />
+                            <div className = "text-center">
+                                <Button
+                                    size="lg"
+                                    onClick= {this.recoger}
+                                    color="primary"
+                                >
+                                    Modificar
+                                </Button>
+                            </div>
+                        </div>
+                    </ModalBody>
+                </Modal>
+                <Modal  isOpen={this.state.showModalMdfTrabajador} style={customStyles} centered size = "mg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Modificar Trabajador
+                    </ModalHeader>
                 </Modal>
             </div>
         )
