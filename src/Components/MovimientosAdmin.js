@@ -177,7 +177,7 @@ class MovimientosAdmin extends Component {
                                 <Row>
                                     <Col md={5}>
                                         <div className="text-left">
-                                            <Label>Fecha Inicio de Búsqueda</Label>
+                                            <Label>Inicio de Búsqueda</Label>
                                             <Input
                                                 type="date"
                                                 name="fechaInicioBusqueda"
@@ -189,7 +189,7 @@ class MovimientosAdmin extends Component {
                                     </Col>
                                     <Col md={5}>
                                         <div className="text-left">
-                                            <Label>Fecha Fin de Búsqueda</Label>
+                                            <Label>Fin de Búsqueda</Label>
                                             <Input
                                                 type="date"
                                                 name="fechaFinBusqueda"
@@ -229,7 +229,6 @@ class MovimientosAdmin extends Component {
                                             <Th>{columnsTable.monto_deuda}</Th>
                                             <Th>{columnsTable.monto_total_recaudado}</Th>
                                             <Th>{columnsTable.fecha_movimiento}</Th>
-                                            <Th>{columnsTable.movimiento}</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -242,7 +241,6 @@ class MovimientosAdmin extends Component {
                                                     <Td>s/. {item.monto_deuda}</Td>
                                                     <Td>s/. {item.monto_total_recaudado}</Td>
                                                     <Td>{item.fecha_movimiento}</Td>
-                                                    <Td>{item.movimiento}</Td>
                                                 </Tr>
                                             )
 
