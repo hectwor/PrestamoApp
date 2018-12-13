@@ -22,6 +22,7 @@ class ListarTrabajadores extends Component {
             id_trabajadorBuscado:"",
             fechaBusqueda:  moment().format('YYYY-MM-DD'),
             movAnte:"",
+            liquidarDia:[],
             AvisoDisplay: 'none',
             redirectLogin: false,
             redirectMainAdmin: false,
@@ -77,6 +78,7 @@ class ListarTrabajadores extends Component {
             const movimientos = response.data;
             let pagoDia= 0;
             let movAnte = "";
+            let pagosDia = [];
             let optionsMv = movimientos.map((n) => {
                 let mov = {};
                 if(n.flag_liquidado === 'S' && moment(n.fecha_movimiento) < moment(self.state.fechaBusqueda)){
@@ -91,6 +93,10 @@ class ListarTrabajadores extends Component {
                     mov['pago'] = n.monto;
                     mov['flag_liquidado'] = n.flag_liquidado;
                     pagoDia = parseFloat(pagoDia) + parseFloat(n.monto);
+                    pagosDia = pagosDia.concat({
+                        "tipo": n.tipo_movimiento,
+                        "id": n.id_movimiento
+                    });
                 }else{
                     movAnte = movAnte + ", "+moment(n.fecha_movimiento).format('YYYY-MM-DD');
                 }
@@ -99,7 +105,8 @@ class ListarTrabajadores extends Component {
             self.setState({
                 movimientos: optionsMv,
                 pagoDia:pagoDia,
-                movAnte:movAnte
+                movAnte:movAnte,
+                liquidarDia: pagosDia
             });
         }).catch(function (error) {
           console.log(error);
@@ -124,7 +131,7 @@ class ListarTrabajadores extends Component {
         let linkPost = "";
         if(tipo_movimiento === 'Pagos') linkPost = 'https://edutafur.com/sgp/public/pagos/liquidar';
         if(tipo_movimiento === 'Gastos') linkPost = 'https://edutafur.com/sgp/public/gastos/liquidar';
-        if(tipo_movimiento === 'prestamos') linkPost = 'https://edutafur.com/sgp/public/prestamos/liquidar';
+        if(tipo_movimiento === 'Prestamos') linkPost = 'https://edutafur.com/sgp/public/prestamos/liquidar';
 
         axios.post(linkPost, {
             id: id_pago
@@ -138,7 +145,23 @@ class ListarTrabajadores extends Component {
           .catch(function (error) {
             console.log(error);
           });
-    }
+    };
+
+    liquidarDia = () => {
+        if (Object.keys(this.state.liquidarDia).length === 0){
+            alert('No hay pagos en el día');
+        }else{
+            axios.post('https://edutafur.com/sgp/public/movimientos/liquidarDia', this.state.liquidarDia)
+                .then(function (response) {
+                    console.log(response.data.mensaje);
+                    alert(`Gastos Liquidados: ${response.data.mensaje.GastosLiquidados}\nPagos Liquidados: ${response.data.mensaje.PagosLiquidados}\nPréstamos Liquidados: ${response.data.mensaje.PrestamosLiquidados}`
+                    )
+                })
+                .catch(function (error) {
+                    console.log(error);
+            });
+        }
+    };
 
     Logout = () => {
         this.setState({
@@ -363,7 +386,9 @@ class ListarTrabajadores extends Component {
                             </Col>
                         </Row>
                         <div className="text-right">
-                            <Button>
+                            <Button
+                                onClick = {this.liquidarDia}
+                            >
                                 LIQUIDAR DÍA
                             </Button>
                         </div>
