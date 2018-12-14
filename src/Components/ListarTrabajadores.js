@@ -28,14 +28,26 @@ class ListarTrabajadores extends Component {
             redirectMainAdmin: false,
             pagoDia:0,
 
+            nombresCompletos: "",
+            apellidoPaterno: "",
+            apellidoMaterno: "",
+            dniPasaporte: "",
+            telefono: "",
+            fechaNacimiento: "",
+            sexo: "",
+            pais: "",
+            correoElectronico: "",
+            direccion: "",
+
             showModalInformation:null,
+            showModalTrabajadorInfo:null,
 
             trabajadores: [],
             movimientos: [],
             columnsTable:
             {
                 "dni": "DNI",
-                "nombreCompleto": 'Nombre del Trabajador',
+                "nombreCompleto": 'Nombre Trabajador',
                 "telefono": "Telefono",
                 "verDatos": "Ver / Liquidar"
             }
@@ -98,7 +110,9 @@ class ListarTrabajadores extends Component {
                         "id": n.id_movimiento
                     });
                 }else{
-                    movAnte = movAnte + ", "+moment(n.fecha_movimiento).format('YYYY-MM-DD');
+                    if (n.flag_liquidado === 'N'){
+                        movAnte = movAnte + ", " + moment(n.fecha_movimiento).format('YYYY-MM-DD');
+                    }
                 }
                 return mov;
             });
@@ -163,6 +177,30 @@ class ListarTrabajadores extends Component {
         }
     };
 
+    verTrabajador = (dni) => {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/trabajador/buscar', {
+            params: {
+                nroDoc: dni
+            }
+        }).then(function (response) {
+            self.setState({
+                apellidoPaterno: response.data[0].ape_pat,
+                apellidoMaterno: response.data[0].ape_mat,
+                nombresCompletos: response.data[0].nombre,
+                telefono: response.data[0].telefono,
+                fechaNacimiento: response.data[0].fecha_nac,
+                dniPasaporte: response.data[0].nro_doc,
+                correoElectronico: response.data[0].correo,
+                direccion: response.data[0].direccion,
+                sexo: response.data[0].sexo,
+                pais: response.data[0].pais,
+
+                showModalTrabajadorInfo: true
+            });
+        })
+    };
+
     Logout = () => {
         this.setState({
             redirectLogin: true,
@@ -185,6 +223,7 @@ class ListarTrabajadores extends Component {
     closeModal = () => {
         this.setState({
             showModalInformation: false,
+            showModalTrabajadorInfo:false,
             fechaBusqueda:  moment().format('YYYY-MM-DD'),
             AvisoDisplay: 'none'
         });
@@ -193,7 +232,11 @@ class ListarTrabajadores extends Component {
     render(){
         const { redirectLogin, redirectMainAdmin, 
             columnsTable, trabajadores, fechaBusqueda,
-            AvisoDisplay, movimientos, pagoDia
+            AvisoDisplay, movimientos, pagoDia,
+            nombresCompletos, apellidoPaterno, apellidoMaterno,
+            dniPasaporte,
+            telefono,
+            fechaNacimiento, correoElectronico, direccion,
          } = this.state;
         let self = this;
         const panelAdmin = {
@@ -262,10 +305,15 @@ class ListarTrabajadores extends Component {
                                                 <Td>{item.telefono}</Td>
                                                 <Td>
                                                     <Button
-                                                        block
-                                                        onClick = {() => { self.abrirModalInfo(item.id_trabajador)}}
+                                                        onClick={() => { self.verTrabajador(item.dni)}}
                                                     >
                                                         VER
+                                                    </Button>
+                                                    <span> </span>
+                                                    <Button
+                                                        onClick={() => { self.abrirModalInfo(item.id_trabajador) }}
+                                                    >
+                                                        LIQUIDAR
                                                     </Button>
                                                 </Td>
                                             </Tr>
@@ -393,6 +441,93 @@ class ListarTrabajadores extends Component {
                             Salir
                         </Button>
                     </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.showModalTrabajadorInfo} style={customStyles} centered size="mg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Información de Trabajador
+                    </ModalHeader>  
+                    <ModalBody>
+                        <Row>
+                            <Col md={6}>
+                                <div className="text-right" >
+                                    <Label>Nombre Completo :</Label>
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div className="text-left">
+                                    <Label>{nombresCompletos} {apellidoPaterno} {apellidoMaterno}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={6}>
+                                <div className="text-right" >
+                                    <Label>DNI / Pasaporte :</Label>
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div className="text-left">
+                                    <Label>{dniPasaporte}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={6}>
+                                <div className="text-right" >
+                                    <Label>Teléfono :</Label>
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div className="text-left">
+                                    <Label>{telefono}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={6}>
+                                <div className="text-right" >
+                                    <Label>Correo :</Label>
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div className="text-left">
+                                    <Label>{correoElectronico}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={6}>
+                                <div className="text-right" >
+                                    <Label>Dirección :</Label>
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div className="text-left">
+                                    <Label>{direccion}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={6}>
+                                <div className="text-right" >
+                                    <Label>Fecha de Nacimiento :</Label>
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div className="text-left">
+                                    <Label>{fechaNacimiento}</Label>
+                                </div>
+                            </Col>
+                        </Row>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.closeModal}
+                            color="danger"
+                        >
+                            Salir
+                        </Button>
+                    </ModalFooter>       
                 </Modal>
             </div>
         )

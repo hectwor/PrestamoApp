@@ -540,6 +540,14 @@ class MainAdmin extends Component {
                                     <span> </span>
                                     <Button
                                         size="lg"
+                                        onClick={this.crearUsuario}
+                                        style={buttonSize}
+                                    >
+                                    CREAR USUARIO
+                                    </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
                                         onClick={this.openModalPrestar}
                                         style={buttonSize}
                                     >
@@ -552,13 +560,6 @@ class MainAdmin extends Component {
                                         style={buttonSize}
                                     >
                                         COBRAR
-                                    </Button>
-                                    <Button
-                                        size="lg"
-                                        onClick={this.crearUsuario}
-                                        style={buttonSize}
-                                    >
-                                        CREAR USUARIO
                                     </Button>
                                     <span> </span>
                                     <Button
