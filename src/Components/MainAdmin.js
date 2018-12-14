@@ -53,6 +53,7 @@ class MainAdmin extends Component {
             trabajadorBuscar: null,
             dniPasaporteBuscado:null,
             idClienteSeleccionado: "",
+            id_trabajador_modificar:"",
             apellidoPaternoSeleccionado:"",
             apellidoMaternoSeleccionado:"",
             idClienteBuscado: "",
@@ -128,9 +129,33 @@ class MainAdmin extends Component {
     };
 
     modificarTrabajador = () => {
-        this.setState({
-            redirectModificarTrabajador: true
-        });
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/trabajadores')
+            .then(function (response) {
+                const trabajadores = response.data;
+                let optionsTrabajadores = [
+                ];
+                optionsTrabajadores = trabajadores.map((n) => {
+                    let trabajador = {};
+                    trabajador['value'] = n.nro_doc;
+                    trabajador['label'] = n.nombre + ' ' + n.ape_pat + ' ' +n.ape_mat;
+                    return trabajador;
+                })
+                self.setState({
+                    optionTrabajador: optionsTrabajadores
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
+                self.setState({
+                    usuarioEncontrado: false
+                });
+            })
+            .then(function () {
+                self.setState({
+                    showModalMdfTrabajador: true
+                });
+            });
     }
 
     modificarUsuario = () => {
@@ -161,6 +186,25 @@ class MainAdmin extends Component {
             showModalMdfUsuario: true
           });
         });
+    }
+
+    enviarModificacionUsuario = () => {
+        axios.post('https://edutafur.com/sgp/public/usuario/actualizar', {
+            usuario: this.state.usuarioSeleccionado,
+            clave: this.state.claveSeleccionado,
+            estado: this.state.estadoUsuarioSeleccionado,
+            idRol: this.state.rolUsuarioSeleccionado,
+            cambiarUsuario: this.state.usuarioNewSeleccionado
+        }).then(function (response) {
+            if (response.status === 200) {
+                alert("Usuario Modificado");
+                this.closeModal();
+            }
+        })
+            .catch(function (error) {
+                console.log(error);
+            });
+
     }
 
     openModalPrestar = () => {
@@ -272,7 +316,6 @@ class MainAdmin extends Component {
             }
         })
           .then(function (response) {
-                console.log(response)
                 self.setState({
                 usuarioSeleccionado : response.data[0].usuario,
                 usuarioNewSeleccionado: response.data[0].usuario,
@@ -289,6 +332,13 @@ class MainAdmin extends Component {
           .then(function () {
           });
     }
+
+    handleChangeSelectTrabajador = (trabajadorBuscar) => {
+        this.setState({
+            trabajadorBuscar: trabajadorBuscar,
+            id_trabajador_modificar: trabajadorBuscar.value
+        });
+    };
 
     seleccionarDNIPasaporte = () => {
         const { dniPasaporteBuscar, validate, apellidoPaternoSeleccionado, apellidoMaternoSeleccionado, idClienteSeleccionado } = this.state;
@@ -311,9 +361,14 @@ class MainAdmin extends Component {
     };
 
     seleccionarUser = () => {
-            this.setState({
-                userEncontrado: true,
-            });
+        this.setState({
+            userEncontrado: true,
+        });
+    };
+    seleccionarTrabajador = () => {
+        this.setState({
+            redirectModificarTrabajador: true,
+        });
     };
 
     prestamo = () => {
@@ -350,7 +405,8 @@ class MainAdmin extends Component {
             redirectPrestamo, redirectRecojo, dniPasaporteBuscar,
             validate,apellidoPaternoBuscado, apellidoMaternoBuscado,
             options,optionsUsers, optionTrabajador, usuarioSeleccionado, usuarioNewSeleccionado,
-            usernameBuscar, claveSeleccionado
+            usernameBuscar, claveSeleccionado, estadoUsuarioSeleccionado, rolUsuarioSeleccionado,
+            trabajadorBuscar
         } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
@@ -404,7 +460,13 @@ class MainAdmin extends Component {
         }
         if (redirectModificarTrabajador) {
             return (
-                <ModificarTrabajador id_trabajador={this.props.id_trabajador}   username={this.props.username} password={this.props.password} rol = {"admin"}/>
+                <ModificarTrabajador 
+                    id_trabajador={this.props.id_trabajador}   
+                    username={this.props.username} 
+                    password={this.props.password} 
+                    rol = {"admin"}
+                    id_trabajador_modificar={this.state.id_trabajador_modificar}
+                />
             );
         }
         if (redirectPrestamo) {
@@ -753,27 +815,35 @@ class MainAdmin extends Component {
                                 <Col md={6}>
                                     <span>Rol</span>
                                     <Input
-                                        name="usuarioNewSeleccionado"
-                                        id="usuarioNewSeleccionadoInput"
-                                        value={usuarioNewSeleccionado}
+                                        type="select" 
+                                        name="rolUsuarioSeleccionado"
+                                        id="rolUsuarioSeleccionadoInput"
+                                        value={rolUsuarioSeleccionado}
                                         onChange={this.handleChange}
-                                    />
+                                    >
+                                        <option value="2">COBRADOR/PRESTADOR</option>
+                                        <option value="1">ADMIN</option>
+                                    </Input>
                                 </Col>
                                 <Col md={6}>
                                     <span>Estado</span>
-                                    <Input
-                                        name="claveSeleccionado"
-                                        id="claveSeleccionadoInput"
-                                        value={claveSeleccionado}
+                                    <Input 
+                                        type="select" 
+                                        name="estadoUsuarioSeleccionado"
+                                        id="estadoUsuarioSeleccionadoInput"
+                                        value={estadoUsuarioSeleccionado}
                                         onChange={this.handleChange}
-                                    />
+                                    >
+                                        <option value="0">NO ACTIVO</option>
+                                        <option value="1">ACTIVO</option>
+                                    </Input>
                                 </Col>
                             </Row>
                             <br />
                             <div className = "text-center">
                                 <Button
                                     size="lg"
-                                    onClick= {this.recoger}
+                                    onClick= {this.enviarModificacionUsuario}
                                     color="primary"
                                 >
                                     Modificar
@@ -786,6 +856,33 @@ class MainAdmin extends Component {
                     <ModalHeader toggle={this.closeModal}>
                         Modificar Trabajador
                     </ModalHeader>
+                    <ModalBody>
+                        <div>
+                            <Row>
+                                <Col md={9}>
+                                    <span>Indicar Nombre Completo</span>
+                                    <Select
+                                        name="trabajadorBuscar"
+                                        id="trabajadorBuscarInput"
+                                        placeholder=""
+                                        value={trabajadorBuscar}
+                                        onChange={this.handleChangeSelectTrabajador}
+                                        options={optionTrabajador}
+                                    />
+                                </Col>
+                                <Col md={3}>
+                                    <br />
+                                    <Button
+                                        onClick={this.seleccionarTrabajador}
+                                        color="primary"
+                                    >
+                                        Seleccionar
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
+                        <br /><br />
+                    </ModalBody>
                 </Modal>
             </div>
         )
