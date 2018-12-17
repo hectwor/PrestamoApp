@@ -121,7 +121,7 @@ class MainRecogedor extends Component {
                 self.setState({
                     apellidoPaternoBuscado : apep,
                     apellidoMaternoBuscado : apem,
-                    idClienteSeleccionado : dniPasaporteBuscar.id,
+                    idClienteBuscado : dniPasaporteBuscar.id,
                     dniPasaporteBuscado: dniPasaporteBuscar.value,
                     redirectPrestamo: true
                 });

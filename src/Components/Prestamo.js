@@ -135,15 +135,11 @@ class Prestamo extends Component{
     enviarDatosPrestamo = () => {
         const { idCliente, idTrabajador, montoPorPrestar, nro_cuotas } = this.state;
         let self = this;
-        console.log({
-            idTrabajador: idTrabajador,
-            idCliente: idCliente,
-            montoPrestamo: montoPorPrestar});
         axios.post('https://edutafur.com/sgp/public/prestamos/agregar', {
             idTrabajador: idTrabajador,
             idCliente: idCliente,
             montoPrestamo: montoPorPrestar,
-            nroCuotas: nro_cuotas
+            nroCuota: nro_cuotas
           })
           .then(function (response) {
               if(response.status === 200){

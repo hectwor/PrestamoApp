@@ -42,14 +42,12 @@ class ModificarTrabajador extends Component {
         }
     }
     componentWillMount() {
-        console.log(this.props.id_trabajador_modificar);
         let self = this;
         axios.get('https://edutafur.com/sgp/public/trabajador/buscar', {
             params: {
                 nroDoc: this.props.id_trabajador_modificar
             }
         }).then(function (response) {
-            console.log(response);
             self.setState({
                 id_trabajador: response.data[0].id_trabajador,
                 apellidoPaterno: response.data[0].ape_pat,

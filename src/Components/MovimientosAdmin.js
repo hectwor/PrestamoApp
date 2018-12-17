@@ -63,7 +63,7 @@ class MovimientosAdmin extends Component {
                         sumaMontoDia = sumaMontoDia + parseFloat(n.monto_total_recaudado);
                     }
                     if (n.Tipo_Movimiento === "Prestamo"){
-                        sumaMontoDia = sumaMontoDia - parseFloat(n.monto_total_recaudado);
+                        sumaMontoDia = sumaMontoDia - parseFloat(n.monto_deuda);
                     }
                     return movs;
                 });

@@ -167,7 +167,6 @@ class ListarTrabajadores extends Component {
         }else{
             axios.post('https://edutafur.com/sgp/public/movimientos/liquidarDia', this.state.liquidarDia)
                 .then(function (response) {
-                    console.log(response.data.mensaje);
                     alert(`Gastos Liquidados: ${response.data.mensaje.GastosLiquidados}\nPagos Liquidados: ${response.data.mensaje.PagosLiquidados}\nPréstamos Liquidados: ${response.data.mensaje.PrestamosLiquidados}`
                     )
                 })
