@@ -25,17 +25,36 @@ class Prestamo extends Component{
             montoPorPrestar: 0,
             montoACobrar: 0,
             montoTotalPrestado: 0,
+            nro_cuotas: 24,
+            fechaUltimoPago:"",
 
             montoActual: [this.props.saldo],
             fechaPrestamo : moment().format('DD-MM-YYYY'),
 
             validate:{
-                montoPorPrestar:null
+                montoPorPrestar:null,
+                nro_cuotas: null
             },
 
             showModalConfirmation:false
         }
     }
+
+    componentWillMount() {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/prestamo/fechaVencimiento',{
+            params: {
+                nroCuota : this.state.nro_cuotas
+            }
+        })
+          .then(function (response) {
+              self.setState({
+                fechaUltimoPago : response.data
+              })
+            
+          });
+    }
+
     Logout = () => {
         this.setState({
             redirectLogin: true,
@@ -56,20 +75,41 @@ class Prestamo extends Component{
     };
 
     handleChange = event => {
-        let change = {};
-        change[event.target.name] = event.target.value;
-        const montoACobrar = Math.round((parseFloat(event.target.value)*1.2) * 100) / 100;
-        this.setState(
-            change
-        );
-        this.setState({
-            montoACobrar : montoACobrar
+        if(event.target.name === 'nro_cuotas'){
+            let change = {};
+            let self = this;
+            change[event.target.name] = event.target.value;
+            this.setState(
+                change
+            );
+            axios.get('https://edutafur.com/sgp/public/prestamo/fechaVencimiento',{
+                params: {
+                    nroCuota : event.target.value
+                }
+            })
+              .then(function (response) {
+                  self.setState({
+                    fechaUltimoPago : response.data
+                  })
+                
+              });
+        }else{
+            let change = {};
+            change[event.target.name] = event.target.value;
+            const montoACobrar = Math.round((parseFloat(event.target.value)*1.2) * 100) / 100;
+            this.setState(
+                change
+            );
+            this.setState({
+                montoACobrar : montoACobrar
+            }
+            );
         }
-        );
+        
     };
 
     confirmarPrestarDinero = () => {
-        const { montoPorPrestar, montoActual, validate } = this.state;
+        const { montoPorPrestar, montoActual, validate, nro_cuotas } = this.state;
         if(parseFloat(montoPorPrestar) > parseFloat(montoActual)){
             validate.montoPorPrestar = "has-danger";
             this.setState({validate});
@@ -78,16 +118,22 @@ class Prestamo extends Component{
                 alert("Indicar monto");
             }else{
                 validate.montoPorPrestar = "has-success";
-                this.setState({
-                    validate:validate,
-                    showModalConfirmation:true
-                });
+                if(nro_cuotas === "" ){
+                    validate.nro_cuotas = "has-danger";
+                }else{
+                    validate.nro_cuotas = "has-success";
+                    this.setState({
+                        validate:validate,
+                        showModalConfirmation:true
+                    });
+                }
+                
             }
         }
     };
 
     enviarDatosPrestamo = () => {
-        const { idCliente, idTrabajador, montoPorPrestar } = this.state;
+        const { idCliente, idTrabajador, montoPorPrestar, nro_cuotas } = this.state;
         let self = this;
         console.log({
             idTrabajador: idTrabajador,
@@ -96,7 +142,8 @@ class Prestamo extends Component{
         axios.post('https://edutafur.com/sgp/public/prestamos/agregar', {
             idTrabajador: idTrabajador,
             idCliente: idCliente,
-            montoPrestamo: montoPorPrestar
+            montoPrestamo: montoPorPrestar,
+            nroCuotas: nro_cuotas
           })
           .then(function (response) {
               if(response.status === 200){
@@ -136,7 +183,9 @@ class Prestamo extends Component{
             validate,
             montoACobrar,
             fechaPrestamo,
-            montoTotalPrestado
+            montoTotalPrestado,
+            nro_cuotas,
+            fechaUltimoPago
         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
@@ -241,15 +290,40 @@ class Prestamo extends Component{
                                         </div>
                                     </Col>
                                 </Row>
-                                <div className="text-left">
-                                    <Label>Monto a cobrar</Label>
-                                    <Input
-                                        name="montoACobrar"
-                                        id="montoACobrarInput"
-                                        value={montoACobrar}
-                                        readOnly
-                                    />
-                                </div>
+                                <Row>
+                                    <Col md={6}>
+                                        <div className="text-left">
+                                        <Label>Número de cuotas</Label>
+                                        <Input
+                                            name="nro_cuotas"
+                                            id="nro_cuotasInput"
+                                            value={nro_cuotas}
+                                            type="number"
+                                            onChange={this.handleChange}
+                                        />
+                                        </div>
+                                    </Col>
+                                    <Col md={6}>
+                                        <div className="text-left">
+                                        <Label>Monto a cobrar</Label>
+                                        <Input
+                                            name="montoACobrar"
+                                            id="montoACobrarInput"
+                                            value={montoACobrar}
+                                            readOnly
+                                        />
+                                        </div>
+                                    </Col>
+                                </Row>
+                                    <div className="text-left">
+                                        <Label>Última fecha a pagar</Label>
+                                        <Input
+                                            name="fechaUltimoPago"
+                                            id="fechaUltimoPagoInput"
+                                            value={fechaUltimoPago}
+                                            readOnly
+                                        />
+                                        </div>
                                 <br/>
                                 <Button
                                     block

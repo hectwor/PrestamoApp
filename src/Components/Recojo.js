@@ -159,13 +159,13 @@ class Recojo extends Component{
         }
         if (redirectMainPrestamista) {
             return (
-                <MainVendedor    username={this.props.username} password={this.props.password} />
+                <MainVendedor  id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password} />
             );
         }
 
         if (redirectMainAdmin) {
             return (
-                <MainAdmin    username={this.props.username} password={this.props.password} />
+                <MainAdmin id_trabajador={this.props.id_trabajador}  username={this.props.username} password={this.props.password} />
             );
         }
         return (

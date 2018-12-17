@@ -243,7 +243,7 @@ class MainAdmin extends Component {
 
     openModalCobrar = () => {
         var self = this;
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar')
+        axios.get('https://edutafur.com/sgp/public/clientes/buscar',)
           .then(function (response) {
                 const clients = response.data;
                 let optionsClients = [
@@ -291,7 +291,7 @@ class MainAdmin extends Component {
                 self.setState({
                     apellidoPaternoSeleccionado : response.data[0].ape_pat,
                     apellidoMaternoSeleccionado : response.data[0].ape_mat,
-                    idClienteSeleccionado : response.data[0].id,
+                    idClienteSeleccionado : response.data[0].id_cliente,
                     dniPasaporteBuscado : response.data[0].nro_doc
                 });
           })
@@ -419,6 +419,14 @@ class MainAdmin extends Component {
             marginBottom: '20px',
             marginRight: '6px',
             marginLeft: '6px'
+        };
+        const  buttonSizeHidden = {
+            height: '60px',
+            width: '230px',
+            marginBottom: '20px',
+            marginRight: '6px',
+            marginLeft: '6px',
+            display: 'none'
         };
         if (redirectLogin) {
             return (
@@ -549,7 +557,7 @@ class MainAdmin extends Component {
                                     <Button
                                         size="lg"
                                         onClick={this.openModalPrestar}
-                                        style={buttonSize}
+                                        style={buttonSizeHidden}
                                     >
                                         PRESTAR
                                     </Button>
@@ -557,7 +565,7 @@ class MainAdmin extends Component {
                                     <Button
                                         size="lg"
                                         onClick={this.openModalCobrar}
-                                        style={buttonSize}
+                                        style={buttonSizeHidden}
                                     >
                                         COBRAR
                                     </Button>

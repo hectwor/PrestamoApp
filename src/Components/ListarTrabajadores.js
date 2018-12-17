@@ -424,6 +424,8 @@ class ListarTrabajadores extends Component {
                             </Col>
                         </Row>
                         <div className="text-right">
+                            <Label>Pago a trabajador por el día: S/. {parseFloat(pagoDia)*0.15}</Label>
+                            <span> </span>
                             <Button
                                 onClick = {this.liquidarDia}
                             >

@@ -247,6 +247,7 @@ class MovimientosAdmin extends Component {
                                         })}
                                     </Tbody>
                                 </Table>
+                                <br/>
                                 <Button
                                     block
                                     onClick={this.regresarMenu}

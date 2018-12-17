@@ -37,6 +37,9 @@ class MainRecogedor extends Component {
             idClienteSeleccionado: "",
             apellidoPaternoSeleccionado:"",
             apellidoMaternoSeleccionado:"",
+            ultimpoPagoBuscado:"",
+            prestamistaSeleccionado:"",
+            deudaRestanteSeleccionado:"",
 
             dniPasaporteBuscar: null,
             dniPasaporteBuscado: null,
@@ -95,7 +98,15 @@ class MainRecogedor extends Component {
 
     handleChangeSelect = (dniPasaporteBuscar) => {
         this.setState({ 
-            dniPasaporteBuscar :  dniPasaporteBuscar
+            dniPasaporteBuscar :  dniPasaporteBuscar,
+            usuarioEncontrado: false,
+            apellidoPaternoSeleccionado : "",
+                    apellidoMaternoSeleccionado : "",
+                    prestamistaSeleccionado : "",
+                    deudaRestanteSeleccionado : "",
+                    ultimpoPagoBuscado: "",
+                    idClienteSeleccionado : "",
+                    dniPasaporteBuscado: ""
         });
         var self = this;
         axios.get('https://edutafur.com/sgp/public/clientes/buscar',{
@@ -104,12 +115,28 @@ class MainRecogedor extends Component {
             }
         })
           .then(function (response) {
+              if(Object.keys(response.data).length === 0){
+                  const apep= (dniPasaporteBuscar.label).split(" ")[(dniPasaporteBuscar.label).split(" ").length - 2];
+                  const apem= (dniPasaporteBuscar.label).split(" ")[(dniPasaporteBuscar.label).split(" ").length - 1];
+                self.setState({
+                    apellidoPaternoBuscado : apep,
+                    apellidoMaternoBuscado : apem,
+                    idClienteSeleccionado : dniPasaporteBuscar.id,
+                    dniPasaporteBuscado: dniPasaporteBuscar.value,
+                    redirectPrestamo: true
+                });
+              }else{
                 self.setState({
                     apellidoPaternoSeleccionado : response.data[0].ape_pat,
                     apellidoMaternoSeleccionado : response.data[0].ape_mat,
-                    idClienteSeleccionado : response.data[0].id,
+                    prestamistaSeleccionado : response.data[0].prestamista,
+                    deudaRestanteSeleccionado : response.data[0].monto_deuda_restante,
+                    ultimpoPagoBuscado: response.data[0].fecha_ultimo_pago,
+                    idClienteSeleccionado : response.data[0].id_cliente,
                     dniPasaporteBuscado: response.data[0].nro_doc
                 });
+              }
+                
           })
           .catch(function (error) {
             console.log(error);
@@ -148,15 +175,27 @@ class MainRecogedor extends Component {
     };
 
     prestamo = () => {
-        this.setState({
-            redirectPrestamo: true
-        });
+        if(this.state.idClienteSeleccionado === ""){
+            alert('Ha ocurrido un problema, vuelva a seleccionar');
+        }else{
+            if(parseFloat(this.state.deudaRestanteSeleccionado) > 0){
+                alert('Tiene deuda pendiente');
+            }else{
+                this.setState({
+                    redirectPrestamo: true
+                });
+            }
+        }
     };
 
     recoger = () => {
-        this.setState({
-            redirectRecojo: true
-        });
+        if(this.state.idClienteSeleccionado === ""){
+            alert('Ha ocurrido un problema, vuelva a seleccionar');
+        }else{
+            this.setState({
+                redirectRecojo: true
+            });
+        }
     };
 
     nuevoCliente = () => {
@@ -175,6 +214,7 @@ class MainRecogedor extends Component {
                 optionsClients = clients.map((n) => {
                     let client = {};
                     client['value']= n.nro_doc;
+                    client['id']= n.id;
                     client['label']= n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
                     return client;
                 })
@@ -289,7 +329,7 @@ class MainRecogedor extends Component {
             redirectLogin, 
             redirectNuevoUsuario, redirectPrestamo, redirectRecojo, 
             dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado,
-            descripcionGasto, montoGasto,
+            descripcionGasto, montoGasto, ultimpoPagoBuscado, deudaRestanteSeleccionado, prestamistaSeleccionado,
             validate,
             options
          } = this.state;
@@ -442,21 +482,30 @@ class MainRecogedor extends Component {
                         </div>
                         <div style={(this.state.usuarioEncontrado===true) ? null :{visibility: [this.state.visibleNuevo]}}>
                             <Row>
-                                <Col md={6}>
-                                    <span>Apellido Paterno</span>
+                                <Col md={4}>
+                                    <span>Deuda con prestamista</span>
                                     <Input
-                                            name="apellidoPaternoBuscado"
-                                            id="apellidoPaternoBuscadoInput"
-                                            value={apellidoPaternoBuscado}
+                                            name="prestamistaSeleccionado"
+                                            id="prestamistaSeleccionadoInput"
+                                            value={prestamistaSeleccionado}
                                             readOnly
                                     />
                                 </Col>
-                                <Col md={6}>
-                                    <span>Apellido Materno</span>
+                                <Col md={4}>
+                                    <span>Monto pendiente de pago</span>
                                     <Input
-                                            name="apellidoMaternoBuscado"
-                                            id="apellidoMaternoBuscadoInput"
-                                            value={apellidoMaternoBuscado}
+                                            name="deudaRestanteSeleccionado"
+                                            id="deudaRestanteSeleccionadoInput"
+                                            value={deudaRestanteSeleccionado}
+                                            readOnly
+                                    />
+                                </Col>
+                                <Col md={4}>
+                                    <span>Fecha Último Pago</span>
+                                    <Input
+                                            name="ultimpoPagoBuscado"
+                                            id="ultimpoPagoBuscadoInput"
+                                            value={ultimpoPagoBuscado}
                                             readOnly
                                     />
                                 </Col>
