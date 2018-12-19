@@ -20,6 +20,8 @@ class Recojo extends Component{
             redirectMainPrestamista:false,
             redirectMainAdmin:false,
 
+            ButtonRefinanciarHidden:true,
+
             id_prestamo: null,
             dniPasaporteBuscado : this.props.dniPasaporteBuscado,
             montoPorRecoger: 0,
@@ -45,10 +47,15 @@ class Recojo extends Component{
             }
           })
           .then(function (response) {
+              let ButtonRefinanciar = true;
+              if( moment(response.data[0].fecha_vencimiento).format('DD-MM-YYYY') > moment().format('DD-MM-YYYY')){
+                ButtonRefinanciar = false;
+              }
             self.setState({
                 id_prestamo : response.data[0].id_prestamo,
                 montoPrestado: response.data[0].monto_deuda,
-                saldoFaltante: response.data[0].monto_deuda_restante
+                saldoFaltante: response.data[0].monto_deuda_restante,
+                ButtonRefinanciarHidden: ButtonRefinanciar
             });
           })
           .catch(function (error) {
@@ -120,6 +127,10 @@ class Recojo extends Component{
           });
     };
 
+    refinanciar = () => {
+        
+    }
+
     closeModal = () => {
         this.setState({
             showModalConfirmation: false
@@ -135,7 +146,8 @@ class Recojo extends Component{
             validate,
             saldoFaltante,
             montoPrestado,
-            fechaRecojo
+            fechaRecojo,
+            ButtonRefinanciarHidden
         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
@@ -272,6 +284,14 @@ class Recojo extends Component{
                                     color="info"
                                 >
                                     RECOGER
+                                </Button>
+                                <Button
+                                    block
+                                    onClick={this.refinanciar}
+                                    color="warning"
+                                    hidden={ButtonRefinanciarHidden}
+                                >
+                                    Refinanciar
                                 </Button>
                                 <Button
                                     block

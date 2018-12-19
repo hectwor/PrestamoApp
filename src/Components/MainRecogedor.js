@@ -65,6 +65,8 @@ class MainRecogedor extends Component {
             redirectRecojo:false,
             usuarioEncontrado:false,
 
+            id_trabajador:this.props.id_trabajador,
+
             visibleNuevo:"hidden",
 
             options:[]

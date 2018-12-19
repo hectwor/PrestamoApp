@@ -13,6 +13,14 @@ import moment from "moment";
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
 const axios = require('axios');
+moment.lang('es', {
+    months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
+    monthsShort: 'Enero._Feb._Mar_Abr._May_Jun_Jul._Ago_Sept._Oct._Nov._Dec.'.split('_'),
+    weekdays: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split('_'),
+    weekdaysShort: 'Dom._Lun._Mar._Mier._Jue._Vier._Sab.'.split('_'),
+    weekdaysMin: 'Do_Lu_Ma_Mi_Ju_Vi_Sa'.split('_')
+});
+moment.lang("es");
 class ListarTrabajadores extends Component {
     constructor(props){
         super(props);
@@ -22,11 +30,14 @@ class ListarTrabajadores extends Component {
             id_trabajadorBuscado:"",
             fechaBusqueda:  moment().format('YYYY-MM-DD'),
             movAnte:"",
+            lunesDeLaSemana:null,
             liquidarDia:[],
             AvisoDisplay: 'none',
             redirectLogin: false,
             redirectMainAdmin: false,
             pagoDia:0,
+            pagoSemanalTotal:0,
+            pagoSemanal:0,
 
             nombresCompletos: "",
             apellidoPaterno: "",
@@ -41,6 +52,7 @@ class ListarTrabajadores extends Component {
 
             showModalInformation:null,
             showModalTrabajadorInfo:null,
+            showModalTrabajadorPagar:null,
 
             trabajadores: [],
             movimientos: [],
@@ -56,7 +68,13 @@ class ListarTrabajadores extends Component {
 
     componentWillMount () {
         let self = this;
-
+        let hoy = moment();
+        do{
+            hoy = hoy.subtract(1, 'days');
+        }while(hoy.format('dddd') !== 'Lunes');
+        this.setState({
+            lunesDeLaSemana: hoy
+        })
         axios.get('https://edutafur.com/sgp/public/trabajadores')
         .then(function (response) {
               const trabajadores = response.data;
@@ -138,6 +156,35 @@ class ListarTrabajadores extends Component {
             showModalInformation: true
         });
         this.llenarModal(id_trabajador);
+    };
+
+    abrirModalparaPagar  = (id_trabajador) =>{
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/movimientos/trabajador/', {
+            params: {
+                idTrabajador: id_trabajador
+            }
+        }).then(function (response) {
+            const movimientos = response.data;
+            let mov = 0;
+            for(let i=0;i<Object.keys(movimientos).length;i++){
+                if(movimientos[i].tipo_movimiento === 'Pagos'){
+                    if(moment(movimientos[i].fecha_movimiento).format('YYYY-MM-DD') >= self.state.lunesDeLaSemana.format('YYYY-MM-DD')
+                        && moment(movimientos[i].fecha_movimiento).format('YYYY-MM-DD') <= moment().format('YYYY-MM-DD')){
+                        mov = mov + parseFloat(movimientos[i].monto);
+                    }
+                }
+            }
+            self.setState({
+                pagoSemanalTotal: mov,
+                pagoSemanal: Math.round((parseFloat(mov)*0.03) * 100) / 100
+            });
+        }).catch(function (error) {
+            console.log(error);
+          });
+        this.setState({
+            showModalTrabajadorPagar: true
+        });
     };
 
     liquidarPago = (id_pago, tipo_movimiento) => {
@@ -223,6 +270,7 @@ class ListarTrabajadores extends Component {
         this.setState({
             showModalInformation: false,
             showModalTrabajadorInfo:false,
+            showModalTrabajadorPagar:false,
             fechaBusqueda:  moment().format('YYYY-MM-DD'),
             AvisoDisplay: 'none'
         });
@@ -235,7 +283,7 @@ class ListarTrabajadores extends Component {
             nombresCompletos, apellidoPaterno, apellidoMaterno,
             dniPasaporte,
             telefono,
-            fechaNacimiento, correoElectronico, direccion,
+            fechaNacimiento, correoElectronico, direccion, lunesDeLaSemana, pagoSemanal, pagoSemanalTotal
          } = this.state;
         let self = this;
         const panelAdmin = {
@@ -304,15 +352,27 @@ class ListarTrabajadores extends Component {
                                                 <Td>{item.telefono}</Td>
                                                 <Td>
                                                     <Button
+                                                        size="sm"
+                                                        color="info"
                                                         onClick={() => { self.verTrabajador(item.dni)}}
                                                     >
-                                                        VER
+                                                        Ver
                                                     </Button>
                                                     <span> </span>
                                                     <Button
+                                                        size="sm"
+                                                        color="info"
                                                         onClick={() => { self.abrirModalInfo(item.id_trabajador) }}
                                                     >
-                                                        LIQUIDAR
+                                                        Liquidar
+                                                    </Button>
+                                                    <span> </span>
+                                                    <Button
+                                                        size="sm"
+                                                        color="info"
+                                                        onClick={() => { self.abrirModalparaPagar(item.id_trabajador) }}
+                                                    >
+                                                        Pagar
                                                     </Button>
                                                 </Td>
                                             </Tr>
@@ -529,6 +589,27 @@ class ListarTrabajadores extends Component {
                             Salir
                         </Button>
                     </ModalFooter>       
+                </Modal>
+                <Modal  isOpen={this.state.showModalTrabajadorPagar} style={customStyles} centered size="mg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Pago a Trabajador
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className = "text-center">
+                                <Label> Pago desde {lunesDeLaSemana.format('dddd')} {lunesDeLaSemana.format('Do')} a hoy {moment().format('dddd')} {moment().format('Do')}</Label>
+                                <br/>
+                                <Label><b>Cobró S/. {pagoSemanalTotal}</b></Label><br/>
+                                <Label><b>Se le pagará S/. {pagoSemanal}</b></Label>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.closeModal}
+                            color="danger"
+                        >
+                            Salir
+                        </Button>
+                    </ModalFooter>      
                 </Modal>
             </div>
         )
