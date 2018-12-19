@@ -1,10 +1,11 @@
 import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
-    Input,FormFeedback, Label,Button,
+    Input,FormFeedback, Label,Button,Form,
     Row, Col,
     ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
 import MainAdmin from "./MainAdmin";
@@ -20,11 +21,13 @@ class Recojo extends Component{
             redirectMainPrestamista:false,
             redirectMainAdmin:false,
 
+            clientes:[],
+
             ButtonRefinanciarHidden:true,
 
             id_prestamo: null,
             dniPasaporteBuscado : this.props.dniPasaporteBuscado,
-            montoPorRecoger: 0,
+            montoPorRecoger: {},
             saldoFaltante: 0,
             montoPrestado: 0,
             fechaRecojo:   moment().format('DD-MM-YYYY'),
@@ -41,27 +44,38 @@ class Recojo extends Component{
 
     componentWillMount (){
         let self = this;
-        axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar', {
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes',{
             params: {
-                dniPasaporteApellidoBuscado: this.state.dniPasaporteBuscado
+                idTrabajador : this.props.id_trabajador
             }
-          })
+        })
           .then(function (response) {
-              let ButtonRefinanciar = true;
-              if( moment(response.data[0].fecha_vencimiento).format('DD-MM-YYYY') > moment().format('DD-MM-YYYY')){
-                ButtonRefinanciar = false;
-              }
-            self.setState({
-                id_prestamo : response.data[0].id_prestamo,
-                montoPrestado: response.data[0].monto_deuda,
-                saldoFaltante: response.data[0].monto_deuda_restante,
-                ButtonRefinanciarHidden: ButtonRefinanciar
+            const clientes = response.data;
+            let ListClientesMontosPagar = clientes.map((n) => {
+                let montosPagar2 = {}
+                montosPagar2['id_prestamo'] = n.id_prestamo;
+                montosPagar2['monto_por_pagar'] = Math.round((parseFloat(n.monto_deuda)*0.24) * 100) / 100;
+                return montosPagar2;
             });
+            self.setState({
+                clientes : clientes,
+                montoPorRecoger : ListClientesMontosPagar
+            });
+            console.log(clientes);
+            console.log(ListClientesMontosPagar[1]);
           })
           .catch(function (error) {
             console.log(error);
           });
     }
+
+    jsonConcat = (o1, o2) => {
+        for (var key in o2) {
+         o1[key] = o2[key];
+        }
+        return o1;
+       }
+       
 
     Logout = () => {
         this.setState({
@@ -91,6 +105,12 @@ class Recojo extends Component{
         this.setState(change)
     };
 
+    handleListChange = (index, event) =>{
+        var montoPorRecoger = this.state.montoPorRecoger.slice(); // Make a copy of the emails first.
+        montoPorRecoger[index] = event.target.value; // Update it with the modified email.
+        this.setState({montoPorRecoger: montoPorRecoger}); // Update the state.
+    }
+
     confirmarRecogerDinero = () => {
         const { montoPorRecoger, saldoFaltante, validate } = this.state;
         if(parseFloat(montoPorRecoger) > parseFloat(saldoFaltante)){
@@ -112,7 +132,7 @@ class Recojo extends Component{
     enviarDatosRecojo = () => {
         const { montoPorRecoger, id_prestamo } = this.state;
         let self = this;
-        axios.post('https://edutafur.com/sgp/public/pagos/agregar', {
+        axios.post('https://edutafur.com/sgp/public/prestamos/pagos/agregar', {
             idPrestamo: id_prestamo,
             montoRecaudado: montoPorRecoger
           })
@@ -128,7 +148,7 @@ class Recojo extends Component{
     };
 
     refinanciar = () => {
-        
+
     }
 
     closeModal = () => {
@@ -147,12 +167,16 @@ class Recojo extends Component{
             saldoFaltante,
             montoPrestado,
             fechaRecojo,
-            ButtonRefinanciarHidden
+            ButtonRefinanciarHidden,
+            clientes
         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
             marginTop: "80px"
+        };
+        const fontSize = {
+            fontSize: 14
         };
         const customStyles = {
             content: {
@@ -194,115 +218,60 @@ class Recojo extends Component{
                 <div className="container">
                     <div className="container text-center" style={panelVendedor}>
                         <h1 className="display-6">Saldo : S/ {montoActual}</h1>
-                        <h1 className="display-4">Cliente para recoger</h1>
+                        <h1 className="display-4">Clientes por recoger</h1>
                         <Row>
-                            <Col md={3}>
+                            <Col md={2}>
                             </Col>
-                            <Col md={6}>
-                                <Row>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Apellido Paterno</Label>
-                                            <Input
-                                                name="apellidoPaternoBuscado"
-                                                id="apellidoPaternoBuscadoInput"
-                                                value={this.props.apellidoPaternoBuscado}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Apellido Materno</Label>
-                                            <Input
-                                                name="apellidoMaternoBuscado"
-                                                id="apellidoMaternoBuscado"
-                                                value={this.props.apellidoMaternoBuscado}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Monto Prestado</Label>
-                                            <Input
-                                                name="montoPrestado"
-                                                id="montoPrestadoInput"
-                                                value={`S/. ${montoPrestado}`}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Saldo Faltante</Label>
-                                            <Input
-                                                name="saldoFaltante"
-                                                id="saldoFaltanteInput"
-                                                value={`S/. ${saldoFaltante}`}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Moneda</Label>
-                                            <Input
-                                                type="select"
-                                                name="select"
-                                                id="selectDinero">
-                                                <option>SOLES ( S/.)</option>
-                                            </Input>
-                                        </div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Monto a recoger</Label>
-                                            <Input
-                                                name="montoPorRecoger"
-                                                id="montoPorRecogerInput"
-                                                value={montoPorRecoger}
-                                                placeholder=""
-                                                type="number"
-                                                invalid={validate.montoPorRecoger === "has-danger"}
-                                                valid={validate.montoPorRecoger === "has-success"}
-                                                onChange={this.handleChange}
-                                                autoFocus
-                                            />
-                                            <FormFeedback invalid>Supera el saldo faltante</FormFeedback>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <br/>
-                                <Button
-                                    block
-                                    onClick={this.confirmarRecogerDinero}
-                                    color="info"
-                                >
-                                    RECOGER
-                                </Button>
-                                <Button
-                                    block
-                                    onClick={this.refinanciar}
-                                    color="warning"
-                                    hidden={ButtonRefinanciarHidden}
-                                >
-                                    Refinanciar
-                                </Button>
-                                <Button
-                                    block
-                                    onClick={this.regresarMenu}
-                                    color="danger"
-                                >
-                                    Regresar
-                                </Button>
-                                <br/>
+                            <Col md={8}>
+                            <br/>
+                            <Table  style={fontSize}>
+                                <Thead>
+                                    <Tr>
+                                        <Th><b>Nombre Cliente</b></Th>
+                                        <Th><b>Prestado</b></Th>
+                                        <Th><b>Faltante</b></Th>
+                                        <Th><b>Cobro</b></Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                {clientes.map(function(item, key) {
+                                    let self = this;
+                                    return (
+                                        <Tr key = {key}>
+                                            <Td >{item.cliente}</Td>
+                                            <Td >s/. {item.monto_deuda}</Td>
+                                            <Td>s/. {item.monto_deuda_restante}</Td>
+                                            <Td>
+                                                <Form inline>
+                                                    <Label>s/. </Label>
+                                                    <Input
+                                                        type="number"
+                                                        name="montorRecoger"
+                                                        id="montoRecogerInput"
+                                                        value={montoPorRecoger[key]}
+                                                        onChange={self.handleChange.bind(this, key)}
+                                                    />
+                                                    <Button
+                                                        size="sm"
+                                                    >
+                                                        Recoger
+                                                    </Button>
+                                                        <span> </span>
+                                                        <Button
+                                                            size="sm"
+                                                        >
+                                                        Ver
+                                                    </Button>
+                                                </Form>
+                                                
+                                            </Td>
+                                        </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
                             </Col>
-                            <Col md={3}>
+                            <Col md={2}>
                             </Col>
                         </Row>
                     </div>

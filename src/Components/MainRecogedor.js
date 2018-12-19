@@ -238,37 +238,9 @@ class MainRecogedor extends Component {
     };
 
     openModalCobrar = () => {
-        var self = this;
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar',{
-            params: {
-                idTrabajador: this.props.id_trabajador
-            }
-        })
-          .then(function (response) {
-                const clients = response.data;
-                let optionsClients = [
-                ];
-                optionsClients = clients.map((n) => {
-                    let client = {};
-                    client['value']= n.nro_doc;
-                    client['label']= n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
-                    return client;
-                })
-                self.setState({
-                    options: optionsClients
-                });
-          })
-          .catch(function (error) {
-            console.log(error);
-            self.setState({
-                usuarioEncontrado: false
-            });
-          })
-          .then(function () {
-            self.setState({
-                showModalRecogerOption: true,
-            });
-          });
+        this.setState({
+            redirectRecojo: true,
+        });
     };
 
     openModalAgregarGastos = () => {
@@ -376,10 +348,6 @@ class MainRecogedor extends Component {
                     id_trabajador={this.props.id_trabajador}
                     username={this.props.username}
                     saldo = {this.state.montoActual}
-                    idClienteBuscado = {this.state.idClienteBuscado}
-                    dniPasaporteBuscado = {this.state.dniPasaporteBuscado}
-                    apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
-                    apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
                     rol = {"prestamista"}
                 />
             );
