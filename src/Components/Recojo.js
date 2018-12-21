@@ -1,9 +1,8 @@
 import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
-    Input,FormFeedback, Label,Button,Form,
-    Row, Col,
-    ModalFooter, ModalBody, ModalHeader, Modal
+    Input, Label,Button,Form,
+    Row, Col
 } from 'reactstrap';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import Login from "./Login";
@@ -23,11 +22,12 @@ class Recojo extends Component{
 
             clientes:[],
 
-            ButtonRefinanciarHidden:true,
+            ButtonRefinanciarHidden:{},
 
             id_prestamo: null,
             dniPasaporteBuscado : this.props.dniPasaporteBuscado,
             montoPorRecoger: {},
+            ButtonmontoRecoger:{},
             saldoFaltante: 0,
             montoPrestado: 0,
             fechaRecojo:   moment().format('DD-MM-YYYY'),
@@ -52,29 +52,52 @@ class Recojo extends Component{
         })
           .then(function (response) {
             const clientes = response.data;
+            let ButtonColor=[];
+            let ButtonHidden=[];
             let ListClientesMontosPagar = clientes.map((n) => {
                 let montosPagar2 = {}
                 montosPagar2['id_prestamo'] = n.id_prestamo;
                 montosPagar2['monto_por_pagar'] = Math.round((parseFloat(n.monto_deuda)*0.24) * 100) / 100;
+                let ButtonColor2={};
+                let ButtonHidden2 = {}
+                ButtonColor2['id_prestamo'] = n.id_prestamo;
+                ButtonHidden2['id_prestamo'] = n.id_prestamo;
+                if(moment(n.fecha_ultimo_pago).format('DD-MM-YYYY') === moment().format('DD-MM-YYYY')){ 
+                    ButtonColor2['color'] = 'success';
+                }else{
+                    ButtonColor2['color'] = 'danger';
+                }
+                if(moment(n.fecha_vencimiento).format('DD-MM-YYYY') < moment().format('DD-MM-YYYY')){ 
+                    ButtonHidden2['hidden'] = true;
+                }else{
+                    ButtonHidden2['hidden'] = false;
+                }
+                ButtonColor = ButtonColor.concat(ButtonColor2);
+                ButtonHidden = ButtonHidden.concat(ButtonHidden2);
                 return montosPagar2;
             });
             self.setState({
                 clientes : clientes,
-                montoPorRecoger : ListClientesMontosPagar
+                montoPorRecoger : ListClientesMontosPagar,
+                ButtonmontoRecoger: ButtonColor,
+                ButtonRefinanciarHidden: ButtonHidden
             });
           })
           .catch(function (error) {
             console.log(error);
           });
-    }
 
-    jsonConcat = (o1, o2) => {
-        for (var key in o2) {
-         o1[key] = o2[key];
-        }
-        return o1;
-       }
-       
+          axios.get('https://edutafur.com/sgp/public/trabajador/recaudado-mano', {
+            params: {
+                idTrabajador: this.props.id_trabajador
+            }
+          })
+            .then(function (response) {
+                self.setState({
+                    montoActual: response.data[0].total_recaudado_mano
+                });
+            })
+    }
 
     Logout = () => {
         this.setState({
@@ -104,35 +127,40 @@ class Recojo extends Component{
         this.setState(change)
     };
 
-    handleListChange(index, event){
-        console.log(index)
-        console.log(event)
-        var montoPorRecoger = this.state.montoPorRecoger.slice(); // Make a copy of the emails first.
-        montoPorRecoger[index] = event.target.value; // Update it with the modified email.
-        this.setState({montoPorRecoger: montoPorRecoger}); // Update the state.
+    handleListChange(event, index){
+        var montoPorRecoger = this.state.montoPorRecoger.slice();
+        montoPorRecoger[index]['monto_por_pagar'] = event.target.value;
+        this.setState({montoPorRecoger: montoPorRecoger});
     }
 
-    confirmarRecogerDinero = (index, event) => {
-        console.log(index)
-        console.log(event)
-    };
-
-    enviarDatosRecojo = () => {
-        const { montoPorRecoger, id_prestamo } = this.state;
-        let self = this;
-        axios.post('https://edutafur.com/sgp/public/prestamos/pagos/agregar', {
-            idPrestamo: id_prestamo,
-            montoRecaudado: montoPorRecoger
-          })
-          .then(function (response) {
-              if(response.status === 200){
-                  alert(`Recojo de valor S/. ${montoPorRecoger} guardado`);
-                  self.regresarMenu();
-              }
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+    confirmarRecogerDinero = (monto_pagar, id_prestamo, cliente) => {
+        console.log(monto_pagar)
+        console.log(id_prestamo)
+        console.log(cliente)
+        if(monto_pagar === '0' || monto_pagar === null || monto_pagar === ""){
+            alert('Monto 0 o vacío');
+        }else{
+            let self = this;
+            var r = window.confirm(`Confirma el recojo?\n\nCliente: ${cliente}\nMonto a recoger: s/. ${monto_pagar}`);
+            if (r === true) {
+                console.log({idPrestamo: id_prestamo,
+                    montoRecaudado: monto_pagar})
+                axios.post('https://edutafur.com/sgp/public/pagos/agregar', {
+                    idPrestamo: id_prestamo,
+                    montoRecaudado: monto_pagar
+                  })
+                  .then(function (response) {
+                      
+                      if(response.status === 200){
+                        alert(`Recojo de valor S/. ${monto_pagar} realizado`);
+                        self.componentWillMount();
+                      }
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  });
+            }
+        }
     };
 
     refinanciar = () => {
@@ -151,12 +179,9 @@ class Recojo extends Component{
             redirectMainAdmin,
             montoActual,
             montoPorRecoger,
-            validate,
-            saldoFaltante,
-            montoPrestado,
-            fechaRecojo,
             ButtonRefinanciarHidden,
-            clientes, montoRecoger
+            clientes,
+            ButtonmontoRecoger
         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
@@ -166,15 +191,8 @@ class Recojo extends Component{
         const fontSize = {
             fontSize: 14
         };
-        const customStyles = {
-            content: {
-                top: "50%",
-                left: "50%",
-                right: "auto",
-                bottom: "auto",
-                marginRight: "-50%",
-                transform: "translate(-50%, -50%)"
-            }
+        const inputStyle = {
+            width: 100
         };
         if (redirectLogin) {
             return (
@@ -209,9 +227,9 @@ class Recojo extends Component{
                         <h1 className="display-6">Saldo : S/ {montoActual}</h1>
                         <h1 className="display-4">Clientes por recoger</h1>
                         <Row>
-                            <Col md={2}>
+                            <Col md={1}>
                             </Col>
-                            <Col md={8}>
+                            <Col md={10}>
                             <br/>
                             <Table  style={fontSize}>
                                 <Thead>
@@ -234,129 +252,59 @@ class Recojo extends Component{
                                                     <Label>s/. </Label>
                                                     <Input
                                                         type="number"
+                                                        id={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                        name={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
                                                         value={montoPorRecoger[key]['monto_por_pagar']}
-                                                        onChange={() => {self.handleListChange.bind(this, item.id_prestamo)}}
+                                                        style={inputStyle}
+                                                        onChange={(e) => {self.handleListChange(e, key)}}
                                                     />
                                                     <Button
                                                         size="sm"
-                                                        onClick={() => { self.confirmarRecogerDinero(montoPorRecoger[key]['monto_por_pagar'], item.id_prestamo)}}
+                                                        id={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                        name={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                        color={ButtonmontoRecoger[key]['color']}
+                                                        onClick={() => { self.confirmarRecogerDinero(montoPorRecoger[key]['monto_por_pagar'], item.id_prestamo, item.cliente)}}
                                                     >
                                                         Recoger
                                                     </Button>
                                                         <span> </span>
-                                                        <Button
+                                                    <Button
                                                             size="sm"
-                                                            hidden
                                                         >
                                                         Ver
                                                     </Button>
+                                                    <Button
+                                                        id={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
+                                                        name={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
+                                                        size="sm"
+                                                        color="warning"
+                                                        hidden={ButtonRefinanciarHidden[key]['hidden']}
+                                                        onClick={() => { self.refinanciar(item.id_prestamo, item.cliente)}}
+                                                    >
+                                                    Refinanciar
+                                                    </Button>
                                                 </Form>
-                                                
                                             </Td>
                                         </Tr>
                                         )
                                     })}
                                 </Tbody>
                             </Table>
+                            <br/>
+                            <Button
+                                    block
+                                    onClick={this.regresarMenu}
+                                    color="danger"
+                                >
+                                    Regresar
+                                </Button>
+                                <br/>
                             </Col>
-                            <Col md={2}>
+                            <Col md={1}>
                             </Col>
                         </Row>
                     </div>
                 </div>
-                <Modal isOpen={this.state.showModalConfirmation} style={customStyles} centered size = "mg">
-                    <ModalHeader  toggle={this.closeModal}>
-                        Confirmación de Datos
-                    </ModalHeader>
-                    <ModalBody>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Nombre de Prestamista :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{this.props.username}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Fecha :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{fechaRecojo}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Nombre de Cliente :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{this.props.apellidoPaternoBuscado} {this.props.apellidoMaternoBuscado}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto a recoger :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{montoPorRecoger}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto total prestado :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{montoPrestado}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto faltante :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{saldoFaltante}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button
-                            onClick= {this.enviarDatosRecojo}
-                            color="info"
-                        >
-                            Aceptar
-                        </Button>
-                        <Button
-                            onClick= {this.closeModal}
-                            color="danger"
-                        >
-                            Cancelar
-                        </Button>
-                    </ModalFooter>
-                </Modal>
             </div>
         )
     }
