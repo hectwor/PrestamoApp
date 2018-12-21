@@ -38,8 +38,9 @@ class Recojo extends Component{
                 montoPorRecoger:null
             },
 
-            showModalConfirmation:false
+            showModalConfirmation:false,
         }
+        this.handleListChange = this.handleListChange.bind(this);
     }
 
     componentWillMount (){
@@ -61,8 +62,6 @@ class Recojo extends Component{
                 clientes : clientes,
                 montoPorRecoger : ListClientesMontosPagar
             });
-            console.log(clientes);
-            console.log(ListClientesMontosPagar[1]);
           })
           .catch(function (error) {
             console.log(error);
@@ -105,28 +104,17 @@ class Recojo extends Component{
         this.setState(change)
     };
 
-    handleListChange = (index, event) =>{
+    handleListChange(index, event){
+        console.log(index)
+        console.log(event)
         var montoPorRecoger = this.state.montoPorRecoger.slice(); // Make a copy of the emails first.
         montoPorRecoger[index] = event.target.value; // Update it with the modified email.
         this.setState({montoPorRecoger: montoPorRecoger}); // Update the state.
     }
 
-    confirmarRecogerDinero = () => {
-        const { montoPorRecoger, saldoFaltante, validate } = this.state;
-        if(parseFloat(montoPorRecoger) > parseFloat(saldoFaltante)){
-            validate.montoPorRecoger = "has-danger";
-            this.setState({validate});
-        }else{
-            if(montoPorRecoger === "" ||  parseFloat(montoPorRecoger) === 0){
-                alert("Indicar monto");
-            }else{
-                validate.montoPorRecoger = "has-success";
-                this.setState({
-                    validate:validate,
-                    showModalConfirmation:true
-                });
-            }
-        }
+    confirmarRecogerDinero = (index, event) => {
+        console.log(index)
+        console.log(event)
     };
 
     enviarDatosRecojo = () => {
@@ -168,7 +156,7 @@ class Recojo extends Component{
             montoPrestado,
             fechaRecojo,
             ButtonRefinanciarHidden,
-            clientes
+            clientes, montoRecoger
         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
@@ -204,6 +192,7 @@ class Recojo extends Component{
                 <MainAdmin id_trabajador={this.props.id_trabajador}  username={this.props.username} password={this.props.password} />
             );
         }
+        let self = this;
         return (
             <div className="container-fluid">
                 <br />
@@ -235,7 +224,6 @@ class Recojo extends Component{
                                 </Thead>
                                 <Tbody>
                                 {clientes.map(function(item, key) {
-                                    let self = this;
                                     return (
                                         <Tr key = {key}>
                                             <Td >{item.cliente}</Td>
@@ -246,19 +234,19 @@ class Recojo extends Component{
                                                     <Label>s/. </Label>
                                                     <Input
                                                         type="number"
-                                                        name="montorRecoger"
-                                                        id="montoRecogerInput"
-                                                        value={montoPorRecoger[key]}
-                                                        onChange={self.handleChange.bind(this, key)}
+                                                        value={montoPorRecoger[key]['monto_por_pagar']}
+                                                        onChange={() => {self.handleListChange.bind(this, item.id_prestamo)}}
                                                     />
                                                     <Button
                                                         size="sm"
+                                                        onClick={() => { self.confirmarRecogerDinero(montoPorRecoger[key]['monto_por_pagar'], item.id_prestamo)}}
                                                     >
                                                         Recoger
                                                     </Button>
                                                         <span> </span>
                                                         <Button
                                                             size="sm"
+                                                            hidden
                                                         >
                                                         Ver
                                                     </Button>
