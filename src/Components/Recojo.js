@@ -2,7 +2,8 @@ import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
     Input, Label,Button,Form,
-    Row, Col
+    Row, Col,
+    ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import Login from "./Login";
@@ -21,6 +22,8 @@ class Recojo extends Component{
             redirectMainAdmin:false,
 
             clientes:[],
+            infoCliente:[],
+            infoPagosCliente:[],
 
             ButtonRefinanciarHidden:{},
 
@@ -38,7 +41,8 @@ class Recojo extends Component{
                 montoPorRecoger:null
             },
 
-            showModalConfirmation:false,
+            showModalClienteInfo:false,
+            showModalPagosInfo:false
         }
         this.handleListChange = this.handleListChange.bind(this);
     }
@@ -134,19 +138,15 @@ class Recojo extends Component{
     }
 
     confirmarRecogerDinero = (monto_pagar, id_prestamo, cliente) => {
-        console.log(monto_pagar)
-        console.log(id_prestamo)
-        console.log(cliente)
         if(monto_pagar === '0' || monto_pagar === null || monto_pagar === ""){
             alert('Monto 0 o vacío');
         }else{
             let self = this;
             var r = window.confirm(`Confirma el recojo?\n\nCliente: ${cliente}\nMonto a recoger: s/. ${monto_pagar}`);
             if (r === true) {
-                console.log({idPrestamo: id_prestamo,
-                    montoRecaudado: monto_pagar})
                 axios.post('https://edutafur.com/sgp/public/pagos/agregar', {
                     idPrestamo: id_prestamo,
+                    idTrabajador: this.props.id_trabajador,
                     montoRecaudado: monto_pagar
                   })
                   .then(function (response) {
@@ -163,13 +163,48 @@ class Recojo extends Component{
         }
     };
 
+    verInfoCliente = (id_cliente, cliente) => {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes', {
+            params: {
+                idCliente: id_cliente
+            }
+        })
+            .then(function (response) {
+                self.setState({
+                    infoCliente: response.data,
+                    showModalClienteInfo: true
+                });
+            });
+    };
+
     refinanciar = () => {
 
     }
 
+    handleClickTr = (id_prestamo) => {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/consultarPagos', {
+            params: {
+                idPrestamo: id_prestamo
+            }
+        })
+            .then(function (response) {
+                self.setState({
+                    infoPagosCliente: response.data,
+                    showModalPagosInfo: true
+                });
+            });
+    }
+
     closeModal = () => {
         this.setState({
-            showModalConfirmation: false
+            showModalClienteInfo: false
+        });
+    };
+    regresar = () => {
+        this.setState({
+            showModalPagosInfo: false
         });
     };
 
@@ -180,7 +215,7 @@ class Recojo extends Component{
             montoActual,
             montoPorRecoger,
             ButtonRefinanciarHidden,
-            clientes,
+            clientes, infoCliente, infoPagosCliente,
             ButtonmontoRecoger
         } = this.state;
         const panelVendedor = {
@@ -269,8 +304,11 @@ class Recojo extends Component{
                                                     </Button>
                                                         <span> </span>
                                                     <Button
-                                                            size="sm"
-                                                        >
+                                                        size="sm"
+                                                        id={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
+                                                        name={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
+                                                        onClick={() => { self.verInfoCliente(item.id_cliente, item.cliente) }}
+                                                    >
                                                         Ver
                                                     </Button>
                                                     <Button
@@ -305,6 +343,88 @@ class Recojo extends Component{
                         </Row>
                     </div>
                 </div>
+                <Modal isOpen={this.state.showModalClienteInfo} centered size="lg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Información préstamos de Cliente
+                    </ModalHeader>
+                    <ModalBody>
+                        <Table style={fontSize}>
+                            <Thead>
+                                <Tr className="text-center">
+                                    <Th><b>Cancelado</b></Th>
+                                    <Th><b>Monto Préstamo</b></Th>
+                                    <Th><b>Cuotas</b></Th>
+                                    <Th><b>Préstamo</b></Th>
+                                    <Th><b>Recaudado</b></Th>
+                                    <Th><b>Faltante</b></Th>
+                                    <Th><b>Vencimiento</b></Th>
+                                    <Th><b>Último pago</b></Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {infoCliente.map(function(item, key){
+                                    return(
+                                        <Tr key={key} className="text-center" style={{ cursor: 'pointer' }} onClick={() => { self.handleClickTr(item.id_prestamo) }} >
+                                            <Td>{item.cancelado}</Td>
+                                            <Td>s/. {item.monto_deuda}</Td>
+                                            <Td>{item.nro_cuotas}</Td>
+                                            <Td>{item.fecha_prestamo}</Td>
+                                            <Td>s/. {item.monto_total_recaudado}</Td>
+                                            <Td>s/. {item.monto_deuda_restante}</Td>
+                                            <Td>{item.fecha_vencimiento}</Td>
+                                            <Td>{item.fecha_ultimo_pago}_</Td>
+                                        </Tr>
+                                    )
+                                })}
+                            </Tbody>
+                        </Table>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.closeModal}
+                            color="danger"
+                        >
+                            Salir
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.showModalPagosInfo} centered size="mg">
+                    <ModalHeader toggle={this.regresar}>
+                        Pagos de préstamo seleccionado
+                    </ModalHeader>
+                    <ModalBody>
+                        <Table style={fontSize}>
+                            <Thead>
+                                <Tr className="text-center">
+                                    <Th><b>Monto Préstamo</b></Th>
+                                    <Th><b>Pago</b></Th>
+                                    <Th><b>Faltante</b></Th>
+                                    <Th><b>Fecha</b></Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {infoPagosCliente.map(function (item, key) {
+                                    return (
+                                        <Tr key={key} className="text-center">
+                                            <Td>s/. {item.monto_prestamo}</Td>
+                                            <Td>s/. {item.pago}</Td>
+                                            <Td>s/. ...</Td>
+                                            <Td>{item.fecha_pago}</Td>
+                                        </Tr>
+                                    )
+                                })}
+                            </Tbody>
+                        </Table>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.regresar}
+                            color="danger"
+                        >
+                            Regresar
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }

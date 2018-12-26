@@ -188,7 +188,7 @@ class ListarTrabajadores extends Component {
     };
 
     liquidarPago = (id_pago, tipo_movimiento) => {
-        let self = this;
+        //let self = this;
         let linkPost = "";
         if(tipo_movimiento === 'Pagos') linkPost = 'https://edutafur.com/sgp/public/pagos/liquidar';
         if(tipo_movimiento === 'Gastos') linkPost = 'https://edutafur.com/sgp/public/gastos/liquidar';
