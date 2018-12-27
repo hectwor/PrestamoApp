@@ -154,6 +154,10 @@ class ListarClientes extends Component {
         const fontSize = {
             fontSize: 14
         };
+        const cuadro = {
+            height: "300px",
+            overflowY: "scroll"
+        };
         const customStyles = {
             content: {
                 top: "50%",
@@ -298,28 +302,30 @@ class ListarClientes extends Component {
                         Pagos de préstamo seleccionado
                     </ModalHeader>
                     <ModalBody>
-                        <Table style={fontSize}>
-                            <Thead>
-                                <Tr className="text-center">
-                                    <Th><b>Monto Préstamo</b></Th>
-                                    <Th><b>Pago</b></Th>
-                                    <Th><b>Faltante</b></Th>
-                                    <Th><b>Fecha</b></Th>
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                {infoPagosCliente.map(function (item, key) {
-                                    return (
-                                        <Tr key={key} className="text-center">
-                                            <Td>s/. {item.monto_prestamo}</Td>
-                                            <Td>s/. {item.pago}</Td>
-                                            <Td>s/. ...</Td>
-                                            <Td>{item.fecha_pago}</Td>
-                                        </Tr>
-                                    )
-                                })}
-                            </Tbody>
-                        </Table>
+                        <div style={cuadro}>
+                            <Table style={fontSize}>
+                                <Thead>
+                                    <Tr className="text-center">
+                                        <Th><b>Monto Préstamo</b></Th>
+                                        <Th><b>Pago</b></Th>
+                                        <Th><b>Faltante</b></Th>
+                                        <Th><b>Fecha</b></Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {infoPagosCliente.map(function (item, key) {
+                                        return (
+                                            <Tr key={key} className="text-center">
+                                                <Td>s/. {item.monto_prestamo}</Td>
+                                                <Td>s/. {item.pago}</Td>
+                                                <Td>s/. ...</Td>
+                                                <Td>{item.fecha_pago}</Td>
+                                            </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
+                        </div>
                     </ModalBody>
                     <ModalFooter>
                         <Button

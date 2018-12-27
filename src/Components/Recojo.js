@@ -71,10 +71,10 @@ class Recojo extends Component{
                 }else{
                     ButtonColor2['color'] = 'danger';
                 }
-                if(moment(n.fecha_vencimiento).format('DD-MM-YYYY') < moment().format('DD-MM-YYYY')){ 
-                    ButtonHidden2['hidden'] = true;
-                }else{
+                if(moment(n.fecha_vencimiento) < moment()){ 
                     ButtonHidden2['hidden'] = false;
+                }else{
+                    ButtonHidden2['hidden'] = true;
                 }
                 ButtonColor = ButtonColor.concat(ButtonColor2);
                 ButtonHidden = ButtonHidden.concat(ButtonHidden2);
@@ -163,19 +163,37 @@ class Recojo extends Component{
         }
     };
 
-    verInfoCliente = (id_cliente, cliente) => {
-        let self = this;
-        axios.get('https://edutafur.com/sgp/public/prestamos/clientes', {
-            params: {
-                idCliente: id_cliente
-            }
-        })
-            .then(function (response) {
-                self.setState({
-                    infoCliente: response.data,
-                    showModalClienteInfo: true
+    verInfoCliente = (id_cliente, prestado, faltante) => {
+        if(prestado === faltante){
+            alert("No registra ningún pago")
+        }else{
+            let self = this;
+            axios.get('https://edutafur.com/sgp/public/prestamos/clientes', {
+                params: {
+                    idCliente: id_cliente
+                }
+            })
+                .then(function (response) {
+                    const prestamos = response.data;
+                    let idprestamoActivo;
+                    for (let i = 0; i < Object.keys(prestamos).length; i++) {
+                        if (prestamos[i].cancelado === 'N') {
+                            idprestamoActivo = prestamos[i].id_prestamo;
+                        }
+                    }
+                    axios.get('https://edutafur.com/sgp/public/consultarPagos', {
+                        params: {
+                            idPrestamo: idprestamoActivo
+                        }
+                    })
+                        .then(function (response) {
+                            self.setState({
+                                infoPagosCliente: response.data,
+                                showModalPagosInfo: true
+                            });
+                        });
                 });
-            });
+        }
     };
 
     refinanciar = () => {
@@ -225,6 +243,10 @@ class Recojo extends Component{
         };
         const fontSize = {
             fontSize: 14
+        };
+        const cuadro = {
+            height: "300px",
+            overflowY: "scroll"
         };
         const inputStyle = {
             width: 100
@@ -307,7 +329,7 @@ class Recojo extends Component{
                                                         size="sm"
                                                         id={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
                                                         name={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
-                                                        onClick={() => { self.verInfoCliente(item.id_cliente, item.cliente) }}
+                                                        onClick={() => { self.verInfoCliente(item.id_cliente, item.monto_deuda, item.monto_deuda_restante) }}
                                                     >
                                                         Ver
                                                     </Button>
@@ -393,28 +415,30 @@ class Recojo extends Component{
                         Pagos de préstamo seleccionado
                     </ModalHeader>
                     <ModalBody>
-                        <Table style={fontSize}>
-                            <Thead>
-                                <Tr className="text-center">
-                                    <Th><b>Monto Préstamo</b></Th>
-                                    <Th><b>Pago</b></Th>
-                                    <Th><b>Faltante</b></Th>
-                                    <Th><b>Fecha</b></Th>
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                {infoPagosCliente.map(function (item, key) {
-                                    return (
-                                        <Tr key={key} className="text-center">
-                                            <Td>s/. {item.monto_prestamo}</Td>
-                                            <Td>s/. {item.pago}</Td>
-                                            <Td>s/. ...</Td>
-                                            <Td>{item.fecha_pago}</Td>
-                                        </Tr>
-                                    )
-                                })}
-                            </Tbody>
-                        </Table>
+                        <div style={cuadro}>
+                            <Table style={fontSize}>
+                                <Thead>
+                                    <Tr className="text-center">
+                                        <Th><b>Monto Préstamo</b></Th>
+                                        <Th><b>Pago</b></Th>
+                                        <Th><b>Faltante</b></Th>
+                                        <Th><b>Fecha</b></Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {infoPagosCliente.map(function (item, key) {
+                                        return (
+                                            <Tr key={key} className="text-center">
+                                                <Td>s/. {item.monto_prestamo}</Td>
+                                                <Td>s/. {item.pago}</Td>
+                                                <Td>s/. ...</Td>
+                                                <Td>{item.fecha_pago}</Td>
+                                            </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
+                        </div>
                     </ModalBody>
                     <ModalFooter>
                         <Button
