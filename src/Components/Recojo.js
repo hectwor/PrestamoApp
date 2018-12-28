@@ -61,7 +61,7 @@ class Recojo extends Component{
             let ListClientesMontosPagar = clientes.map((n) => {
                 let montosPagar2 = {}
                 montosPagar2['id_prestamo'] = n.id_prestamo;
-                montosPagar2['monto_por_pagar'] = Math.round((parseFloat(n.monto_deuda)*0.24) * 100) / 100;
+                montosPagar2['monto_por_pagar'] = Math.round((parseFloat(n.monto_deuda)/24) * 100) / 100;
                 let ButtonColor2={};
                 let ButtonHidden2 = {}
                 ButtonColor2['id_prestamo'] = n.id_prestamo;
@@ -196,8 +196,34 @@ class Recojo extends Component{
         }
     };
 
-    refinanciar = () => {
-
+    refinanciar = (id_prestamo, cliente) => {
+        let self = this;
+        console.log(id_prestamo)
+        axios.get('https://edutafur.com/sgp/public/consultarRefinanciamiento',{
+            params: {
+                idPrestamo: id_prestamo
+            }
+        }).then(function (response){
+            console.log(response.data);
+            var r = window.confirm(`Confirma el refinamiento?\n\nCliente: ${cliente}\nMonto a refinanciar: s/. ${response.data.monto_refinanciado}\nMonto a cobrar: s/. ${response.data.monto_total_cobrar}\nFecha vencimiento: ${response.data.fecha_vencimiento}`);
+            if (r === true) {
+                axios.post('https://edutafur.com/sgp/public/realizarRefinanciamiento', {
+                    idPrestamo: id_prestamo
+                })
+                    .then(function (response) {
+                        console.log(response)
+                        if (response.status === 200) {
+                            alert(response.data.mensaje);
+                            self.componentWillMount();
+                        }
+                    })
+                    .catch(function (error) {
+                        alert(error.status);
+                    });
+            }
+        }).catch(function(error){
+            alert(error.status);
+        })
     }
 
     handleClickTr = (id_prestamo) => {
@@ -431,7 +457,7 @@ class Recojo extends Component{
                                             <Tr key={key} className="text-center">
                                                 <Td>s/. {item.monto_prestamo}</Td>
                                                 <Td>s/. {item.pago}</Td>
-                                                <Td>s/. ...</Td>
+                                                <Td>s/. {item.monto_deuda_restante}</Td>
                                                 <Td>{item.fecha_pago}</Td>
                                             </Tr>
                                         )

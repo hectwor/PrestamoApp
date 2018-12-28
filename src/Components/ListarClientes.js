@@ -318,7 +318,7 @@ class ListarClientes extends Component {
                                             <Tr key={key} className="text-center">
                                                 <Td>s/. {item.monto_prestamo}</Td>
                                                 <Td>s/. {item.pago}</Td>
-                                                <Td>s/. ...</Td>
+                                                <Td>s/. {item.monto_deuda_restante}</Td>
                                                 <Td>{item.fecha_pago}</Td>
                                             </Tr>
                                         )
