@@ -235,22 +235,22 @@ class Prestamo extends Component{
                                 <Row>
                                     <Col md={6}>
                                         <div className="text-left">
-                                            <Label>Apellido Paterno</Label>
+                                            <Label>Apellidos</Label>
                                             <Input
                                                 name="apellidoPaternoBuscado"
                                                 id="apellidoPaternoBuscadoInput"
-                                                value={this.props.apellidoPaternoBuscado}
-                                                readOnly
-                                            />
+                                                value={this.props.apellidoPaternoBuscado +" "+ this.props.apellidoMaternoBuscado}
+                                            readOnly
+                                        />
                                         </div>
                                     </Col>
                                     <Col md={6}>
                                         <div className="text-left">
-                                            <Label>Apellido Materno</Label>
+                                            <Label>Nombre</Label>
                                             <Input
                                                 name="apellidoMaternoBuscado"
                                                 id="apellidoMaternoBuscado"
-                                                value={this.props.apellidoMaternoBuscado}
+                                                value={this.props.nombreBuscado}
                                                 readOnly
                                             />
                                         </div>

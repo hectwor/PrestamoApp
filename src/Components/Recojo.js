@@ -33,6 +33,8 @@ class Recojo extends Component{
             ButtonmontoRecoger:{},
             saldoFaltante: 0,
             montoPrestado: 0,
+            montoPrestamoVer:0,
+            fechaPrestamoVer:null,
             fechaRecojo:   moment().format('DD-MM-YYYY'),
 
             montoActual: [this.props.saldo],
@@ -189,6 +191,8 @@ class Recojo extends Component{
                         .then(function (response) {
                             self.setState({
                                 infoPagosCliente: response.data,
+                                montoPrestamoVer: response.data[0].monto_prestamo,
+                                fechaPrestamoVer: response.data[0].fecha_prestamo,
                                 showModalPagosInfo: true
                             });
                         });
@@ -274,6 +278,10 @@ class Recojo extends Component{
             height: "300px",
             overflowY: "scroll"
         };
+        const cuadroCliente = {
+            height: "400px",
+            overflowY: "scroll"
+        };
         const inputStyle = {
             width: 100
         };
@@ -314,12 +322,14 @@ class Recojo extends Component{
                             </Col>
                             <Col md={10}>
                             <br/>
+                                <div style={cuadroCliente}>
                             <Table  style={fontSize}>
                                 <Thead>
                                     <Tr>
                                         <Th><b>Nombre Cliente</b></Th>
                                         <Th><b>Prestado</b></Th>
                                         <Th><b>Faltante</b></Th>
+                                        <Th><b>Fecha Vencimiento</b></Th>
                                         <Th><b>Cobro</b></Th>
                                     </Tr>
                                 </Thead>
@@ -330,6 +340,7 @@ class Recojo extends Component{
                                             <Td >{item.cliente}</Td>
                                             <Td >s/. {item.monto_deuda}</Td>
                                             <Td>s/. {item.monto_deuda_restante}</Td>
+                                            <Td>{moment(item.fecha_vencimiento).format('DD-MM-YYYY')}</Td>
                                             <Td>
                                                 <Form inline>
                                                     <Label>s/. </Label>
@@ -364,7 +375,7 @@ class Recojo extends Component{
                                                         name={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
                                                         size="sm"
                                                         color="warning"
-                                                        hidden={ButtonRefinanciarHidden[key]['hidden']}
+                                                        disabled={ButtonRefinanciarHidden[key]['hidden']}
                                                         onClick={() => { self.refinanciar(item.id_prestamo, item.cliente)}}
                                                     >
                                                     Refinanciar
@@ -376,6 +387,7 @@ class Recojo extends Component{
                                     })}
                                 </Tbody>
                             </Table>
+                                </div>
                             <br/>
                             <Button
                                     block
@@ -441,21 +453,21 @@ class Recojo extends Component{
                         Pagos de préstamo seleccionado
                     </ModalHeader>
                     <ModalBody>
+                        <Label><b>Monto Préstamo</b>: s/. {this.state.montoPrestamoVer}</Label><br/>
+                        <Label><b>Fecha Préstamo</b>: {this.state.fechaPrestamoVer}</Label>
                         <div style={cuadro}>
                             <Table style={fontSize}>
                                 <Thead>
                                     <Tr className="text-center">
-                                        <Th><b>Monto Préstamo</b></Th>
                                         <Th><b>Pago</b></Th>
                                         <Th><b>Faltante</b></Th>
-                                        <Th><b>Fecha</b></Th>
+                                        <Th><b>Fecha Pago</b></Th>
                                     </Tr>
                                 </Thead>
                                 <Tbody>
                                     {infoPagosCliente.map(function (item, key) {
                                         return (
                                             <Tr key={key} className="text-center">
-                                                <Td>s/. {item.monto_prestamo}</Td>
                                                 <Td>s/. {item.pago}</Td>
                                                 <Td>s/. {item.monto_deuda_restante}</Td>
                                                 <Td>{item.fecha_pago}</Td>

@@ -60,10 +60,13 @@ class MovimientosAdmin extends Component {
                     movs['fecha_movimiento'] = n.fecha_movimiento;
                     movs['movimiento'] = n.movimiento;
                     if (n.Tipo_Movimiento === "Recojo") {
-                        sumaMontoDia = sumaMontoDia + parseFloat(n.monto_total_recaudado);
+                        sumaMontoDia = sumaMontoDia + parseFloat(n.monto_movimiento);
                     }
                     if (n.Tipo_Movimiento === "Prestamo"){
-                        sumaMontoDia = sumaMontoDia - parseFloat(n.monto_deuda);
+                        sumaMontoDia = sumaMontoDia - parseFloat(n.monto_movimiento);
+                    }
+                    if (n.Tipo_Movimiento === "Gasto") {
+                        sumaMontoDia = sumaMontoDia - parseFloat(n.monto_movimiento);
                     }
                     return movs;
                 });

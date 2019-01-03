@@ -34,10 +34,11 @@ class MainRecogedor extends Component {
             idClienteBuscado: "",
             apellidoPaternoBuscado:"",
             apellidoMaternoBuscado:"",
+            nombreBuscado:"",
             idClienteSeleccionado: "",
             apellidoPaternoSeleccionado:"",
             apellidoMaternoSeleccionado:"",
-            ultimpoPagoBuscado:"",
+            fechaVencimientoBuscado:"",
             prestamistaSeleccionado:"",
             deudaRestanteSeleccionado:"",
 
@@ -123,6 +124,7 @@ class MainRecogedor extends Component {
                 self.setState({
                     apellidoPaternoBuscado : apep,
                     apellidoMaternoBuscado : apem,
+                    nombreBuscado: dniPasaporteBuscar.nombre,
                     idClienteBuscado : dniPasaporteBuscar.id,
                     dniPasaporteBuscado: dniPasaporteBuscar.value,
                     redirectPrestamo: true
@@ -131,9 +133,10 @@ class MainRecogedor extends Component {
                 self.setState({
                     apellidoPaternoSeleccionado : response.data[0].ape_pat,
                     apellidoMaternoSeleccionado : response.data[0].ape_mat,
+                    nombreBuscado: response.data[0].nombre,
                     prestamistaSeleccionado : response.data[0].prestamista,
                     deudaRestanteSeleccionado : response.data[0].monto_deuda_restante,
-                    ultimpoPagoBuscado: response.data[0].fecha_ultimo_pago,
+                    fechaVencimientoBuscado: response.data[0].fecha_vencimiento,
                     idClienteSeleccionado : response.data[0].id_cliente,
                     dniPasaporteBuscado: response.data[0].nro_doc
                 });
@@ -303,7 +306,7 @@ class MainRecogedor extends Component {
             redirectLogin, 
             redirectNuevoUsuario, redirectPrestamo, redirectRecojo, 
             dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado,
-            descripcionGasto, montoGasto, ultimpoPagoBuscado, deudaRestanteSeleccionado, prestamistaSeleccionado,
+            descripcionGasto, montoGasto, fechaVencimientoBuscado, deudaRestanteSeleccionado, prestamistaSeleccionado,
             validate,
             options
          } = this.state;
@@ -338,6 +341,7 @@ class MainRecogedor extends Component {
                     idClienteBuscado = {this.state.idClienteBuscado}
                     apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
                     apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
+                    nombreBuscado={this.state.nombreBuscado}
                     rol = {"prestamista"}
                 />
             );
@@ -471,11 +475,11 @@ class MainRecogedor extends Component {
                                     />
                                 </Col>
                                 <Col md={4}>
-                                    <span>Fecha Último Pago</span>
+                                    <span>Fecha Vencimiento</span>
                                     <Input
                                             name="ultimpoPagoBuscado"
                                             id="ultimpoPagoBuscadoInput"
-                                            value={ultimpoPagoBuscado}
+                                            value={fechaVencimientoBuscado}
                                             readOnly
                                     />
                                 </Col>

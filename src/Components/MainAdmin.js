@@ -51,9 +51,11 @@ class MainAdmin extends Component {
             dniPasaporteBuscar:null,
             usernameBuscar: null,
             trabajadorBuscar: null,
+            trabajadorBuscar2: null,
             dniPasaporteBuscado:null,
             idClienteSeleccionado: "",
             id_trabajador_modificar:"",
+            id_trabajador_modificar2:"",
             apellidoPaternoSeleccionado:"",
             apellidoMaternoSeleccionado:"",
             idClienteBuscado: "",
@@ -74,6 +76,7 @@ class MainAdmin extends Component {
             showModalPrestarOption:false,
             showModalMdfUsuario: false,
             showModalMdfTrabajador : false,
+            showModalReasignarCobrador:false,
 
             visibleNuevo:"hidden",
 
@@ -128,7 +131,7 @@ class MainAdmin extends Component {
         });
     };
 
-    modificarTrabajador = () => {
+    modificarTrabajador = (tipo) => {
         let self = this;
         axios.get('https://edutafur.com/sgp/public/trabajadores')
             .then(function (response) {
@@ -152,9 +155,17 @@ class MainAdmin extends Component {
                 });
             })
             .then(function () {
-                self.setState({
-                    showModalMdfTrabajador: true
-                });
+                if(tipo === "R"){
+                    self.setState({
+                        showModalReasignarCobrador: true
+                    });
+                }
+                if (tipo === "M") {
+                    self.setState({
+                        showModalMdfTrabajador: true
+                    });
+                }
+                
             });
     }
 
@@ -186,6 +197,10 @@ class MainAdmin extends Component {
             showModalMdfUsuario: true
           });
         });
+    }
+
+    modificarCliente = () => {
+
     }
 
     enviarModificacionUsuario = () => {
@@ -339,6 +354,12 @@ class MainAdmin extends Component {
             id_trabajador_modificar: trabajadorBuscar.value
         });
     };
+    handleChangeSelectTrabajador2 = (trabajadorBuscar2) => {
+        this.setState({
+            trabajadorBuscar2: trabajadorBuscar2,
+            id_trabajador_modificar2: trabajadorBuscar2.value
+        });
+    };
 
     seleccionarDNIPasaporte = () => {
         const { dniPasaporteBuscar, validate, apellidoPaternoSeleccionado, apellidoMaternoSeleccionado, idClienteSeleccionado } = this.state;
@@ -371,6 +392,11 @@ class MainAdmin extends Component {
         });
     };
 
+    seleccionarTrabajadorReasignar = () => {
+        console.log(this.state.id_trabajador_modificar)
+        console.log(this.state.id_trabajador_modificar2)
+    }
+
     prestamo = () => {
         this.setState({
             redirectPrestamo: true
@@ -394,7 +420,8 @@ class MainAdmin extends Component {
             showModalPrestarOption: false,
             showModalRecogerOption: false,
             showModalMdfUsuario: false,
-            showModalMdfTrabajador: false
+            showModalMdfTrabajador: false,
+            showModalReasignarCobrador:false
         });
     };
 
@@ -406,7 +433,7 @@ class MainAdmin extends Component {
             validate,apellidoPaternoBuscado, apellidoMaternoBuscado,
             options,optionsUsers, optionTrabajador, usuarioSeleccionado, usuarioNewSeleccionado,
             usernameBuscar, claveSeleccionado, estadoUsuarioSeleccionado, rolUsuarioSeleccionado,
-            trabajadorBuscar
+            trabajadorBuscar, trabajadorBuscar2
         } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
@@ -572,7 +599,23 @@ class MainAdmin extends Component {
                                     <span> </span>
                                     <Button
                                         size="lg"
-                                        onClick={this.modificarTrabajador}
+                                        onClick={() =>{this.modificarTrabajador("R")}}
+                                        style={buttonSize}
+                                    >
+                                        REASIGNAR COBR
+                                        </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.modificarCliente}
+                                        style={buttonSize}
+                                    >
+                                        MDF CLIENTE
+                                    </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
+                                    onClick={() =>{this.modificarTrabajador("M")}}
                                         style={buttonSize}
                                     >
                                         MDF TRABAJADOR
@@ -889,6 +932,50 @@ class MainAdmin extends Component {
                                     </Button>
                                 </Col>
                             </Row>
+                        </div>
+                        <br /><br />
+                    </ModalBody>
+                </Modal>
+                <Modal isOpen={this.state.showModalReasignarCobrador} style={customStyles} centered size="mg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Reasignar Cobrador
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className= "text-center">
+                            <Row>
+                                <Col md={12}>
+                                    <span>Trabajador Por Reasignar</span>
+                                    <Select
+                                        name="trabajadorBuscar"
+                                        id="trabajadorBuscarInput"
+                                        placeholder=""
+                                        value={trabajadorBuscar}
+                                        onChange={this.handleChangeSelectTrabajador}
+                                        options={optionTrabajador}
+                                    />
+                                </Col>
+                            </Row>
+                            <br/>
+                            <Row>
+                                <Col md={12}>
+                                    <span>Trabajador a Reasignar</span>
+                                    <Select
+                                        name="trabajadorBuscar2"
+                                        id="trabajadorBuscar2Input"
+                                        placeholder=""
+                                        value={trabajadorBuscar2}
+                                        onChange={this.handleChangeSelectTrabajador2}
+                                        options={optionTrabajador}
+                                    />
+                                </Col>
+                            </Row>
+                            <br/>
+                            <Button
+                                onClick={this.seleccionarTrabajadorReasignar}
+                                color="primary"
+                            >
+                                Reasignar
+                                    </Button>
                         </div>
                         <br /><br />
                     </ModalBody>
