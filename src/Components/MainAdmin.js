@@ -6,6 +6,7 @@ import {
     FormFeedback,
     ModalFooter, Input, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import Select from 'react-select';
 import Login from "./Login";
 import MovimientosAdmin from "./MovimientosAdmin";
@@ -15,6 +16,7 @@ import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
 import ModificarTrabajador from "./ModificarTrabajador";
+import ModificarCliente from "./ModificarCliente";
 import ListarTrabajadores from "./ListarTrabajadores";
 const axios = require('axios');
 
@@ -43,6 +45,7 @@ class MainAdmin extends Component {
             redirectNuevoCliente:false,
             redirectModificarTrabajador:false,
             redirectOpenTrabajadores:false,
+            redirectModificarCliente:false,
 
             usuarioEncontrado:false,
             userEncontrado:false,
@@ -51,9 +54,16 @@ class MainAdmin extends Component {
             dniPasaporteBuscar:null,
             usernameBuscar: null,
             trabajadorBuscar: null,
+            trabajadorBuscar2: null,
+            clienteBuscar: null,
             dniPasaporteBuscado:null,
             idClienteSeleccionado: "",
+            dni_trabajor_modificar:"",
             id_trabajador_modificar:"",
+            id_trabajador_modificar2:"",
+            dni_cliente_modificar:"",
+            trabajadorBuscarNombre:"",
+            trabajadorBuscarNombre2:"",
             apellidoPaternoSeleccionado:"",
             apellidoMaternoSeleccionado:"",
             idClienteBuscado: "",
@@ -74,12 +84,18 @@ class MainAdmin extends Component {
             showModalPrestarOption:false,
             showModalMdfUsuario: false,
             showModalMdfTrabajador : false,
+            showModalReasignarCobrador:false,
+            showModalSeleccionarPrestamos:false,
+            showModalMdfCliente:false,
 
             visibleNuevo:"hidden",
 
             options:[],
             optionsUsers: [],
-            optionsTrabajador: []
+            optionCliente: [],
+            optionsTrabajador: [],
+            prestamosTrabajadorPorReasignar:[],
+            ColorButtonPasar:[]
         }
     }
     openMovimientos = () =>{
@@ -128,7 +144,7 @@ class MainAdmin extends Component {
         });
     };
 
-    modificarTrabajador = () => {
+    modificarTrabajador = (tipo) => {
         let self = this;
         axios.get('https://edutafur.com/sgp/public/trabajadores')
             .then(function (response) {
@@ -138,6 +154,7 @@ class MainAdmin extends Component {
                 optionsTrabajadores = trabajadores.map((n) => {
                     let trabajador = {};
                     trabajador['value'] = n.nro_doc;
+                    trabajador['id_trabajador'] = n.id_trabajador;
                     trabajador['label'] = n.nombre + ' ' + n.ape_pat + ' ' +n.ape_mat;
                     return trabajador;
                 })
@@ -152,10 +169,47 @@ class MainAdmin extends Component {
                 });
             })
             .then(function () {
+                if(tipo === "R"){
+                    self.setState({
+                        showModalReasignarCobrador: true
+                    });
+                }
+                if (tipo === "M") {
+                    self.setState({
+                        showModalMdfTrabajador: true
+                    });
+                }
+                
+            });
+    }
+
+    modificarCliente = () => {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/clientes')
+            .then(function (response) {
+                const clientes = response.data;
+                let optionClientes = [
+                ];
+                optionClientes = clientes.map((n) => {
+                    let cliente = {};
+                    cliente['value'] = n.nro_doc;
+                    cliente['id_cliente'] = n.id;
+                    cliente['label'] = n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
+                    return cliente;
+                })
                 self.setState({
-                    showModalMdfTrabajador: true
+                    optionClientes: optionClientes
+                });
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+            .then(function () {
+                self.setState({
+                    showModalMdfCliente: true
                 });
             });
+        
     }
 
     modificarUsuario = () => {
@@ -334,12 +388,27 @@ class MainAdmin extends Component {
     }
 
     handleChangeSelectTrabajador = (trabajadorBuscar) => {
+        console.log(trabajadorBuscar)
         this.setState({
             trabajadorBuscar: trabajadorBuscar,
-            id_trabajador_modificar: trabajadorBuscar.value
+            trabajadorBuscarNombre: trabajadorBuscar.label,
+            dni_trabajor_modificar: trabajadorBuscar.value,
+            id_trabajador_modificar: trabajadorBuscar.id_trabajador
         });
     };
-
+    handleChangeSelectTrabajador2 = (trabajadorBuscar2) => {
+        this.setState({
+            trabajadorBuscar2: trabajadorBuscar2,
+            trabajadorBuscarNombre2: trabajadorBuscar2.label,
+            id_trabajador_modificar2: trabajadorBuscar2.id_trabajador
+        });
+    };
+    handleChangeSelectCliente = (clienteBuscar) => {
+        this.setState({
+            clienteBuscar: clienteBuscar,
+            dni_cliente_modificar: clienteBuscar.value
+        });
+    };
     seleccionarDNIPasaporte = () => {
         const { dniPasaporteBuscar, validate, apellidoPaternoSeleccionado, apellidoMaternoSeleccionado, idClienteSeleccionado } = this.state;
         if(dniPasaporteBuscar !== null || idClienteSeleccionado !== ""){
@@ -371,6 +440,72 @@ class MainAdmin extends Component {
         });
     };
 
+    seleccionarCliente = () => {
+        this.setState({
+            redirectModificarCliente: true,
+        });
+    }
+
+    seleccionarTrabajadorReasignar = () => {
+        if (this.state.id_trabajador_modificar === "" 
+            || this.state.id_trabajador_modificar2 === ""){
+                alert("Seleccionar Trabajadores");
+            }else{
+            let self = this;
+            axios.get('https://edutafur.com/sgp/public/prestamos/clientes', {
+                params: {
+                    idTrabajador: this.state.id_trabajador_modificar
+                }
+            })
+                .then(function (response) {
+                    const prestamos = response.data;
+                    let ListColoresBotones = prestamos.map((n) => {
+                        let coloresBotones = {};
+                        coloresBotones['idPrestamo'] = n.id_prestamo;
+                        coloresBotones['idTrabajador'] = self.state.id_trabajador_modificar2;
+                        coloresBotones['color'] = 'danger';
+                        return coloresBotones
+                    })
+                    self.setState({
+                        ColorButtonPasar: ListColoresBotones,
+                        prestamosTrabajadorPorReasignar: response.data,
+                        showModalSeleccionarPrestamos:true
+                    });
+                });
+            }
+    }
+
+    seleccionarPrestamoReasginar = (id_prestamo, cliente) =>{
+        window.document.getElementById(`ButtonReasignar${id_prestamo}`).style.background = "green";
+
+        axios.post('https://edutafur.com/sgp/public/prestamosPorReasignar', 
+        [{
+            idPrestamo: id_prestamo,
+            idTrabajador: this.state.id_trabajador_modificar2
+        }]
+        ).then(function (response) {
+            if (response.status === 200) {
+                alert("Préstamo Reasignado del cliente"+cliente);
+            }
+        })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    pasarTodos = () => {
+        axios.post('https://edutafur.com/sgp/public/prestamosPorReasignar',
+            this.state.ColorButtonPasar
+        ).then(function (response) {
+            if (response.status === 200) {
+                alert("Todos los préstamos reasignados");
+            }
+        })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
     prestamo = () => {
         this.setState({
             redirectPrestamo: true
@@ -394,7 +529,15 @@ class MainAdmin extends Component {
             showModalPrestarOption: false,
             showModalRecogerOption: false,
             showModalMdfUsuario: false,
-            showModalMdfTrabajador: false
+            showModalMdfTrabajador: false,
+            showModalReasignarCobrador:false,
+            showModalMdfCliente:false
+        });
+    };
+
+    closeModalPrestamos = () => {
+        this.setState({
+            showModalSeleccionarPrestamos: false
         });
     };
 
@@ -406,7 +549,7 @@ class MainAdmin extends Component {
             validate,apellidoPaternoBuscado, apellidoMaternoBuscado,
             options,optionsUsers, optionTrabajador, usuarioSeleccionado, usuarioNewSeleccionado,
             usernameBuscar, claveSeleccionado, estadoUsuarioSeleccionado, rolUsuarioSeleccionado,
-            trabajadorBuscar
+            trabajadorBuscar, trabajadorBuscar2, prestamosTrabajadorPorReasignar
         } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
@@ -427,6 +570,13 @@ class MainAdmin extends Component {
             marginRight: '6px',
             marginLeft: '6px',
             display: 'none'
+        };
+        const fontSize = {
+            fontSize: 12
+        };
+        const cuadro = {
+            height: "300px",
+            overflowY: "scroll"
         };
         if (redirectLogin) {
             return (
@@ -473,7 +623,18 @@ class MainAdmin extends Component {
                     username={this.props.username} 
                     password={this.props.password} 
                     rol = {"admin"}
-                    id_trabajador_modificar={this.state.id_trabajador_modificar}
+                    id_trabajador_modificar={this.state.dni_trabajor_modificar}
+                />
+            );
+        }
+        if (this.state.redirectModificarCliente) {
+            return (
+                <ModificarCliente 
+                    id_trabajador={this.props.id_trabajador}   
+                    username={this.props.username} 
+                    password={this.props.password} 
+                    rol = {"admin"}
+                    dni_cliente_modificar={this.state.dni_cliente_modificar}
                 />
             );
         }
@@ -503,6 +664,7 @@ class MainAdmin extends Component {
                     rol = {"admin"} />
             );
         }
+        let self = this;
         return(
             <div className="container-fluid">
                 <br />
@@ -572,7 +734,23 @@ class MainAdmin extends Component {
                                     <span> </span>
                                     <Button
                                         size="lg"
-                                        onClick={this.modificarTrabajador}
+                                        onClick={() =>{this.modificarTrabajador("R")}}
+                                        style={buttonSize}
+                                    >
+                                        REASIGNAR COBR
+                                        </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.modificarCliente}
+                                        style={buttonSize}
+                                    >
+                                        MDF CLIENTE
+                                    </Button>
+                                    <span> </span>
+                                    <Button
+                                        size="lg"
+                                    onClick={() =>{this.modificarTrabajador("M")}}
                                         style={buttonSize}
                                     >
                                         MDF TRABAJADOR
@@ -892,6 +1070,148 @@ class MainAdmin extends Component {
                         </div>
                         <br /><br />
                     </ModalBody>
+                </Modal>
+                <Modal isOpen={this.state.showModalReasignarCobrador} style={customStyles} centered size="mg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Reasignar Cobrador
+                    </ModalHeader>
+                    <ModalBody>
+                        <div className= "text-center">
+                            <Row>
+                                <Col md={12}>
+                                    <span>Trabajador Por Reasignar</span>
+                                    <Select
+                                        name="trabajadorBuscar"
+                                        id="trabajadorBuscarInput"
+                                        placeholder=""
+                                        value={trabajadorBuscar}
+                                        onChange={this.handleChangeSelectTrabajador}
+                                        options={optionTrabajador}
+                                    />
+                                </Col>
+                            </Row>
+                            <br/>
+                            <Row>
+                                <Col md={12}>
+                                    <span>Trabajador a Reasignar</span>
+                                    <Select
+                                        name="trabajadorBuscar2"
+                                        id="trabajadorBuscar2Input"
+                                        placeholder=""
+                                        value={trabajadorBuscar2}
+                                        onChange={this.handleChangeSelectTrabajador2}
+                                        options={optionTrabajador}
+                                    />
+                                </Col>
+                            </Row>
+                            <br/>
+                            <Button
+                                onClick={this.seleccionarTrabajadorReasignar}
+                                color="primary"
+                            >
+                                Reasignar
+                                    </Button>
+                        </div>
+                        <br /><br />
+                    </ModalBody>
+                </Modal>
+                <Modal isOpen={this.state.showModalSeleccionarPrestamos} style={customStyles} centered size="lg">
+                    <ModalHeader toggle={this.closeModalPrestamos}>
+                        Seleccionar Préstamos de {this.state.trabajadorBuscarNombre} a {this.state.trabajadorBuscarNombre2}
+                    </ModalHeader>
+                    <ModalBody>
+                        <div style= {cuadro}>
+                            <Table style={fontSize}>
+                                <Thead>
+                                    <Tr className="text-center">
+                                        <Th><b>Cliente</b></Th>
+                                        <Th><b>Fecha</b></Th>
+                                        <Th><b>Préstamo</b></Th>
+                                        <Th><b>Faltante</b></Th>
+                                        <Th><b>Vencimiento</b></Th>
+                                        <Th><b>Seleccionar</b></Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {prestamosTrabajadorPorReasignar.map(function (item, key) {
+                                        return (
+                                            <Tr key={key} className="text-center" >
+                                                <Td>{item.cliente}</Td>
+                                                <Td>{item.fecha_prestamo}</Td>
+                                                <Td>s/. {item.monto_deuda}</Td>
+                                                <Td>s/. {item.monto_deuda_restante}</Td>
+                                                <Td>{item.fecha_vencimiento}</Td>
+                                                <Td>
+                                                    <Button
+                                                        id={"ButtonReasignar" + item.id_prestamo}
+                                                        size="sm"
+                                                        color={self.state.ColorButtonPasar[key]['color']}
+                                                        onClick={() => { self.seleccionarPrestamoReasginar(item.id_prestamo, item.cliente) }}
+                                                    >
+                                                    Pasar
+                                                    </Button>
+                                                </Td>
+                                            </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.pasarTodos}
+                            color="success"
+                        >
+                            Pasar todos
+                        </Button>
+                        <Button
+                            onClick={this.closeModalPrestamos}
+                            color="danger"
+                        >
+                            Cancelar
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.showModalMdfCliente} style={customStyles} centered size="mg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Modificar Cliente
+                    </ModalHeader>
+                    <ModalBody>
+                        <div>
+                            <Row>
+                                <Col md={9}>
+                                    <span>Indicar Nombre de Cliente</span>
+                                    <Select
+                                        name="clienteBuscar"
+                                        id="clienteBuscarInput"
+                                        placeholder=""
+                                        value={this.state.clienteBuscar}
+                                        onChange={this.handleChangeSelectCliente}
+                                        options={this.state.optionClientes}
+                                    />
+                                </Col>
+                                <Col md={3}>
+                                    <br />
+                                    <Button
+                                        onClick={this.seleccionarCliente}
+                                        color="primary"
+                                    >
+                                        Seleccionar
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
+                        <br /><br />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.closeModal}
+                            color="danger"
+                        >
+                            Cancelar
+                        </Button>
+                    </ModalFooter>
                 </Modal>
             </div>
         )

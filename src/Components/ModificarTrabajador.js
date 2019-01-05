@@ -48,6 +48,7 @@ class ModificarTrabajador extends Component {
                 nroDoc: this.props.id_trabajador_modificar
             }
         }).then(function (response) {
+            console.log(self.props.id_trabajador_modificar)
             self.setState({
                 id_trabajador: response.data[0].id_trabajador,
                 apellidoPaterno: response.data[0].ape_pat,

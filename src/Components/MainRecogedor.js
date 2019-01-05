@@ -4,6 +4,7 @@ import Login from "./Login";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
+import MovimientosRecogedor from "./MovimientosRecogedor";
 import {
     Row,
     Col,
@@ -34,10 +35,11 @@ class MainRecogedor extends Component {
             idClienteBuscado: "",
             apellidoPaternoBuscado:"",
             apellidoMaternoBuscado:"",
+            nombreBuscado:"",
             idClienteSeleccionado: "",
             apellidoPaternoSeleccionado:"",
             apellidoMaternoSeleccionado:"",
-            ultimpoPagoBuscado:"",
+            fechaVencimientoBuscado:"",
             prestamistaSeleccionado:"",
             deudaRestanteSeleccionado:"",
 
@@ -63,6 +65,7 @@ class MainRecogedor extends Component {
             redirectNuevoUsuario:false,
             redirectPrestamo:false,
             redirectRecojo:false,
+            redirectMovimientosRecogedor:false,
             usuarioEncontrado:false,
 
             id_trabajador:this.props.id_trabajador,
@@ -111,18 +114,20 @@ class MainRecogedor extends Component {
                     dniPasaporteBuscado: ""
         });
         var self = this;
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar',{
+        axios.get('https://edutafur.com/sgp/public/verPrestamoVigentePorCliente',{
             params: {
                 dniPasaporteApellidoBuscado : dniPasaporteBuscar.value
             }
         })
           .then(function (response) {
+              console.log(response.data)
               if(Object.keys(response.data).length === 0){
                   const apep= (dniPasaporteBuscar.label).split(" ")[(dniPasaporteBuscar.label).split(" ").length - 2];
                   const apem= (dniPasaporteBuscar.label).split(" ")[(dniPasaporteBuscar.label).split(" ").length - 1];
                 self.setState({
                     apellidoPaternoBuscado : apep,
                     apellidoMaternoBuscado : apem,
+                    nombreBuscado: dniPasaporteBuscar.nombre,
                     idClienteBuscado : dniPasaporteBuscar.id,
                     dniPasaporteBuscado: dniPasaporteBuscar.value,
                     redirectPrestamo: true
@@ -131,9 +136,10 @@ class MainRecogedor extends Component {
                 self.setState({
                     apellidoPaternoSeleccionado : response.data[0].ape_pat,
                     apellidoMaternoSeleccionado : response.data[0].ape_mat,
+                    nombreBuscado: response.data[0].nombre,
                     prestamistaSeleccionado : response.data[0].prestamista,
                     deudaRestanteSeleccionado : response.data[0].monto_deuda_restante,
-                    ultimpoPagoBuscado: response.data[0].fecha_ultimo_pago,
+                    fechaVencimientoBuscado: response.data[0].fecha_vencimiento,
                     idClienteSeleccionado : response.data[0].id_cliente,
                     dniPasaporteBuscado: response.data[0].nro_doc
                 });
@@ -238,42 +244,20 @@ class MainRecogedor extends Component {
     };
 
     openModalCobrar = () => {
-        var self = this;
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar',{
-            params: {
-                idTrabajador: this.props.id_trabajador
-            }
-        })
-          .then(function (response) {
-                const clients = response.data;
-                let optionsClients = [
-                ];
-                optionsClients = clients.map((n) => {
-                    let client = {};
-                    client['value']= n.nro_doc;
-                    client['label']= n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
-                    return client;
-                })
-                self.setState({
-                    options: optionsClients
-                });
-          })
-          .catch(function (error) {
-            console.log(error);
-            self.setState({
-                usuarioEncontrado: false
-            });
-          })
-          .then(function () {
-            self.setState({
-                showModalRecogerOption: true,
-            });
-          });
+        this.setState({
+            redirectRecojo: true,
+        });
     };
 
     openModalAgregarGastos = () => {
         this.setState({
             showModalAgregarGastos: true,
+        });
+    };
+
+    openMovimientosRecogedor = () => {
+        this.setState({
+            redirectMovimientosRecogedor: true,
         });
     };
 
@@ -329,9 +313,9 @@ class MainRecogedor extends Component {
         const { 
             montoActual, 
             redirectLogin, 
-            redirectNuevoUsuario, redirectPrestamo, redirectRecojo, 
+            redirectNuevoUsuario, redirectPrestamo, redirectRecojo, redirectMovimientosRecogedor,
             dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado,
-            descripcionGasto, montoGasto, ultimpoPagoBuscado, deudaRestanteSeleccionado, prestamistaSeleccionado,
+            descripcionGasto, montoGasto, fechaVencimientoBuscado, deudaRestanteSeleccionado, prestamistaSeleccionado,
             validate,
             options
          } = this.state;
@@ -366,6 +350,7 @@ class MainRecogedor extends Component {
                     idClienteBuscado = {this.state.idClienteBuscado}
                     apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
                     apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
+                    nombreBuscado={this.state.nombreBuscado}
                     rol = {"prestamista"}
                 />
             );
@@ -376,14 +361,21 @@ class MainRecogedor extends Component {
                     id_trabajador={this.props.id_trabajador}
                     username={this.props.username}
                     saldo = {this.state.montoActual}
-                    idClienteBuscado = {this.state.idClienteBuscado}
-                    dniPasaporteBuscado = {this.state.dniPasaporteBuscado}
-                    apellidoPaternoBuscado = {this.state.apellidoPaternoBuscado}
-                    apellidoMaternoBuscado = {this.state.apellidoMaternoBuscado}
                     rol = {"prestamista"}
                 />
             );
         }
+        if (redirectMovimientosRecogedor) {
+            return (
+                <MovimientosRecogedor
+                    id_trabajador={this.props.id_trabajador}
+                    username={this.props.username}
+                    saldo={this.state.montoActual}
+                    rol={"prestamista"}
+                />
+            );
+        }
+        
         return (
             <div className="container-fluid">
                 <br />
@@ -431,6 +423,13 @@ class MainRecogedor extends Component {
                                         AGREGAR GASTOS
                                     </Button>
                                     <span> </span>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.openMovimientosRecogedor}
+                                        style={buttonSize}
+                                    >
+                                        MOVIMIENTOS
+                                    </Button>
                                     <br/><br/><br/>
                                 </div>
                             </Col>
@@ -503,11 +502,11 @@ class MainRecogedor extends Component {
                                     />
                                 </Col>
                                 <Col md={4}>
-                                    <span>Fecha Último Pago</span>
+                                    <span>Fecha Vencimiento</span>
                                     <Input
                                             name="ultimpoPagoBuscado"
                                             id="ultimpoPagoBuscadoInput"
-                                            value={ultimpoPagoBuscado}
+                                            value={fechaVencimientoBuscado}
                                             readOnly
                                     />
                                 </Col>

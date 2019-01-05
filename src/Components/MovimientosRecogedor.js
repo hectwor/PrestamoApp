@@ -1,28 +1,28 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import {
-    Navbar,NavbarBrand,NavItem, NavLink,Nav,
+    Navbar, NavbarBrand, NavItem, NavLink, Nav,
     Row, Col,
     Button, Input, Label,
 } from 'reactstrap';
 import Login from "./Login";
-import MainAdmin from "./MainAdmin";
+import MainRecogedor from "./MainRecogedor";
 import moment from "moment";
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
 const axios = require('axios');
-class MovimientosAdmin extends Component {
+class MovimientosRecogedor extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
 
             montoActualDiaTotal: 0,
-            fechaInicioBusqueda:  moment().format('YYYY-MM-DD'),
-            fechaFinBusqueda:  moment().format('YYYY-MM-DD'),
+            fechaInicioBusqueda: moment().format('YYYY-MM-DD'),
+            fechaFinBusqueda: moment().format('YYYY-MM-DD'),
 
-            redirectLogin:false,
-            redirectMainAdmin:false,
+            redirectLogin: false,
+            redirectMainRecogedor: false,
 
             movimientos: [],
             columnsTable:
@@ -38,12 +38,13 @@ class MovimientosAdmin extends Component {
         }
     }
 
-    componentWillMount (){
+    componentWillMount() {
         let self = this;
         const { fechaInicioBusqueda, fechaFinBusqueda } = this.state;
-        let sumaMontoDia= 0;
+        let sumaMontoDia = 0;
         axios.get('https://edutafur.com/sgp/public/prestamos/movimientos/buscar', {
             params: {
+                idTrabajador: this.props.id_trabajador,
                 fechaInicioBusqueda: fechaInicioBusqueda,
                 fechaFinBusqueda: fechaFinBusqueda
             }
@@ -61,7 +62,7 @@ class MovimientosAdmin extends Component {
                     if (n.Tipo_Movimiento === "Recojo") {
                         sumaMontoDia = sumaMontoDia + parseFloat(n.monto_movimientos);
                     }
-                    if (n.Tipo_Movimiento === "Prestamo"){
+                    if (n.Tipo_Movimiento === "Prestamo") {
                         sumaMontoDia = sumaMontoDia - parseFloat(n.monto_movimientos);
                     }
                     if (n.Tipo_Movimiento === "Gasto") {
@@ -87,17 +88,18 @@ class MovimientosAdmin extends Component {
         this.setState(change)
     };
 
-    regresarMenu = ()=>{
+    regresarMenu = () => {
         this.setState({
-            redirectMainAdmin: true,
+            redirectMainRecogedor: true,
         });
     };
 
-    buscarMovimientos =() =>{
+    buscarMovimientos = () => {
         const { fechaInicioBusqueda, fechaFinBusqueda } = this.state;
         let self = this;
         axios.get('https://edutafur.com/sgp/public/prestamos/movimientos/buscar', {
             params: {
+                idTrabajador: this.props.id_trabajador,
                 fechaInicioBusqueda: fechaInicioBusqueda,
                 fechaFinBusqueda: fechaFinBusqueda
             }
@@ -133,11 +135,11 @@ class MovimientosAdmin extends Component {
     };
 
     render() {
-        const { redirectLogin, redirectMainAdmin, 
-            montoActualDiaTotal, 
+        const { redirectLogin, redirectMainRecogedor,
+            montoActualDiaTotal,
             fechaInicioBusqueda, fechaFinBusqueda,
             columnsTable, movimientos
-         } = this.state;
+        } = this.state;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -148,18 +150,18 @@ class MovimientosAdmin extends Component {
         };
         if (redirectLogin) {
             return (
-                <Login  />
+                <Login />
             );
         }
-        if (redirectMainAdmin) {
+        if (redirectMainRecogedor) {
             return (
-                <MainAdmin id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password}  />
+                <MainRecogedor id_trabajador={this.props.id_trabajador} username={this.props.username} password={this.props.password} />
             );
         }
-        return(
+        return (
             <div className="container-fluid">
-            <br />
-                <Navbar  color="light" light expand="md">
+                <br />
+                <Navbar color="light" light expand="md">
                     <NavbarBrand >Bienvenido {this.props.username}</NavbarBrand>
                     <Nav className="ml-auto" navbar>
                         <NavItem>
@@ -169,7 +171,7 @@ class MovimientosAdmin extends Component {
                 </Navbar>
                 <div className="container">
                     <div className="container text-center" style={panelAdmin}>
-                        <br/>
+                        <br />
                         <h1 className="display-6">Monto del Día Actual</h1>
                         <h1 className="display-6">S/. {montoActualDiaTotal}</h1>
                         <Row>
@@ -203,12 +205,12 @@ class MovimientosAdmin extends Component {
                                     </Col>
                                     <Col md={2}>
                                         <div className="text-left">
-                                            <br/>
+                                            <br />
                                             <Button
-                                            onClick={this.buscarMovimientos}
-                                            color="info"
+                                                onClick={this.buscarMovimientos}
+                                                color="info"
                                             >
-                                            Buscar
+                                                Buscar
                                             </Button>
                                         </div>
                                     </Col>
@@ -217,7 +219,7 @@ class MovimientosAdmin extends Component {
                             <Col md={3}>
                             </Col>
                         </Row>
-                        <br/>
+                        <br />
                         <Row>
                             <Col md={1}>
                             </Col>
@@ -247,7 +249,7 @@ class MovimientosAdmin extends Component {
                                         })}
                                     </Tbody>
                                 </Table>
-                                <br/>
+                                <br />
                                 <Button
                                     block
                                     onClick={this.regresarMenu}
@@ -259,7 +261,7 @@ class MovimientosAdmin extends Component {
                             <Col md={1}>
                             </Col>
                         </Row>
-                        <br/><br/>
+                        <br /><br />
                     </div>
                 </div>
             </div>
@@ -267,4 +269,4 @@ class MovimientosAdmin extends Component {
     }
 }
 
-export default MovimientosAdmin;
+export default MovimientosRecogedor;

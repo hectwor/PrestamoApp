@@ -1,10 +1,11 @@
 import React, {Component} from "react";
 import {
     Navbar,NavbarBrand,NavItem, NavLink,Nav,
-    Input,FormFeedback, Label,Button,
+    Input, Label,Button,Form,
     Row, Col,
     ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
+import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
 import MainAdmin from "./MainAdmin";
@@ -20,13 +21,20 @@ class Recojo extends Component{
             redirectMainPrestamista:false,
             redirectMainAdmin:false,
 
-            ButtonRefinanciarHidden:true,
+            clientes:[],
+            infoCliente:[],
+            infoPagosCliente:[],
+
+            ButtonRefinanciarHidden:{},
 
             id_prestamo: null,
             dniPasaporteBuscado : this.props.dniPasaporteBuscado,
-            montoPorRecoger: 0,
+            montoPorRecoger: {},
+            ButtonmontoRecoger:{},
             saldoFaltante: 0,
             montoPrestado: 0,
+            montoPrestamoVer:0,
+            fechaPrestamoVer:null,
             fechaRecojo:   moment().format('DD-MM-YYYY'),
 
             montoActual: [this.props.saldo],
@@ -35,32 +43,66 @@ class Recojo extends Component{
                 montoPorRecoger:null
             },
 
-            showModalConfirmation:false
+            showModalClienteInfo:false,
+            showModalPagosInfo:false
         }
+        this.handleListChange = this.handleListChange.bind(this);
     }
 
     componentWillMount (){
         let self = this;
-        axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar', {
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes',{
             params: {
-                dniPasaporteApellidoBuscado: this.state.dniPasaporteBuscado
+                idTrabajador : this.props.id_trabajador
             }
-          })
+        })
           .then(function (response) {
-              let ButtonRefinanciar = true;
-              if( moment(response.data[0].fecha_vencimiento).format('DD-MM-YYYY') > moment().format('DD-MM-YYYY')){
-                ButtonRefinanciar = false;
-              }
+            const clientes = response.data;
+            let ButtonColor=[];
+            let ButtonHidden=[];
+            let ListClientesMontosPagar = clientes.map((n) => {
+                let montosPagar2 = {}
+                montosPagar2['id_prestamo'] = n.id_prestamo;
+                montosPagar2['monto_por_pagar'] = Math.round((parseFloat(n.monto_deuda)/24) * 100) / 100;
+                let ButtonColor2={};
+                let ButtonHidden2 = {}
+                ButtonColor2['id_prestamo'] = n.id_prestamo;
+                ButtonHidden2['id_prestamo'] = n.id_prestamo;
+                if(moment(n.fecha_ultimo_pago).format('DD-MM-YYYY') === moment().format('DD-MM-YYYY')){ 
+                    ButtonColor2['color'] = 'success';
+                }else{
+                    ButtonColor2['color'] = 'danger';
+                }
+                if(moment(n.fecha_vencimiento) < moment()){ 
+                    ButtonHidden2['hidden'] = false;
+                }else{
+                    ButtonHidden2['hidden'] = true;
+                }
+                ButtonColor = ButtonColor.concat(ButtonColor2);
+                ButtonHidden = ButtonHidden.concat(ButtonHidden2);
+                return montosPagar2;
+            });
             self.setState({
-                id_prestamo : response.data[0].id_prestamo,
-                montoPrestado: response.data[0].monto_deuda,
-                saldoFaltante: response.data[0].monto_deuda_restante,
-                ButtonRefinanciarHidden: ButtonRefinanciar
+                clientes : clientes,
+                montoPorRecoger : ListClientesMontosPagar,
+                ButtonmontoRecoger: ButtonColor,
+                ButtonRefinanciarHidden: ButtonHidden
             });
           })
           .catch(function (error) {
             console.log(error);
           });
+
+          axios.get('https://edutafur.com/sgp/public/trabajador/recaudado-mano', {
+            params: {
+                idTrabajador: this.props.id_trabajador
+            }
+          })
+            .then(function (response) {
+                self.setState({
+                    montoActual: response.data[0].total_recaudado_mano
+                });
+            })
     }
 
     Logout = () => {
@@ -91,49 +133,126 @@ class Recojo extends Component{
         this.setState(change)
     };
 
-    confirmarRecogerDinero = () => {
-        const { montoPorRecoger, saldoFaltante, validate } = this.state;
-        if(parseFloat(montoPorRecoger) > parseFloat(saldoFaltante)){
-            validate.montoPorRecoger = "has-danger";
-            this.setState({validate});
+    handleListChange(event, index){
+        var montoPorRecoger = this.state.montoPorRecoger.slice();
+        montoPorRecoger[index]['monto_por_pagar'] = event.target.value;
+        this.setState({montoPorRecoger: montoPorRecoger});
+    }
+
+    confirmarRecogerDinero = (monto_pagar, id_prestamo, cliente) => {
+        if(monto_pagar === '0' || monto_pagar === null || monto_pagar === ""){
+            alert('Monto 0 o vacío');
         }else{
-            if(montoPorRecoger === "" ||  parseFloat(montoPorRecoger) === 0){
-                alert("Indicar monto");
-            }else{
-                validate.montoPorRecoger = "has-success";
-                this.setState({
-                    validate:validate,
-                    showModalConfirmation:true
-                });
+            let self = this;
+            var r = window.confirm(`Confirma el recojo?\n\nCliente: ${cliente}\nMonto a recoger: s/. ${monto_pagar}`);
+            if (r === true) {
+                axios.post('https://edutafur.com/sgp/public/pagos/agregar', {
+                    idPrestamo: id_prestamo,
+                    idTrabajador: this.props.id_trabajador,
+                    montoRecaudado: monto_pagar
+                  })
+                  .then(function (response) {
+                      
+                      if(response.status === 200){
+                        alert(`Recojo de valor S/. ${monto_pagar} realizado`);
+                        self.componentWillMount();
+                      }
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  });
             }
         }
     };
 
-    enviarDatosRecojo = () => {
-        const { montoPorRecoger, id_prestamo } = this.state;
-        let self = this;
-        axios.post('https://edutafur.com/sgp/public/pagos/agregar', {
-            idPrestamo: id_prestamo,
-            montoRecaudado: montoPorRecoger
-          })
-          .then(function (response) {
-              if(response.status === 200){
-                  alert(`Recojo de valor S/. ${montoPorRecoger} guardado`);
-                  self.regresarMenu();
-              }
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+    verInfoCliente = (id_cliente, prestado, faltante) => {
+        if(prestado === faltante){
+            alert("No registra ningún pago")
+        }else{
+            let self = this;
+            axios.get('https://edutafur.com/sgp/public/prestamos/clientes', {
+                params: {
+                    idCliente: id_cliente
+                }
+            })
+                .then(function (response) {
+                    const prestamos = response.data;
+                    let idprestamoActivo;
+                    for (let i = 0; i < Object.keys(prestamos).length; i++) {
+                        if (prestamos[i].cancelado === 'N') {
+                            idprestamoActivo = prestamos[i].id_prestamo;
+                        }
+                    }
+                    axios.get('https://edutafur.com/sgp/public/consultarPagos', {
+                        params: {
+                            idPrestamo: idprestamoActivo
+                        }
+                    })
+                        .then(function (response) {
+                            self.setState({
+                                infoPagosCliente: response.data,
+                                montoPrestamoVer: response.data[0].monto_prestamo,
+                                fechaPrestamoVer: response.data[0].fecha_prestamo,
+                                showModalPagosInfo: true
+                            });
+                        });
+                });
+        }
     };
 
-    refinanciar = () => {
-        
+    refinanciar = (id_prestamo, cliente) => {
+        let self = this;
+        console.log(id_prestamo)
+        axios.get('https://edutafur.com/sgp/public/consultarRefinanciamiento',{
+            params: {
+                idPrestamo: id_prestamo
+            }
+        }).then(function (response){
+            console.log(response.data);
+            var r = window.confirm(`Confirma el refinamiento?\n\nCliente: ${cliente}\nMonto a refinanciar: s/. ${response.data.monto_refinanciado}\nMonto a cobrar: s/. ${response.data.monto_total_cobrar}\nFecha vencimiento: ${response.data.fecha_vencimiento}`);
+            if (r === true) {
+                axios.post('https://edutafur.com/sgp/public/realizarRefinanciamiento', {
+                    idPrestamo: id_prestamo
+                })
+                    .then(function (response) {
+                        console.log(response)
+                        if (response.status === 200) {
+                            alert(response.data.mensaje);
+                            self.componentWillMount();
+                        }
+                    })
+                    .catch(function (error) {
+                        alert(error.status);
+                    });
+            }
+        }).catch(function(error){
+            alert(error.status);
+        })
+    }
+
+    handleClickTr = (id_prestamo) => {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/consultarPagos', {
+            params: {
+                idPrestamo: id_prestamo
+            }
+        })
+            .then(function (response) {
+                self.setState({
+                    infoPagosCliente: response.data,
+                    showModalPagosInfo: true
+                });
+            });
     }
 
     closeModal = () => {
         this.setState({
-            showModalConfirmation: false
+            showModalClienteInfo: false
+        });
+    };
+    regresar = () => {
+        this.setState({
+            showModalPagosInfo: false
         });
     };
 
@@ -143,26 +262,28 @@ class Recojo extends Component{
             redirectMainAdmin,
             montoActual,
             montoPorRecoger,
-            validate,
-            saldoFaltante,
-            montoPrestado,
-            fechaRecojo,
-            ButtonRefinanciarHidden
+            ButtonRefinanciarHidden,
+            clientes, infoCliente, infoPagosCliente,
+            ButtonmontoRecoger
         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
             marginTop: "80px"
         };
-        const customStyles = {
-            content: {
-                top: "50%",
-                left: "50%",
-                right: "auto",
-                bottom: "auto",
-                marginRight: "-50%",
-                transform: "translate(-50%, -50%)"
-            }
+        const fontSize = {
+            fontSize: 14
+        };
+        const cuadro = {
+            height: "300px",
+            overflowY: "scroll"
+        };
+        const cuadroCliente = {
+            height: "400px",
+            overflowY: "scroll"
+        };
+        const inputStyle = {
+            width: 100
         };
         if (redirectLogin) {
             return (
@@ -180,6 +301,7 @@ class Recojo extends Component{
                 <MainAdmin id_trabajador={this.props.id_trabajador}  username={this.props.username} password={this.props.password} />
             );
         }
+        let self = this;
         return (
             <div className="container-fluid">
                 <br />
@@ -194,106 +316,80 @@ class Recojo extends Component{
                 <div className="container">
                     <div className="container text-center" style={panelVendedor}>
                         <h1 className="display-6">Saldo : S/ {montoActual}</h1>
-                        <h1 className="display-4">Cliente para recoger</h1>
+                        <h1 className="display-4">Clientes por recoger</h1>
                         <Row>
-                            <Col md={3}>
+                            <Col md={1}>
                             </Col>
-                            <Col md={6}>
-                                <Row>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Apellido Paterno</Label>
-                                            <Input
-                                                name="apellidoPaternoBuscado"
-                                                id="apellidoPaternoBuscadoInput"
-                                                value={this.props.apellidoPaternoBuscado}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Apellido Materno</Label>
-                                            <Input
-                                                name="apellidoMaternoBuscado"
-                                                id="apellidoMaternoBuscado"
-                                                value={this.props.apellidoMaternoBuscado}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Monto Prestado</Label>
-                                            <Input
-                                                name="montoPrestado"
-                                                id="montoPrestadoInput"
-                                                value={`S/. ${montoPrestado}`}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Saldo Faltante</Label>
-                                            <Input
-                                                name="saldoFaltante"
-                                                id="saldoFaltanteInput"
-                                                value={`S/. ${saldoFaltante}`}
-                                                readOnly
-                                            />
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Moneda</Label>
-                                            <Input
-                                                type="select"
-                                                name="select"
-                                                id="selectDinero">
-                                                <option>SOLES ( S/.)</option>
-                                            </Input>
-                                        </div>
-                                    </Col>
-                                    <Col md={6}>
-                                        <div className="text-left">
-                                            <Label>Monto a recoger</Label>
-                                            <Input
-                                                name="montoPorRecoger"
-                                                id="montoPorRecogerInput"
-                                                value={montoPorRecoger}
-                                                placeholder=""
-                                                type="number"
-                                                invalid={validate.montoPorRecoger === "has-danger"}
-                                                valid={validate.montoPorRecoger === "has-success"}
-                                                onChange={this.handleChange}
-                                                autoFocus
-                                            />
-                                            <FormFeedback invalid>Supera el saldo faltante</FormFeedback>
-                                        </div>
-                                    </Col>
-                                </Row>
-                                <br/>
-                                <Button
-                                    block
-                                    onClick={this.confirmarRecogerDinero}
-                                    color="info"
-                                >
-                                    RECOGER
-                                </Button>
-                                <Button
-                                    block
-                                    onClick={this.refinanciar}
-                                    color="warning"
-                                    hidden={ButtonRefinanciarHidden}
-                                >
-                                    Refinanciar
-                                </Button>
-                                <Button
+                            <Col md={10}>
+                            <br/>
+                                <div style={cuadroCliente}>
+                            <Table  style={fontSize}>
+                                <Thead>
+                                    <Tr>
+                                        <Th><b>Nombre Cliente</b></Th>
+                                        <Th><b>Prestado</b></Th>
+                                        <Th><b>Faltante</b></Th>
+                                        <Th><b>Fecha Vencimiento</b></Th>
+                                        <Th><b>Cobro</b></Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                {clientes.map(function(item, key) {
+                                    return (
+                                        <Tr key = {key}>
+                                            <Td >{item.cliente}</Td>
+                                            <Td >s/. {item.monto_deuda}</Td>
+                                            <Td>s/. {item.monto_deuda_restante}</Td>
+                                            <Td>{moment(item.fecha_vencimiento).format('DD-MM-YYYY')}</Td>
+                                            <Td>
+                                                <Form inline>
+                                                    <Label>s/. </Label>
+                                                    <Input
+                                                        type="number"
+                                                        id={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                        name={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                        value={montoPorRecoger[key]['monto_por_pagar']}
+                                                        style={inputStyle}
+                                                        onChange={(e) => {self.handleListChange(e, key)}}
+                                                    />
+                                                    <Button
+                                                        size="sm"
+                                                        id={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                        name={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                        color={ButtonmontoRecoger[key]['color']}
+                                                        onClick={() => { self.confirmarRecogerDinero(montoPorRecoger[key]['monto_por_pagar'], item.id_prestamo, item.cliente)}}
+                                                    >
+                                                        Recoger
+                                                    </Button>
+                                                        <span> </span>
+                                                    <Button
+                                                        size="sm"
+                                                        id={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
+                                                        name={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
+                                                        onClick={() => { self.verInfoCliente(item.id_cliente, item.monto_deuda, item.monto_deuda_restante) }}
+                                                    >
+                                                        Ver
+                                                    </Button>
+                                                    <Button
+                                                        id={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
+                                                        name={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
+                                                        size="sm"
+                                                        color="warning"
+                                                        disabled={ButtonRefinanciarHidden[key]['hidden']}
+                                                        onClick={() => { self.refinanciar(item.id_prestamo, item.cliente)}}
+                                                    >
+                                                    Refinanciar
+                                                    </Button>
+                                                </Form>
+                                            </Td>
+                                        </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
+                                </div>
+                            <br/>
+                            <Button
                                     block
                                     onClick={this.regresarMenu}
                                     color="danger"
@@ -302,101 +398,92 @@ class Recojo extends Component{
                                 </Button>
                                 <br/>
                             </Col>
-                            <Col md={3}>
+                            <Col md={1}>
                             </Col>
                         </Row>
                     </div>
                 </div>
-                <Modal isOpen={this.state.showModalConfirmation} style={customStyles} centered size = "mg">
-                    <ModalHeader  toggle={this.closeModal}>
-                        Confirmación de Datos
+                <Modal isOpen={this.state.showModalClienteInfo} centered size="lg">
+                    <ModalHeader toggle={this.closeModal}>
+                        Información préstamos de Cliente
                     </ModalHeader>
                     <ModalBody>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Nombre de Prestamista :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{this.props.username}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Fecha :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{fechaRecojo}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Nombre de Cliente :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{this.props.apellidoPaternoBuscado} {this.props.apellidoMaternoBuscado}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto a recoger :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{montoPorRecoger}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto total prestado :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{montoPrestado}</Label>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto faltante :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                                <div className="text-left">
-                                    <Label>{saldoFaltante}</Label>
-                                </div>
-                            </Col>
-                        </Row>
+                        <Table style={fontSize}>
+                            <Thead>
+                                <Tr className="text-center">
+                                    <Th><b>Cancelado</b></Th>
+                                    <Th><b>Monto Préstamo</b></Th>
+                                    <Th><b>Cuotas</b></Th>
+                                    <Th><b>Préstamo</b></Th>
+                                    <Th><b>Recaudado</b></Th>
+                                    <Th><b>Faltante</b></Th>
+                                    <Th><b>Vencimiento</b></Th>
+                                    <Th><b>Último pago</b></Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {infoCliente.map(function(item, key){
+                                    return(
+                                        <Tr key={key} className="text-center" style={{ cursor: 'pointer' }} onClick={() => { self.handleClickTr(item.id_prestamo) }} >
+                                            <Td>{item.cancelado}</Td>
+                                            <Td>s/. {item.monto_deuda}</Td>
+                                            <Td>{item.nro_cuotas}</Td>
+                                            <Td>{item.fecha_prestamo}</Td>
+                                            <Td>s/. {item.monto_total_recaudado}</Td>
+                                            <Td>s/. {item.monto_deuda_restante}</Td>
+                                            <Td>{item.fecha_vencimiento}</Td>
+                                            <Td>{item.fecha_ultimo_pago}_</Td>
+                                        </Tr>
+                                    )
+                                })}
+                            </Tbody>
+                        </Table>
                     </ModalBody>
                     <ModalFooter>
                         <Button
-                            onClick= {this.enviarDatosRecojo}
-                            color="info"
-                        >
-                            Aceptar
-                        </Button>
-                        <Button
-                            onClick= {this.closeModal}
+                            onClick={this.closeModal}
                             color="danger"
                         >
-                            Cancelar
+                            Salir
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.showModalPagosInfo} centered size="mg">
+                    <ModalHeader toggle={this.regresar}>
+                        Pagos de préstamo seleccionado
+                    </ModalHeader>
+                    <ModalBody>
+                        <Label><b>Monto Préstamo</b>: s/. {this.state.montoPrestamoVer}</Label><br/>
+                        <Label><b>Fecha Préstamo</b>: {this.state.fechaPrestamoVer}</Label>
+                        <div style={cuadro}>
+                            <Table style={fontSize}>
+                                <Thead>
+                                    <Tr className="text-center">
+                                        <Th><b>Pago</b></Th>
+                                        <Th><b>Faltante</b></Th>
+                                        <Th><b>Fecha Pago</b></Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {infoPagosCliente.map(function (item, key) {
+                                        return (
+                                            <Tr key={key} className="text-center">
+                                                <Td>s/. {item.pago}</Td>
+                                                <Td>s/. {item.monto_deuda_restante}</Td>
+                                                <Td>{item.fecha_pago}</Td>
+                                            </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.regresar}
+                            color="danger"
+                        >
+                            Regresar
                         </Button>
                     </ModalFooter>
                 </Modal>

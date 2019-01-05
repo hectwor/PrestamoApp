@@ -24,19 +24,10 @@ class ListarClientes extends Component {
             infoPagoUltimo: "",
 
             showModalInformation:false,
+            showModalInfoPagos: false,
 
-            clienteSeleccionado:{
-                dni: "",
-                nombre: "",
-                prestamista: "",
-                montoDeuda: "",
-                fechaPrestamo: "",
-                fechaVencimiento: "",
-                fechaUltimoPago: "",
-                montoTotalRecaudado: "",
-                montoDeudaRestante: "",
-                cancelado: ""
-            },
+            clienteSeleccionado:[],
+            infoPagosCliente:[],
 
             clients:[],
             columnsTable :
@@ -44,8 +35,7 @@ class ListarClientes extends Component {
                     "dni": "DNI",
                     "cliente": 'Cliente',
                     "prestamista": "Prestamista",
-                    "montoP": "Monto Prestado",
-                    "montoD": "Mondo Deuda",
+                    "montoD": "Monto Prestado",
                     "fechaP": "Fecha Préstamo",
                     "fechaUP":"Fecha de último pago"
                 }
@@ -60,19 +50,22 @@ class ListarClientes extends Component {
               const clients = response.data;
 
               let optionsClients = clients.map((n) => {
-                  let client = {};
-                  client['dni']= n.nro_doc;
-                  client['cliente']= n.cliente;
-                  client['prestamista']= n.prestamista;
-                  client['montoP']= n.monto_prestamo;
-                  client['montoD']= n.monto_deuda;
-                  client['fechaP']= n.fecha_prestamo;
-                  client['fechaV']= n.fecha_vencimiento;
-                  client['fechaUP']= n.fecha_ultimo_pago;
-                  client['montoTRecaudado']= n.monto_total_recaudado;
-                  client['montoDR']= n.monto_deuda_restante;
-                  client['cancelado']= n.cancelado;
-                  return client;
+                  if(n.cancelado !== 'S'){
+                      let client = {};
+                      client['id_cliente'] = n.id_cliente;
+                      client['dni'] = n.nro_doc;
+                      client['cliente'] = n.cliente;
+                      client['prestamista'] = n.prestamista;
+                      client['montoP'] = n.monto_prestamo;
+                      client['montoD'] = n.monto_deuda;
+                      client['fechaP'] = n.fecha_prestamo;
+                      client['fechaV'] = n.fecha_vencimiento;
+                      client['fechaUP'] = n.fecha_ultimo_pago;
+                      client['montoTRecaudado'] = n.monto_total_recaudado;
+                      client['montoDR'] = n.monto_deuda_restante;
+                      client['cancelado'] = n.cancelado;
+                      return client;
+                  }
               });
               self.setState({
                   clients: optionsClients
@@ -103,47 +96,38 @@ class ListarClientes extends Component {
         });
     };
 
-    handleClickTr = (dni) => {
-      const {clienteSeleccionado} = this.state;
+    handleClickTr = (id_cliente) => {
       let self = this;
-      axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar', {
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes', {
         params: {
-            dniPasaporteApellidoBuscado: dni
+                idCliente: id_cliente
         }
         })
         .then(function (response) {
-            clienteSeleccionado.dni =  response.data[0].nro_doc;
-            clienteSeleccionado.nombre = response.data[0].cliente;
-            clienteSeleccionado.prestamista = response.data[0].prestamista;
-            clienteSeleccionado.montoDeuda = response.data[0].monto_deuda;
-            clienteSeleccionado.fechaPrestamo = response.data[0].fecha_prestamo;
-            clienteSeleccionado.fechaVencimiento = response.data[0].fecha_vencimiento;
-            clienteSeleccionado.fechaUltimoPago = response.data[0].fecha_ultimo_pago;
-            clienteSeleccionado.montoTotalRecaudado = response.data[0].monto_total_recaudado;
-            clienteSeleccionado.montoDeudaRestante = response.data[0].monto_deuda_restante;
-            clienteSeleccionado.cancelado = response.data[0].cancelado;
-            if(moment(response.data[0].fecha_ultimo_pago).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')){
-                self.setState({ 
-                    clienteSeleccionado:clienteSeleccionado,
-                    infoPagoUltimo: "Sí pagó hoy"
-                });
-            }else{
-                self.setState({ 
-                    clienteSeleccionado:clienteSeleccionado,
-                    infoPagoUltimo: "No pagó hoy"
-                });
-            }
-            
+            self.setState({
+                clienteSeleccionado:response.data,
+                showModalInformation: true
+            });
         })
         .catch(function (error) {
           console.log(error);
-        })
-        .then(function () {
-            self.setState({
-                showModalInformation: true
-            });
         });
     };
+
+    handleClickInfoPagos = (id_prestamo) => {
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/consultarPagos', {
+            params: {
+                idPrestamo: id_prestamo
+            }
+        })
+            .then(function (response) {
+                self.setState({
+                    infoPagosCliente: response.data,
+                    showModalInfoPagos: true
+                });
+            });
+    }
 
     closeModal = () => {
         this.setState({
@@ -151,9 +135,15 @@ class ListarClientes extends Component {
         });
     };
 
+    regresar = () => {
+        this.setState({
+            showModalInfoPagos: false
+        });
+    };
+
     render() {
         const { redirectLogin, redirectMainAdmin, clients, 
-            columnsTable, clienteSeleccionado, infoPagoUltimo
+            columnsTable, clienteSeleccionado, infoPagosCliente
          } = this.state;
         let self = this;
         const panelAdmin = {
@@ -163,6 +153,10 @@ class ListarClientes extends Component {
         };
         const fontSize = {
             fontSize: 14
+        };
+        const cuadro = {
+            height: "300px",
+            overflowY: "scroll"
         };
         const customStyles = {
             content: {
@@ -209,36 +203,37 @@ class ListarClientes extends Component {
                                         <Tr>
                                             <Th>{columnsTable.dni}</Th>
                                             <Th>{columnsTable.cliente}</Th>
-                                            <Th>{columnsTable.montoP}</Th>
                                             <Th>{columnsTable.montoD}</Th>
                                             <Th>{columnsTable.fechaP}</Th>
-                                            <Th>{columnsTable.fechaP}</Th>
+                                            <Th>Información</Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
                                     {clients.map(function(item, key) {
-                                        if( moment(item.fechaUP).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')){
-                                            return (
-                                                <Tr key = {key} style = {{cursor: 'pointer'}} onClick={() => {self.handleClickTr(item.dni)}} >
-                                                    <Td >{item.dni}</Td>
-                                                    <Td >{item.cliente}</Td>
-                                                    <Td>{item.montoP}</Td>
-                                                    <Td>{item.montoD}</Td>
-                                                    <Td>{item.fechaP}</Td>
-                                                    <Td><Label style = {{color: '#0040FF'}}>Pagó hoy</Label></Td>
-                                                </Tr>
-                                            )
+                                        if(item !== undefined){
+                                            if (moment(item.fechaUP).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')) {
+                                                return (
+                                                    <Tr key={key} style={{ cursor: 'pointer' }} onClick={() => { self.handleClickTr(item.id_cliente) }} >
+                                                        <Td >{item.dni}</Td>
+                                                        <Td >{item.cliente}</Td>
+                                                        <Td>s/. {item.montoD}</Td>
+                                                        <Td>{item.fechaP}</Td>
+                                                        <Td><Label style={{ color: '#0040FF' }}>Pagó hoy</Label></Td>
+                                                    </Tr>
+                                                )
+                                            } else {
+                                                return (
+                                                    <Tr key={key} style={{ cursor: 'pointer' }} onClick={() => { self.handleClickTr(item.id_cliente) }} >
+                                                        <Td >{item.dni}</Td>
+                                                        <Td >{item.cliente}</Td>
+                                                        <Td>s/. {item.montoD}</Td>
+                                                        <Td>{item.fechaP}</Td>
+                                                        <Td><Label style={{ color: '#B40404' }}>No pagó hoy</Label></Td>
+                                                    </Tr>
+                                                )
+                                            }
                                         }else{
-                                            return (
-                                                <Tr key = {key} style = {{cursor: 'pointer'}} onClick={() => {self.handleClickTr(item.dni)}} >
-                                                    <Td >{item.dni}</Td>
-                                                    <Td >{item.cliente}</Td>
-                                                    <Td>{item.montoP}</Td>
-                                                    <Td>{item.montoD}</Td>
-                                                    <Td>{item.fechaP}</Td>
-                                                    <Td><Label style = {{color: '#B40404'}}>No pagó hoy</Label></Td>
-                                                </Tr>
-                                            )
+                                            return (<Tr></Tr>)
                                         }
                                     })}
                                     </Tbody>
@@ -257,86 +252,41 @@ class ListarClientes extends Component {
                         <br/><br/>
                     </div>
                 </div>
-                <Modal isOpen={this.state.showModalInformation} style={customStyles} centered size = "mg">
+                <Modal isOpen={this.state.showModalInformation} style={customStyles} centered size = "lg">
                     <ModalHeader  toggle={this.closeModal}>
-                        Información de Cliente
+                        Información préstamos de Cliente
                     </ModalHeader>
                     <ModalBody>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Nombre de Cliente :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                             <div className="text-left">
-                                    <Label>{clienteSeleccionado.nombre}</Label>
-                                </div>  
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Fecha de Préstamo :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                             <div className="text-left">
-                                    <Label>{clienteSeleccionado.fechaPrestamo}</Label>
-                                </div>  
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto de Deuda :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                             <div className="text-left">
-                                    <Label>S/. {clienteSeleccionado.montoDeuda}</Label>
-                                </div>  
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto Total Recaudado :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                             <div className="text-left">
-                                    <Label>S/. {clienteSeleccionado.montoTotalRecaudado}</Label>
-                                </div>  
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label>Monto Deuda Restante :</Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                             <div className="text-left">
-                                    <Label>S/. {clienteSeleccionado.montoDeudaRestante}</Label>
-                                </div>  
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col  md={6}>
-                                <div className="text-right">
-                                    <Label><b>Fecha de Último Pago :</b></Label>
-                                </div>
-                            </Col>
-                            <Col  md={6}>
-                             <div className="text-left">
-                                    <Label><b>{clienteSeleccionado.fechaUltimoPago}</b></Label>
-                                </div>  
-                            </Col>
-                        </Row>
-                        <div  className="text-center">
-                            <Label><b>{infoPagoUltimo}</b></Label>
-                        </div>
+                        <Table style={fontSize}>
+                            <Thead>
+                                <Tr className="text-center">
+                                    <Th><b>Estado</b></Th>
+                                    <Th><b>Monto Préstamo</b></Th>
+                                    <Th><b>Cuotas</b></Th>
+                                    <Th><b>Préstamo</b></Th>
+                                    <Th><b>Recaudado</b></Th>
+                                    <Th><b>Faltante</b></Th>
+                                    <Th><b>Vencimiento</b></Th>
+                                    <Th><b>Último pago</b></Th>
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {clienteSeleccionado.map(function (item, key) {
+                                    return (
+                                        <Tr key={key} className="text-center" style={{ cursor: 'pointer' }} onClick={() => { self.handleClickInfoPagos(item.id_prestamo) }} >
+                                            <Td>{item.estado}</Td>
+                                            <Td>s/. {item.monto_deuda}</Td>
+                                            <Td>{item.nro_cuotas}</Td>
+                                            <Td>{item.fecha_prestamo}</Td>
+                                            <Td>s/. {item.monto_total_recaudado}</Td>
+                                            <Td>s/. {item.monto_deuda_restante}</Td>
+                                            <Td>{item.fecha_vencimiento}</Td>
+                                            <Td>{item.fecha_ultimo_pago}_</Td>
+                                        </Tr>
+                                    )
+                                })}
+                            </Tbody>
+                        </Table>
                     </ModalBody>
                     <ModalFooter>
                         <Button
@@ -344,6 +294,45 @@ class ListarClientes extends Component {
                             color="danger"
                         >
                             Salir
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.showModalInfoPagos} centered size="mg">
+                    <ModalHeader toggle={this.regresar}>
+                        Pagos de préstamo seleccionado
+                    </ModalHeader>
+                    <ModalBody>
+                        <div style={cuadro}>
+                            <Table style={fontSize}>
+                                <Thead>
+                                    <Tr className="text-center">
+                                        <Th><b>Monto Préstamo</b></Th>
+                                        <Th><b>Pago</b></Th>
+                                        <Th><b>Faltante</b></Th>
+                                        <Th><b>Fecha</b></Th>
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    {infoPagosCliente.map(function (item, key) {
+                                        return (
+                                            <Tr key={key} className="text-center">
+                                                <Td>s/. {item.monto_prestamo}</Td>
+                                                <Td>s/. {item.pago}</Td>
+                                                <Td>s/. {item.monto_deuda_restante}</Td>
+                                                <Td>{item.fecha_pago}</Td>
+                                            </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            onClick={this.regresar}
+                            color="danger"
+                        >
+                            Regresar
                         </Button>
                     </ModalFooter>
                 </Modal>

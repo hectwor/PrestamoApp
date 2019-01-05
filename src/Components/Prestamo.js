@@ -111,9 +111,8 @@ class Prestamo extends Component{
     confirmarPrestarDinero = () => {
         const { montoPorPrestar, montoActual, validate, nro_cuotas } = this.state;
         if(parseFloat(montoPorPrestar) > parseFloat(montoActual)){
-            validate.montoPorPrestar = "has-danger";
-            this.setState({validate});
-        }else{
+            alert("El monto de préstamo excede a su saldo actual, va a usar dinero extra")
+        }
             if(montoPorPrestar === "" ||  parseFloat(montoPorPrestar) === 0){
                 alert("Indicar monto");
             }else{
@@ -129,7 +128,7 @@ class Prestamo extends Component{
                 }
                 
             }
-        }
+        
     };
 
     enviarDatosPrestamo = () => {
@@ -235,22 +234,22 @@ class Prestamo extends Component{
                                 <Row>
                                     <Col md={6}>
                                         <div className="text-left">
-                                            <Label>Apellido Paterno</Label>
+                                            <Label>Apellidos</Label>
                                             <Input
                                                 name="apellidoPaternoBuscado"
                                                 id="apellidoPaternoBuscadoInput"
-                                                value={this.props.apellidoPaternoBuscado}
-                                                readOnly
-                                            />
+                                                value={this.props.apellidoPaternoBuscado +" "+ this.props.apellidoMaternoBuscado}
+                                            readOnly
+                                        />
                                         </div>
                                     </Col>
                                     <Col md={6}>
                                         <div className="text-left">
-                                            <Label>Apellido Materno</Label>
+                                            <Label>Nombre</Label>
                                             <Input
                                                 name="apellidoMaternoBuscado"
                                                 id="apellidoMaternoBuscado"
-                                                value={this.props.apellidoMaternoBuscado}
+                                                value={this.props.nombreBuscado}
                                                 readOnly
                                             />
                                         </div>

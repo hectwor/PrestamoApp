@@ -188,19 +188,16 @@ class ListarTrabajadores extends Component {
     };
 
     liquidarPago = (id_pago, tipo_movimiento) => {
-        let self = this;
+        //let self = this;
         let linkPost = "";
         if(tipo_movimiento === 'Pagos') linkPost = 'https://edutafur.com/sgp/public/pagos/liquidar';
         if(tipo_movimiento === 'Gastos') linkPost = 'https://edutafur.com/sgp/public/gastos/liquidar';
         if(tipo_movimiento === 'Prestamos') linkPost = 'https://edutafur.com/sgp/public/prestamos/liquidar';
-
         axios.post(linkPost, {
             id: id_pago
           })
           .then(function (response) {
-            let change = {};
-            change[`ButtonLiquidar${tipo_movimiento}${id_pago}`] = "color: danger";
-            self.setState(change)
+           window.document.getElementById(`ButtonLiquidar${tipo_movimiento}${id_pago}`).style.background = "green";
             alert(response.data.mensaje);
           })
           .catch(function (error) {
@@ -209,6 +206,7 @@ class ListarTrabajadores extends Component {
     };
 
     liquidarDia = () => {
+        let self= this;
         if (Object.keys(this.state.liquidarDia).length === 0){
             alert('No hay pagos en el día');
         }else{
@@ -216,6 +214,7 @@ class ListarTrabajadores extends Component {
                 .then(function (response) {
                     alert(`Gastos Liquidados: ${response.data.mensaje.GastosLiquidados}\nPagos Liquidados: ${response.data.mensaje.PagosLiquidados}\nPréstamos Liquidados: ${response.data.mensaje.PrestamosLiquidados}`
                     )
+                    self.closeModal();
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -452,6 +451,7 @@ class ListarTrabajadores extends Component {
                                                 </Td>
                                                 <Td>
                                                     <Button
+                                                        id={`ButtonLiquidar${item.tipo_movimiento}${item.id_pago}`}
                                                         name={`ButtonLiquidar${item.tipo_movimiento}${item.id_pago}`}
                                                         block
                                                         color={styleButton}
