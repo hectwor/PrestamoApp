@@ -260,7 +260,7 @@ class ListarClientes extends Component {
                         <Table style={fontSize}>
                             <Thead>
                                 <Tr className="text-center">
-                                    <Th><b>Cancelado</b></Th>
+                                    <Th><b>Estado</b></Th>
                                     <Th><b>Monto Préstamo</b></Th>
                                     <Th><b>Cuotas</b></Th>
                                     <Th><b>Préstamo</b></Th>
@@ -274,7 +274,7 @@ class ListarClientes extends Component {
                                 {clienteSeleccionado.map(function (item, key) {
                                     return (
                                         <Tr key={key} className="text-center" style={{ cursor: 'pointer' }} onClick={() => { self.handleClickInfoPagos(item.id_prestamo) }} >
-                                            <Td>{item.cancelado}</Td>
+                                            <Td>{item.estado}</Td>
                                             <Td>s/. {item.monto_deuda}</Td>
                                             <Td>{item.nro_cuotas}</Td>
                                             <Td>{item.fecha_prestamo}</Td>
