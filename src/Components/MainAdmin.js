@@ -531,7 +531,7 @@ class MainAdmin extends Component {
             showModalMdfUsuario: false,
             showModalMdfTrabajador: false,
             showModalReasignarCobrador:false,
-            showModalModfCliente:false
+            showModalMdfCliente:false
         });
     };
 

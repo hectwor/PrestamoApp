@@ -4,6 +4,7 @@ import Login from "./Login";
 import Prestamo from "./Prestamo";
 import Recojo from "./Recojo";
 import NuevoCliente from "./NuevoCliente";
+import MovimientosRecogedor from "./MovimientosRecogedor";
 import {
     Row,
     Col,
@@ -64,6 +65,7 @@ class MainRecogedor extends Component {
             redirectNuevoUsuario:false,
             redirectPrestamo:false,
             redirectRecojo:false,
+            redirectMovimientosRecogedor:false,
             usuarioEncontrado:false,
 
             id_trabajador:this.props.id_trabajador,
@@ -112,12 +114,13 @@ class MainRecogedor extends Component {
                     dniPasaporteBuscado: ""
         });
         var self = this;
-        axios.get('https://edutafur.com/sgp/public/clientes/buscar',{
+        axios.get('https://edutafur.com/sgp/public/verPrestamoVigentePorCliente',{
             params: {
                 dniPasaporteApellidoBuscado : dniPasaporteBuscar.value
             }
         })
           .then(function (response) {
+              console.log(response.data)
               if(Object.keys(response.data).length === 0){
                   const apep= (dniPasaporteBuscar.label).split(" ")[(dniPasaporteBuscar.label).split(" ").length - 2];
                   const apem= (dniPasaporteBuscar.label).split(" ")[(dniPasaporteBuscar.label).split(" ").length - 1];
@@ -252,6 +255,12 @@ class MainRecogedor extends Component {
         });
     };
 
+    openMovimientosRecogedor = () => {
+        this.setState({
+            redirectMovimientosRecogedor: true,
+        });
+    };
+
     enviarGasto = () => {
         const { id_trabajador, descripcionGasto, montoGasto, validate } = this.state;
         let contVal = 0;
@@ -304,7 +313,7 @@ class MainRecogedor extends Component {
         const { 
             montoActual, 
             redirectLogin, 
-            redirectNuevoUsuario, redirectPrestamo, redirectRecojo, 
+            redirectNuevoUsuario, redirectPrestamo, redirectRecojo, redirectMovimientosRecogedor,
             dniPasaporteBuscar, apellidoPaternoBuscado, apellidoMaternoBuscado,
             descripcionGasto, montoGasto, fechaVencimientoBuscado, deudaRestanteSeleccionado, prestamistaSeleccionado,
             validate,
@@ -356,6 +365,17 @@ class MainRecogedor extends Component {
                 />
             );
         }
+        if (redirectMovimientosRecogedor) {
+            return (
+                <MovimientosRecogedor
+                    id_trabajador={this.props.id_trabajador}
+                    username={this.props.username}
+                    saldo={this.state.montoActual}
+                    rol={"prestamista"}
+                />
+            );
+        }
+        
         return (
             <div className="container-fluid">
                 <br />
@@ -403,6 +423,13 @@ class MainRecogedor extends Component {
                                         AGREGAR GASTOS
                                     </Button>
                                     <span> </span>
+                                    <Button
+                                        size="lg"
+                                        onClick={this.openMovimientosRecogedor}
+                                        style={buttonSize}
+                                    >
+                                        MOVIMIENTOS
+                                    </Button>
                                     <br/><br/><br/>
                                 </div>
                             </Col>

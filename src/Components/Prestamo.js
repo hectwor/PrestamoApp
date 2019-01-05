@@ -111,9 +111,8 @@ class Prestamo extends Component{
     confirmarPrestarDinero = () => {
         const { montoPorPrestar, montoActual, validate, nro_cuotas } = this.state;
         if(parseFloat(montoPorPrestar) > parseFloat(montoActual)){
-            validate.montoPorPrestar = "has-danger";
-            this.setState({validate});
-        }else{
+            alert("El monto de préstamo excede a su saldo actual, va a usar dinero extra")
+        }
             if(montoPorPrestar === "" ||  parseFloat(montoPorPrestar) === 0){
                 alert("Indicar monto");
             }else{
@@ -129,7 +128,7 @@ class Prestamo extends Component{
                 }
                 
             }
-        }
+        
     };
 
     enviarDatosPrestamo = () => {
