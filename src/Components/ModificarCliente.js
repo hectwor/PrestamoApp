@@ -146,11 +146,6 @@ class ModificarCliente extends Component {
             contVal++;
         } else
             validate.nombresCompletos = "has-success";
-        if (apodo === "" || apodo === null) {
-            validate.apodo = "has-danger";
-            contVal++;
-        } else
-            validate.apodo = "has-success";
         if (telefonoPersonal === "" || telefonoPersonal === null) {
             validate.telefonoPersonal = "has-danger";
             contVal++;
