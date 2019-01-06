@@ -52,6 +52,8 @@ class MovimientosAdmin extends Component {
                 const mov = response.data;
                 let optionsMov = mov.map((n) => {
                     let movs = {};
+                    movs['id_movimiento'] = n.id_movimiento;
+                    movs['liquidado_movimiento'] = n.liquidado_movimiento;
                     movs['Tipo_Movimiento'] = n.Tipo_Movimiento;
                     movs['prestamista'] = n.prestamista;
                     movs['cliente'] = n.cliente;
@@ -106,6 +108,8 @@ class MovimientosAdmin extends Component {
                 const clients = response.data;
                 let optionsClients = clients.map((n) => {
                     let client = {};
+                    client['id_movimiento'] = n.id_movimiento;
+                    client['liquidado_movimiento'] = n.liquidado_movimiento;
                     client['Tipo_Movimiento'] = n.Tipo_Movimiento;
                     client['prestamista'] = n.prestamista;
                     client['cliente'] = n.cliente;
@@ -126,6 +130,34 @@ class MovimientosAdmin extends Component {
             });
     };
 
+    eliminarMovimiento = (id_prestamo, tipo_mov, monto, prestamista, liquidado_movimiento) => {
+        if (liquidado_movimiento === 'S'){
+            alert('Movimiento ya ha sido liquidado');
+        }else{
+            var r = window.confirm(`¿Elimina el ${tipo_mov} de s/.${monto} por ${prestamista}?`);
+            let self = this;
+            console.log([{
+                tipo: tipo_mov,
+                id: id_prestamo
+            }])
+            if (r === true) {
+                axios.post('https://edutafur.com/sgp/public/eliminarMovimientos', [{
+                    tipo: tipo_mov,
+                    id: id_prestamo
+                }])
+                    .then(function (response) {
+                        if (response.status === 200) {
+                            alert(`Movimiento de ${prestamista} eliminado`);
+                            self.componentWillMount();
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        }
+    }
+
     Logout = () => {
         this.setState({
             redirectLogin: true,
@@ -138,6 +170,7 @@ class MovimientosAdmin extends Component {
             fechaInicioBusqueda, fechaFinBusqueda,
             columnsTable, movimientos
          } = this.state;
+        let self = this;
         const panelAdmin = {
             backgroundColor: "#f1f1f1",
             borderRadius: "10px",
@@ -230,6 +263,7 @@ class MovimientosAdmin extends Component {
                                             <Th>{columnsTable.monto_movimientos}</Th>
                                             <Th>{columnsTable.fecha_movimiento}</Th>
                                             <Th>{columnsTable.cliente}</Th>
+                                            <Th></Th>
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -241,6 +275,15 @@ class MovimientosAdmin extends Component {
                                                     <Td>s/. {item.monto_movimientos}</Td>
                                                     <Td>{item.fecha_movimiento}</Td>
                                                     <Td>{item.cliente}.</Td>
+                                                    <Td>
+                                                        <Button
+                                                            color="danger"
+                                                            size = "sm"
+                                                            onClick={() => { self.eliminarMovimiento(item.id_movimiento, item.Tipo_Movimiento, item.monto_movimientos, item.prestamista, item.liquidado_movimiento)}}
+                                                        >
+                                                            Eliminar
+                                                        </Button>
+                                                    </Td>
                                                 </Tr>
                                             )
 

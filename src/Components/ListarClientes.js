@@ -28,6 +28,8 @@ class ListarClientes extends Component {
 
             clienteSeleccionado:[],
             infoPagosCliente:[],
+            montoPrestamoVer: 0,
+            fechaPrestamoVer: null,
 
             clients:[],
             columnsTable :
@@ -124,6 +126,8 @@ class ListarClientes extends Component {
             .then(function (response) {
                 self.setState({
                     infoPagosCliente: response.data,
+                    montoPrestamoVer: response.data[0].monto_prestamo,
+                    fechaPrestamoVer: response.data[0].fecha_prestamo,
                     showModalInfoPagos: true
                 });
             });
@@ -302,11 +306,12 @@ class ListarClientes extends Component {
                         Pagos de préstamo seleccionado
                     </ModalHeader>
                     <ModalBody>
+                        <Label><b>Monto Préstamo</b>: s/. {this.state.montoPrestamoVer}</Label><br />
+                        <Label><b>Fecha Préstamo</b>: {this.state.fechaPrestamoVer}</Label>
                         <div style={cuadro}>
                             <Table style={fontSize}>
                                 <Thead>
                                     <Tr className="text-center">
-                                        <Th><b>Monto Préstamo</b></Th>
                                         <Th><b>Pago</b></Th>
                                         <Th><b>Faltante</b></Th>
                                         <Th><b>Fecha</b></Th>
@@ -316,7 +321,6 @@ class ListarClientes extends Component {
                                     {infoPagosCliente.map(function (item, key) {
                                         return (
                                             <Tr key={key} className="text-center">
-                                                <Td>s/. {item.monto_prestamo}</Td>
                                                 <Td>s/. {item.pago}</Td>
                                                 <Td>s/. {item.monto_deuda_restante}</Td>
                                                 <Td>{item.fecha_pago}</Td>

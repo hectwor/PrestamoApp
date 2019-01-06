@@ -122,7 +122,15 @@ class ListarTrabajadores extends Component {
                     mov['cliente'] = n.cliente_descripcion_gasto;
                     mov['pago'] = n.monto;
                     mov['flag_liquidado'] = n.flag_liquidado;
-                    pagoDia = parseFloat(pagoDia) + parseFloat(n.monto);
+                    if (n.tipo_movimiento === 'Pagos'){
+                        pagoDia = parseFloat(pagoDia) + parseFloat(n.monto);
+                    }
+                    if (n.tipo_movimiento === 'Prestamos') {
+                        pagoDia = parseFloat(pagoDia) - parseFloat(n.monto);
+                    }
+                    if (n.tipo_movimiento === 'Gastos') {
+                        pagoDia = parseFloat(pagoDia) - parseFloat(n.monto);
+                    }
                     pagosDia = pagosDia.concat({
                         "tipo": n.tipo_movimiento,
                         "id": n.id_movimiento
@@ -483,7 +491,6 @@ class ListarTrabajadores extends Component {
                             </Col>
                         </Row>
                         <div className="text-right">
-                            <Label>Pago a trabajador por el día: S/. {parseFloat(pagoDia)*0.15}</Label>
                             <span> </span>
                             <Button
                                 onClick = {this.liquidarDia}
