@@ -223,7 +223,7 @@ class MainRecogedor extends Component {
                     let client = {};
                     client['value']= n.nro_doc;
                     client['id']= n.id;
-                    client['label']= n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
+                    client['label']= n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat + ' "' + n.apodo+'"';
                     return client;
                 })
                 self.setState({

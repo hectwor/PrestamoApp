@@ -126,7 +126,6 @@ class ModificarCliente extends Component {
             nombresCompletos,
             apellidoPaterno,
             apellidoMaterno,
-            apodo,
             telefonoPersonal, telefonoReferencia,
             numeroDocumento
         } = this.state;

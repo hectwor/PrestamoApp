@@ -194,7 +194,7 @@ class MainAdmin extends Component {
                     let cliente = {};
                     cliente['value'] = n.nro_doc;
                     cliente['id_cliente'] = n.id;
-                    cliente['label'] = n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat;
+                    cliente['label'] = n.nombre + ' ' + n.ape_pat + ' ' + n.ape_mat + ' "' + n.apodo + '"';
                     return cliente;
                 })
                 self.setState({
