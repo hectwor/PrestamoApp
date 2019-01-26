@@ -77,7 +77,6 @@ class ListarClientes extends Component {
                       return client;
                   }
               });
-              console.log(optionsAllClients)
               self.setState({
                   clients: optionsClients,
                   options: optionsAllClients

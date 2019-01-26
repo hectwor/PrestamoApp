@@ -5,6 +5,7 @@ import {
     Row, Col,
     ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
+import Select from 'react-select';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import Login from "./Login";
 import MainVendedor from "./MainRecogedor";
@@ -23,11 +24,13 @@ class Recojo extends Component{
 
             clientes:[],
             infoCliente:[],
+            options:[],
             infoPagosCliente:[],
 
             ButtonRefinanciarHidden:{},
 
             id_prestamo: null,
+            nombresCliente:null,
             dniPasaporteBuscado : this.props.dniPasaporteBuscado,
             montoPorRecoger: {},
             ButtonmontoRecoger:{},
@@ -60,14 +63,20 @@ class Recojo extends Component{
             const clientes = response.data;
             let ButtonColor=[];
             let ButtonHidden=[];
+            let optionsAllClients = [
+            ];
             let ListClientesMontosPagar = clientes.map((n) => {
                 let montosPagar2 = {}
+                let clientOption = {};
                 montosPagar2['id_prestamo'] = n.id_prestamo;
                 montosPagar2['monto_por_pagar'] = Math.round((parseFloat(n.monto_deuda)/24) * 100) / 100;
                 let ButtonColor2={};
                 let ButtonHidden2 = {}
                 ButtonColor2['id_prestamo'] = n.id_prestamo;
                 ButtonHidden2['id_prestamo'] = n.id_prestamo;
+                clientOption['value']= n.nro_doc;
+                clientOption['label']= n.cliente;
+                optionsAllClients.push(clientOption);
                 if(moment(n.fecha_ultimo_pago).format('DD-MM-YYYY') === moment().format('DD-MM-YYYY')){ 
                     ButtonColor2['color'] = 'success';
                 }else{
@@ -86,7 +95,8 @@ class Recojo extends Component{
                 clientes : clientes,
                 montoPorRecoger : ListClientesMontosPagar,
                 ButtonmontoRecoger: ButtonColor,
-                ButtonRefinanciarHidden: ButtonHidden
+                ButtonRefinanciarHidden: ButtonHidden,
+                options: optionsAllClients
             });
           })
           .catch(function (error) {
@@ -245,6 +255,69 @@ class Recojo extends Component{
             });
     }
 
+    handleChangeSelect = (nombresCliente) => {
+        let nombreC = nombresCliente.label.trim();
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes',{
+            params: {
+                idTrabajador : this.props.id_trabajador
+            }
+        })
+          .then(function (response) {
+            let clientes = response.data;
+            let subCliente=[];
+            let ButtonColor=[];
+            let ButtonHidden=[];
+            let ListClientesMontosPagar = clientes.map((n) => {
+                if(n.cliente.trim() === nombreC){
+                    let montosPagar2 = {}
+                    let subClient = {}
+                    subClient = n;
+                    montosPagar2['id_prestamo'] = n.id_prestamo;
+                    montosPagar2['monto_por_pagar'] = Math.round((parseFloat(n.monto_deuda)/24) * 100) / 100;
+                    let ButtonColor2={};
+                    let ButtonHidden2 = {}
+                    ButtonColor2['id_prestamo'] = n.id_prestamo;
+                    ButtonHidden2['id_prestamo'] = n.id_prestamo;
+                    if(moment(n.fecha_ultimo_pago).format('DD-MM-YYYY') === moment().format('DD-MM-YYYY')){ 
+                        ButtonColor2['color'] = 'success';
+                    }else{
+                        ButtonColor2['color'] = 'danger';
+                    }
+                    if(moment(n.fecha_vencimiento) < moment()){ 
+                        ButtonHidden2['hidden'] = false;
+                    }else{
+                        ButtonHidden2['hidden'] = true;
+                    }
+                    ButtonColor = ButtonColor.concat(ButtonColor2);
+                    ButtonHidden = ButtonHidden.concat(ButtonHidden2);
+                    subCliente.push(subClient);
+                    return montosPagar2;
+                }
+                
+            });
+            
+            ListClientesMontosPagar = ListClientesMontosPagar.filter(function(dato){
+                return dato !== undefined
+              });
+              ButtonColor = ButtonColor.filter(function(dato){
+                return dato !== undefined
+              });
+              ButtonHidden = ButtonHidden.filter(function(dato){
+                return dato !== undefined
+              });
+            self.setState({
+                clientes:subCliente,
+                montoPorRecoger : ListClientesMontosPagar,
+                ButtonmontoRecoger: ButtonColor,
+                ButtonRefinanciarHidden: ButtonHidden
+            });
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    }
+
     closeModal = () => {
         this.setState({
             showModalClienteInfo: false
@@ -264,7 +337,7 @@ class Recojo extends Component{
             montoPorRecoger,
             ButtonRefinanciarHidden,
             clientes, infoCliente, infoPagosCliente,
-            ButtonmontoRecoger
+            ButtonmontoRecoger,nombresCliente, options
         } = this.state;
         const panelVendedor = {
             backgroundColor: "#f1f1f1",
@@ -317,6 +390,22 @@ class Recojo extends Component{
                     <div className="container text-center" style={panelVendedor}>
                         <h1 className="display-6">Saldo : S/ {montoActual}</h1>
                         <h1 className="display-4">Clientes por recoger</h1>
+                        <Row>
+                            <Col  md={3}>
+                            </Col>
+                            <Col  md={6}>
+                                <Select
+                                    name="nombresCliente"
+                                    id="nombresClienteInput"
+                                    value={nombresCliente}
+                                    onChange={this.handleChangeSelect}
+                                    options={options}
+                                />
+                                <br/>
+                            </Col>
+                            <Col  md={3}>
+                            </Col>
+                        </Row>
                         <Row>
                             <Col md={1}>
                             </Col>
