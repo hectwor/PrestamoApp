@@ -5,6 +5,7 @@ import {
     Button, Label,
     ModalFooter, ModalBody, ModalHeader, Modal
 } from 'reactstrap';
+import Select from 'react-select';
 import Login from "./Login";
 import MainAdmin from "./MainAdmin";
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
@@ -19,6 +20,7 @@ class ListarClientes extends Component {
         this.state = {
             dniPasaporteApellidoBuscado : "",
             listaDeDnis : null,
+            nombresCliente:null,
             redirectLogin:false,
             redirectMainAdmin:false,
             infoPagoUltimo: "",
@@ -32,6 +34,7 @@ class ListarClientes extends Component {
             fechaPrestamoVer: null,
 
             clients:[],
+            options:[],
             columnsTable :
                 {
                     "dni": "DNI",
@@ -50,10 +53,12 @@ class ListarClientes extends Component {
         axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar')
         .then(function (response) {
               const clients = response.data;
-
+              let optionsAllClients = [
+                ];
               let optionsClients = clients.map((n) => {
                   if(n.cancelado !== 'S'){
                       let client = {};
+                      let clientOption = {};
                       client['id_cliente'] = n.id_cliente;
                       client['dni'] = n.nro_doc;
                       client['cliente'] = n.cliente;
@@ -66,11 +71,16 @@ class ListarClientes extends Component {
                       client['montoTRecaudado'] = n.monto_total_recaudado;
                       client['montoDR'] = n.monto_deuda_restante;
                       client['cancelado'] = n.cancelado;
+                      clientOption['value']= n.nro_doc;
+                      clientOption['label']= n.cliente;
+                      optionsAllClients.push(clientOption);
                       return client;
                   }
               });
+              console.log(optionsAllClients)
               self.setState({
-                  clients: optionsClients
+                  clients: optionsClients,
+                  options: optionsAllClients
               });
         })
         .catch(function (error) {
@@ -133,6 +143,45 @@ class ListarClientes extends Component {
             });
     }
 
+    handleChangeSelect = (nombresCliente) => {
+        let nombreC = nombresCliente.label.trim();
+        let self = this;
+        axios.get('https://edutafur.com/sgp/public/prestamos/clientes/buscar',{
+            params : {
+                dniPasaporteApellidoBuscado: nombreC
+            }
+        })
+        .then(function (response) {
+              const clients = response.data;
+              let optionsClients = clients.map((n) => {
+                  if(n.cancelado !== 'S'){
+                      let client = {};
+                      client['id_cliente'] = n.id_cliente;
+                      client['dni'] = n.nro_doc;
+                      client['cliente'] = n.cliente;
+                      client['prestamista'] = n.prestamista;
+                      client['montoP'] = n.monto_prestamo;
+                      client['montoD'] = n.monto_deuda;
+                      client['fechaP'] = n.fecha_prestamo;
+                      client['fechaV'] = n.fecha_vencimiento;
+                      client['fechaUP'] = n.fecha_ultimo_pago;
+                      client['montoTRecaudado'] = n.monto_total_recaudado;
+                      client['montoDR'] = n.monto_deuda_restante;
+                      client['cancelado'] = n.cancelado;
+                      return client;
+                  }
+              });
+              self.setState({
+                  clients: optionsClients
+              });
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+        .then(function () {
+        });
+    }
+
     closeModal = () => {
         this.setState({
             showModalInformation: false
@@ -147,7 +196,8 @@ class ListarClientes extends Component {
 
     render() {
         const { redirectLogin, redirectMainAdmin, clients, 
-            columnsTable, clienteSeleccionado, infoPagosCliente
+            columnsTable, clienteSeleccionado, infoPagosCliente,
+            nombresCliente,options
          } = this.state;
         let self = this;
         const panelAdmin = {
@@ -198,6 +248,22 @@ class ListarClientes extends Component {
                         <br/>
                         <h1 className="display-6">Lista de Clientes</h1>
                         <br/>
+                        <Row>
+                            <Col  md={3}>
+                            </Col>
+                            <Col  md={6}>
+                                <Select
+                                    name="nombresCliente"
+                                    id="nombresClienteInput"
+                                    value={nombresCliente}
+                                    onChange={this.handleChangeSelect}
+                                    options={options}
+                                />
+                                <br/>
+                            </Col>
+                            <Col  md={3}>
+                            </Col>
+                        </Row>
                         <Row>
                             <Col md={1}>
                             </Col>
