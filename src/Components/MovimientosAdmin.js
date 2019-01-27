@@ -179,6 +179,10 @@ class MovimientosAdmin extends Component {
         const fontSize = {
             fontSize: 14
         };
+        const cuadroCliente = {
+            height: "400px",
+            overflowY: "scroll"
+        };
         if (redirectLogin) {
             return (
                 <Login  />
@@ -255,6 +259,7 @@ class MovimientosAdmin extends Component {
                             <Col md={1}>
                             </Col>
                             <Col md={10}>
+                            <div style={cuadroCliente}>
                                 <Table style={fontSize}>
                                     <Thead>
                                         <Tr>
@@ -291,7 +296,8 @@ class MovimientosAdmin extends Component {
                                     </Tbody>
                                 </Table>
                                 <br/>
-                                <Button
+                            </div>
+                            <Button
                                     block
                                     onClick={this.regresarMenu}
                                     color="danger"

@@ -91,6 +91,11 @@ class Recojo extends Component{
                 ButtonHidden = ButtonHidden.concat(ButtonHidden2);
                 return montosPagar2;
             });
+            clientes.sort(function(a, b){
+                a = new Date(a.fecha_ultimo_pago);
+                b = new Date(b.fecha_ultimo_pago);
+                return a>b ? -1 : a<b ? 1 : 0;
+                });
             self.setState({
                 clientes : clientes,
                 montoPorRecoger : ListClientesMontosPagar,
@@ -306,6 +311,11 @@ class Recojo extends Component{
               ButtonHidden = ButtonHidden.filter(function(dato){
                 return dato !== undefined
               });
+              subCliente.sort(function(a, b){
+                a = new Date(a.fecha_ultimo_pago);
+                b = new Date(b.fecha_ultimo_pago);
+                return a>b ? -1 : a<b ? 1 : 0;
+                });
             self.setState({
                 clientes:subCliente,
                 montoPorRecoger : ListClientesMontosPagar,
@@ -411,72 +421,72 @@ class Recojo extends Component{
                             </Col>
                             <Col md={10}>
                             <br/>
-                                <div style={cuadroCliente}>
-                            <Table  style={fontSize}>
-                                <Thead>
-                                    <Tr>
-                                        <Th><b>Nombre Cliente</b></Th>
-                                        <Th><b>Prestado</b></Th>
-                                        <Th><b>Faltante</b></Th>
-                                        <Th><b>Fecha Vencimiento</b></Th>
-                                        <Th><b>Cobro</b></Th>
-                                    </Tr>
-                                </Thead>
-                                <Tbody>
-                                {clientes.map(function(item, key) {
-                                    return (
-                                        <Tr key = {key}>
-                                            <Td >{item.cliente}</Td>
-                                            <Td >s/. {item.monto_deuda}</Td>
-                                            <Td>s/. {item.monto_deuda_restante}</Td>
-                                            <Td>{moment(item.fecha_vencimiento).format('DD-MM-YYYY')}</Td>
-                                            <Td>
-                                                <Form inline>
-                                                    <Label>s/. </Label>
-                                                    <Input
-                                                        type="number"
-                                                        id={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
-                                                        name={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
-                                                        value={montoPorRecoger[key]['monto_por_pagar']}
-                                                        style={inputStyle}
-                                                        onChange={(e) => {self.handleListChange(e, key)}}
-                                                    />
-                                                    <Button
-                                                        size="sm"
-                                                        id={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
-                                                        name={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
-                                                        color={ButtonmontoRecoger[key]['color']}
-                                                        onClick={() => { self.confirmarRecogerDinero(montoPorRecoger[key]['monto_por_pagar'], item.id_prestamo, item.cliente)}}
-                                                    >
-                                                        Recoger
-                                                    </Button>
-                                                        <span> </span>
-                                                    <Button
-                                                        size="sm"
-                                                        id={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
-                                                        name={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
-                                                        onClick={() => { self.verInfoCliente(item.id_cliente, item.monto_deuda, item.monto_deuda_restante) }}
-                                                    >
-                                                        Ver
-                                                    </Button>
-                                                    <Button
-                                                        id={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
-                                                        name={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
-                                                        size="sm"
-                                                        color="warning"
-                                                        disabled={ButtonRefinanciarHidden[key]['hidden']}
-                                                        onClick={() => { self.refinanciar(item.id_prestamo, item.cliente)}}
-                                                    >
-                                                    Refinanciar
-                                                    </Button>
-                                                </Form>
-                                            </Td>
+                            <div style={cuadroCliente}>
+                                <Table  style={fontSize}>
+                                    <Thead>
+                                        <Tr>
+                                            <Th><b>Nombre Cliente</b></Th>
+                                            <Th><b>Prestado</b></Th>
+                                            <Th><b>Faltante</b></Th>
+                                            <Th><b>Fecha Vencimiento</b></Th>
+                                            <Th><b>Cobro</b></Th>
                                         </Tr>
-                                        )
-                                    })}
-                                </Tbody>
-                            </Table>
-                                </div>
+                                    </Thead>
+                                    <Tbody>
+                                    {clientes.map(function(item, key) {
+                                        return (
+                                            <Tr key = {key}>
+                                                <Td >{item.cliente}</Td>
+                                                <Td >s/. {item.monto_deuda}</Td>
+                                                <Td>s/. {item.monto_deuda_restante}</Td>
+                                                <Td>{moment(item.fecha_vencimiento).format('DD-MM-YYYY')}</Td>
+                                                <Td>
+                                                    <Form inline>
+                                                        <Label>s/. </Label>
+                                                        <Input
+                                                            type="number"
+                                                            id={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                            name={"montoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                            value={montoPorRecoger[key]['monto_por_pagar']}
+                                                            style={inputStyle}
+                                                            onChange={(e) => {self.handleListChange(e, key)}}
+                                                        />
+                                                        <Button
+                                                            size="sm"
+                                                            id={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                            name={"ButtonmontoPorRecoger"+montoPorRecoger[key]['id_prestamo']}
+                                                            color={ButtonmontoRecoger[key]['color']}
+                                                            onClick={() => { self.confirmarRecogerDinero(montoPorRecoger[key]['monto_por_pagar'], item.id_prestamo, item.cliente)}}
+                                                        >
+                                                            Recoger
+                                                        </Button>
+                                                            <span> </span>
+                                                        <Button
+                                                            size="sm"
+                                                            id={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
+                                                            name={"ButtonVerCliente" + montoPorRecoger[key]['id_prestamo']}
+                                                            onClick={() => { self.verInfoCliente(item.id_cliente, item.monto_deuda, item.monto_deuda_restante) }}
+                                                        >
+                                                            Ver
+                                                        </Button>
+                                                        <Button
+                                                            id={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
+                                                            name={"ButtonRefinanciar"+montoPorRecoger[key]['id_prestamo']}
+                                                            size="sm"
+                                                            color="warning"
+                                                            disabled={ButtonRefinanciarHidden[key]['hidden']}
+                                                            onClick={() => { self.refinanciar(item.id_prestamo, item.cliente)}}
+                                                        >
+                                                        Refinanciar
+                                                        </Button>
+                                                    </Form>
+                                                </Td>
+                                            </Tr>
+                                            )
+                                        })}
+                                    </Tbody>
+                                </Table>
+                            </div>
                             <br/>
                             <Button
                                     block

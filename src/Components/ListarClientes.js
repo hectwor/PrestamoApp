@@ -77,6 +77,12 @@ class ListarClientes extends Component {
                       return client;
                   }
               });
+              optionsClients.sort(function(a, b){
+                a = new Date(a.fechaUP);
+                b = new Date(b.fechaUP);
+                return a>b ? -1 : a<b ? 1 : 0;
+                });
+              console.log(optionsClients)
               self.setState({
                   clients: optionsClients,
                   options: optionsAllClients
@@ -170,6 +176,11 @@ class ListarClientes extends Component {
                       return client;
                   }
               });
+              optionsClients.sort(function(a, b){
+                a = new Date(a.fechaUP);
+                b = new Date(b.fechaUP);
+                return a>b ? -1 : a<b ? 1 : 0;
+                });
               self.setState({
                   clients: optionsClients
               });
@@ -221,6 +232,10 @@ class ListarClientes extends Component {
                 transform: "translate(-50%, -50%)"
             }
         };
+        const cuadroCliente = {
+            height: "400px",
+            overflowY: "scroll"
+        };
         if (redirectLogin) {
             return (
                 <Login  />
@@ -267,6 +282,7 @@ class ListarClientes extends Component {
                             <Col md={1}>
                             </Col>
                             <Col md={10}>
+                            <div style={cuadroCliente}>
                                 <Table style={fontSize}>
                                     <Thead>
                                         <Tr>
@@ -307,7 +323,8 @@ class ListarClientes extends Component {
                                     })}
                                     </Tbody>
                                 </Table>
-                                <Button
+                            </div>
+                            <Button
                                     block
                                     onClick={this.regresarMenu}
                                     color="danger"
