@@ -120,16 +120,19 @@ class ListarTrabajadores extends Component {
                     mov['id_pago'] = n.id_movimiento;
                     mov['tipo_movimiento'] = n.tipo_movimiento;
                     mov['cliente'] = n.cliente_descripcion_gasto;
-                    mov['pago'] = n.monto;
+                    //mov['pago'] = n.monto;
                     mov['flag_liquidado'] = n.flag_liquidado;
                     if (n.tipo_movimiento === 'Pagos'){
                         pagoDia = parseFloat(pagoDia) + parseFloat(n.monto);
+                        mov['pago'] = n.monto;
                     }
                     if (n.tipo_movimiento === 'Prestamos') {
-                        pagoDia = parseFloat(pagoDia) - parseFloat(n.monto);
+                        pagoDia = parseFloat(pagoDia) - parseFloat(n.monto)*100/120;
+                        mov['pago'] = parseFloat(n.monto)*100/120;
                     }
                     if (n.tipo_movimiento === 'Gastos') {
                         pagoDia = parseFloat(pagoDia) - parseFloat(n.monto);
+                        mov['pago'] = n.monto;
                     }
                     pagosDia = pagosDia.concat({
                         "tipo": n.tipo_movimiento,
